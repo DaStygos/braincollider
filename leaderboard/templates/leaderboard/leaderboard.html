@@ -1,0 +1,33 @@
+{% extends "base_generic.html" %}
+{% load static %}
+
+{% block title %}Leaderboard{% endblock %}
+
+{% block content %}
+<h1>Leaderboard</h1>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Rang</th>
+            <th>Utilisateur</th>
+            <th>Problèmes réussis</th>
+            <th>Score total</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for entry in leaderboard %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ entry.user.username }}</td>
+            <td>{{ entry.solved_count }}</td>
+            <td>{{ entry.total_score }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4">Aucun utilisateur pour le moment.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

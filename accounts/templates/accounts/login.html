@@ -1,0 +1,37 @@
+{% extends "base_generic.html" %}
+
+{% load widget_tweaks %}
+
+{% block title %}Connexion{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-4">
+    <h2 class="mb-4 text-center">Connexion</h2>
+
+    {% if form.errors %}
+      <div class="alert alert-danger">
+        Nom d’utilisateur ou mot de passe incorrect.
+      </div>
+    {% endif %}
+
+    <form method="post" class="card p-4 shadow-sm">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label for="id_username" class="form-label">Nom d'utilisateur</label>
+        {{ form.username|add_class:"form-control" }}
+      </div>
+      <div class="mb-3">
+        <label for="id_password" class="form-label">Mot de passe</label>
+        {{ form.password|add_class:"form-control" }}
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100">Se connecter</button>
+    </form>
+
+    <p class="mt-3 text-center">
+      Pas encore de compte ? <a href="{% url 'accounts:signup' %}">Inscris-toi</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

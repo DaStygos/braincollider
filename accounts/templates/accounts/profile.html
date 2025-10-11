@@ -1,0 +1,59 @@
+{% extends "base_generic.html" %}
+
+{% block title %}Profil{% endblock %}
+
+{% block content %}
+
+{%load custom_tags %}
+<h1>Profil de {{ user.username }}</h1>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <p><strong>Nom d'utilisateur :</strong> {{ user.username }}</p>
+        <p><strong>Email :</strong> {{ user.email }}</p>
+        <p><strong>Date de création :</strong> {{ user.date_joined|date:"d/m/Y H:i" }}</p>
+    </div>
+</div>
+
+<h3>Score total : {{ total_score }} points</h3>
+
+<h2>Mes soumissions</h2>
+
+{% if submissions %}
+    <ul class="list-group">
+        {% for submission in submissions %}
+            {% with submission.problem.difficulty|stars as st %}
+                <li class="list-group-item d-flex align-items-center">
+                    
+                    <!-- Colonne titre (flex-grow pour prendre le maximum) -->
+                    <div class="me-3 flex-grow-1">
+                        <a href="{% url 'problems:problem_detail' submission.problem.id %}">
+                            {{ submission.problem.title }}
+                        </a>
+                    </div>
+
+                    <!-- Colonne étoiles -->
+                    <div class="me-3 text-center" style="width: 100px;">
+                        {% for s in st %}
+                            <span class="text-warning">{{ s }}</span>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Colonne validation -->
+                    <div class="text-center" style="width: 50px;">
+                        {% if submission.is_correct %}
+                            <i class="bi bi-check-circle-fill text-success" title="Correcte"></i>
+                        {% else %}
+                            <i class="bi bi-x-circle-fill text-danger" title="Incorrecte"></i>
+                        {% endif %}
+                    </div>
+
+                </li>
+            {% endwith %}
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>Vous n'avez soumis aucune réponse pour le moment.</p>
+{% endif %}
+
+{% endblock %}

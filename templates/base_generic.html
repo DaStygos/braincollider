@@ -1,0 +1,73 @@
+{% load static %}
+
+{% load custom_tags %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}Braincollider{% endblock %}</title>
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <!-- Ton CSS perso -->
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+<!-- 🔹 Barre de navigation Bootstrap -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <!-- Logo -->
+    <a class="navbar-brand" href="{% url 'core:home' %}">🧠 BrainCollider</a>
+
+    <!-- Bouton pour petit écran -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" 
+            aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Liens -->
+    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'problems:index' %}">Problèmes</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'leaderboard:leaderboard' %}">Leaderboard</a>
+        </li>
+
+        <!-- Menu déroulant -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Mon compte
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+            {% if user.is_authenticated %}
+              <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">Profil</a></li>
+              <form action="{% url 'accounts:logout' %}" method="post" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="dropdown-item">Déconnexion</button>
+              </form>
+
+            {% else %}
+              <li><a class="dropdown-item" href="{% url 'accounts:login' %}">Connexion</a></li>
+              <li><a class="dropdown-item" href="{% url 'accounts:signup' %}">Créer un compte</a></li>
+            {% endif %}
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- 🔹 Contenu principal -->
+<div class="container mt-4">
+  {% block content %}
+  {% endblock %}
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

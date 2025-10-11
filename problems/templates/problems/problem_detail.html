@@ -1,0 +1,42 @@
+{% extends "base_generic.html" %}
+
+{% block title %}{{ problem.title }}{% endblock %}
+
+{% block content %}
+<div class="card mb-3">
+  <div class="card-header">
+    <h2>{{ problem.title }}</h2>
+    {% if problem.category %}
+      <small class="text-muted">{{ problem.get_category_display }}</small>
+    {% endif %}
+  </div>
+  <div class="card-body">
+    <p>{{ problem.statement }}</p>
+
+    {% if submission %}
+      <div class="alert {% if submission.is_correct %}alert-success{% else %}alert-danger{% endif %}">
+        Vous avez déjà soumis une réponse : {{ submission.answer }}.
+        {% if submission.is_correct %}
+          Correct !
+        {% else %}
+          Incorrect. La réponse correcte est : {{ problem.correct_answer }}.
+        {% endif %}
+      </div>
+    {% else %}
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label for="answer" class="form-label">Votre réponse :</label>
+          <input type="text" class="form-control" id="answer" name="answer" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Soumettre</button>
+      </form>
+      {% if feedback %}
+        <div class="alert mt-2 {% if submission and submission.is_correct %}alert-success{% else %}alert-danger{% endif %}">
+          {{ feedback }}
+        </div>
+      {% endif %}
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
