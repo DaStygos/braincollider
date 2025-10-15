@@ -23,11 +23,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 load_dotenv()  # take environment variables from .env.
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
+NGROK_HOST = os.getenv('NGROK_HOST', 'localhost') # not really useful if not using ngrok
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [NGROK_HOST,'localhost', ]
+CSRF_TRUSTED_ORIGINS = ['https://' + NGROK_HOST, 'http://localhost']
 
 
 # Application definition
@@ -104,6 +105,8 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+LOGIN_REDIRECT_URL = 'accounts:profile'
 
 
 # Internationalization
