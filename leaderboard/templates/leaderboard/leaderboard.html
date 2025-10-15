@@ -10,6 +10,7 @@
     <thead>
         <tr>
             <th>Rang</th>
+            <th>Photo</th>
             <th>Utilisateur</th>
             <th>Problèmes réussis</th>
             <th>Score total</th>
@@ -19,13 +20,22 @@
         {% for entry in leaderboard %}
         <tr>
             <td>{{ forloop.counter }}</td>
+            <td>
+                {% if entry.user.profile.profile_picture %}
+                    <img src="{{ entry.user.profile.profile_picture.url }}" alt="Photo de {{ entry.user.username }}" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                {% else %}
+                    <div class="bg-secondary rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                        <i class="bi bi-person-fill text-white"></i>
+                    </div>
+                {% endif %}
+            </td>
             <td>{{ entry.user.username }}</td>
             <td>{{ entry.solved_count }}</td>
             <td>{{ entry.total_score }}</td>
         </tr>
         {% empty %}
         <tr>
-            <td colspan="4">Aucun utilisateur pour le moment.</td>
+            <td colspan="5">Aucun utilisateur pour le moment.</td>
         </tr>
         {% endfor %}
     </tbody>

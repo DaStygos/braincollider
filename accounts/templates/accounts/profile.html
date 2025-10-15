@@ -9,9 +9,31 @@
 
 <div class="card mb-3">
     <div class="card-body">
-        <p><strong>Nom d'utilisateur :</strong> {{ user.username }}</p>
-        <p><strong>Email :</strong> {{ user.email }}</p>
-        <p><strong>Date de création :</strong> {{ user.date_joined|date:"d/m/Y H:i" }}</p>
+        <div class="row">
+            <div class="col-md-3 text-center">
+                {% if user.profile.profile_picture %}
+                    <img src="{{ user.profile.profile_picture.url }}" alt="Photo de profil" class="img-fluid rounded-circle mb-3" style="max-width: 150px; max-height: 150px; object-fit: cover;">
+                {% else %}
+                    <div class="bg-secondary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 150px; height: 150px;">
+                        <i class="bi bi-person-fill text-white" style="font-size: 4rem;"></i>
+                    </div>
+                {% endif %}
+                
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-2">
+                        {{ form.profile_picture }}
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm">Modifier la photo</button>
+                </form>
+            </div>
+            
+            <div class="col-md-9">
+                <p><strong>Nom d'utilisateur :</strong> {{ user.username }}</p>
+                <p><strong>Email :</strong> {{ user.email }}</p>
+                <p><strong>Date de création :</strong> {{ user.date_joined|date:"d/m/Y H:i" }}</p>
+            </div>
+        </div>
     </div>
 </div>
 

@@ -27,7 +27,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 NGROK_HOST = os.getenv('NGROK_HOST', 'localhost') # not really useful if not using ngrok
 
-ALLOWED_HOSTS = [NGROK_HOST,'localhost', ]
+ALLOWED_HOSTS = [NGROK_HOST,'localhost', '127.0.0.1']
 CSRF_TRUSTED_ORIGINS = ['https://' + NGROK_HOST, 'http://localhost']
 
 
@@ -125,6 +125,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/dev/howto/static-files/
 
 STATIC_URL = 'static/'
+
+# Media files (User uploaded files)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/dev/ref/settings/#default-auto-field
