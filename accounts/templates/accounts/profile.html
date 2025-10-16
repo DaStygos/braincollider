@@ -5,55 +5,78 @@
 {% block content %}
 
 {%load custom_tags %}
-<h1>Profil de {{ user.username }}</h1>
+{%load static %}
 
-<div class="card mb-3">
-    <div class="card-body">
-        <p><strong>Nom d'utilisateur :</strong> {{ user.username }}</p>
-        <p><strong>Email :</strong> {{ user.email }}</p>
-        <p><strong>Date de création :</strong> {{ user.date_joined|date:"d/m/Y H:i" }}</p>
+<div class="card mb-4 shadow-sm">
+    <div class="card-body text-center">
+        <div class="mb-3">
+            {% if entry.user.profile.avatar %}
+                        <img src="{{ entry.user.profile.avatar.url }}" alt="Avatar"
+                             style="width: 150px; height: 150px; object-fit: cover;">
+                    {% else %}
+                        <img src="{% static 'images/default_avatar.png' %}" alt="Avatar par défaut"
+                            style="width: 150px; height: 150px; object-fit: cover;">
+                    {% endif %}
+
+        <h5 class="card-title mb-2">{{ user.username }}</h5>
+        <p class="card-text text-muted mb-1">{{ user.email }}</p>
+        <p class="card-text mb-3">
+            <small>Membre depuis le {{ user.date_joined|date:"d/m/Y H:i" }}</small>
+        </p>
+
+        <a href="{% url 'accounts:edit_profile' %}" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-pencil-square me-1"></i> Modifier les informations
+        </a>
     </div>
 </div>
 
-<h3>Score total : {{ total_score }} points</h3>
 
-<h2>Mes soumissions</h2>
+<div class="card mt-4 shadow-sm">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Mes soumissions</h5>
+        <span class="badge bg-light text-primary">
+            Score total : {{ total_score }} point{% if total_score != 1 %}s{% endif %}
+        </span>
+    </div>
+    <div class="card-body p-0">
+        {% if submissions %}
+            <ul class="list-group list-group-flush">
+                {% for submission in submissions %}
+                    {% with submission.problem.difficulty|stars as st %}
+                        <li class="list-group-item d-flex align-items-center">
+                            <!-- Titre du problème -->
+                            <div class="me-3 flex-grow-1">
+                                <a href="{% url 'problems:problem_detail' submission.problem.id %}" 
+                                   class="text-decoration-none fw-semibold text-dark">
+                                    {{ submission.problem.title }}
+                                </a>
+                            </div>
 
-{% if submissions %}
-    <ul class="list-group">
-        {% for submission in submissions %}
-            {% with submission.problem.difficulty|stars as st %}
-                <li class="list-group-item d-flex align-items-center">
-                    
-                    <!-- Colonne titre (flex-grow pour prendre le maximum) -->
-                    <div class="me-3 flex-grow-1">
-                        <a href="{% url 'problems:problem_detail' submission.problem.id %}">
-                            {{ submission.problem.title }}
-                        </a>
-                    </div>
+                            <!-- Étoiles de difficulté -->
+                            <div class="me-3 text-center" style="width: 120px;">
+                                {% for s in st %}
+                                    <span class="text-warning fs-5">{{ s }}</span>
+                                {% endfor %}
+                            </div>
 
-                    <!-- Colonne étoiles -->
-                    <div class="me-3 text-center" style="width: 100px;">
-                        {% for s in st %}
-                            <span class="text-warning">{{ s }}</span>
-                        {% endfor %}
-                    </div>
-
-                    <!-- Colonne validation -->
-                    <div class="text-center" style="width: 50px;">
-                        {% if submission.is_correct %}
-                            <i class="bi bi-check-circle-fill text-success" title="Correcte"></i>
-                        {% else %}
-                            <i class="bi bi-x-circle-fill text-danger" title="Incorrecte"></i>
-                        {% endif %}
-                    </div>
-
-                </li>
-            {% endwith %}
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>Vous n'avez soumis aucune réponse pour le moment.</p>
-{% endif %}
+                            <!-- Validation -->
+                            <div class="text-center" style="width: 50px;">
+                                {% if submission.is_correct %}
+                                    <i class="bi bi-check-circle-fill text-success fs-5" title="Correcte"></i>
+                                {% else %}
+                                    <i class="bi bi-x-circle-fill text-danger fs-5" title="Incorrecte"></i>
+                                {% endif %}
+                            </div>
+                        </li>
+                    {% endwith %}
+                {% endfor %}
+            </ul>
+        {% else %}
+            <div class="p-3 text-center text-muted">
+                Vous n'avez soumis aucune réponse pour le moment.
+            </div>
+        {% endif %}
+    </div>
+</div>
 
 {% endblock %}
