@@ -32,13 +32,12 @@ def edit_profile(request):
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
             profile_form.save()
-            return redirect('accounts:profile')  # redirige vers la page de profil
+            return redirect('accounts:profile') 
     else:
         user_form = UserUpdateForm(instance=request.user)
         profile_form = ProfileUpdateForm(instance=request.user.profile)
 
-    context = {
+    return render(request, 'accounts/edit_profile.html', {
         'user_form': user_form,
         'profile_form': profile_form
-    }
-    return render(request, 'accounts/edit_profile.html', context)
+    })

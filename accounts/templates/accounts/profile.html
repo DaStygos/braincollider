@@ -10,13 +10,9 @@
 <div class="card mb-4 shadow-sm">
     <div class="card-body text-center">
         <div class="mb-3">
-            {% if entry.user.profile.avatar %}
-                        <img src="{{ entry.user.profile.avatar.url }}" alt="Avatar"
-                             style="width: 150px; height: 150px; object-fit: cover;">
-                    {% else %}
-                        <img src="{% static 'images/default_avatar.png' %}" alt="Avatar par défaut"
-                            style="width: 150px; height: 150px; object-fit: cover;">
-                    {% endif %}
+            <img src="{{ user.profile.get_avatar_url }}" alt="Avatar" class="rounded-circle border"
+                         style="width: 100px; height: 100px; object-fit: cover;">
+        </div>
 
         <h5 class="card-title mb-2">{{ user.username }}</h5>
         <p class="card-text text-muted mb-1">{{ user.email }}</p>
@@ -26,6 +22,9 @@
 
         <a href="{% url 'accounts:edit_profile' %}" class="btn btn-outline-primary btn-sm">
             <i class="bi bi-pencil-square me-1"></i> Modifier les informations
+        </a>
+        <a href="{% url 'accounts:password_change' %}" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-lock me-1"></i> Changer le mot de passe
         </a>
     </div>
 </div>

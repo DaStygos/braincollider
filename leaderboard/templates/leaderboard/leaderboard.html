@@ -8,7 +8,7 @@
 
 <table class="table table-striped">
     <thead>
-        <tr>
+        <tr class ="align-middle">
             <th>Avatar</th>
             <th>Rang</th>
             <th>Utilisateur</th>
@@ -18,16 +18,11 @@
     </thead>
     <tbody>
         {% for entry in leaderboard %}
-        <tr>
+        <tr class="align-middle">
             <td>
                 <div style="width: 50px; height: 50px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background-color: #f0f0f0;">
-                    {% if entry.user.profile.avatar %}
-                        <img src="{{ entry.user.profile.avatar.url }}" alt="Avatar"
-                             style="width: 100%; height: 100%; object-fit: cover;">
-                    {% else %}
-                        <img src="{% static 'images/default_avatar.png' %}" alt="Avatar par défaut"
-                            style="width: 100%; height: 100%; object-fit: cover;">
-                    {% endif %}
+                    <img src="{{ entry.user.profile.get_avatar_url }}" alt="Avatar"
+                         style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
             </td>
 

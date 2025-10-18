@@ -1,0 +1,16 @@
+// Couleur de base du texte et du fond
+$body-bg: #FFFFFF;             // couleur de fond de page
+$body-color: #212529;          // couleur du texte par défaut
+
+// Couleur principale de ta marque
+$primary: #335F8A;             // couleur principale
+$secondary: #6c757d;           // gris secondaire
+$success: #198754;             // vert succès
+$info: #59e3ff;               // bleu clair info
+$warning: #ba8d2c;            // jaune alerte
+$danger: #dc3545;             // rouge erreur
+$light: #f8f9fa;              // gris très clair
+$dark: #191c1f;               // gris très foncé
+
+
+@import "bootstrap/scss/bootstrap";

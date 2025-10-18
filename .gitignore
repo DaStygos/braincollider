@@ -13,7 +13,17 @@ db.sqlite3
 # Environnements
 .env
 venv/
+
+# Logs
 *.log
 
 # VSCode
 .vscode/
+
+# Node modules
+node_modules/
+
+# Cache Sass
+.sass-cache/
+*.css.map
+*.scssc
