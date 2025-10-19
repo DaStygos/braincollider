@@ -15,40 +15,51 @@ def index(request):
         user_submissions = Submission.objects.filter(user=request.user)
         correct_problems = set(user_submissions.filter(is_correct=True).values_list('problem_id', flat=True))
         wrong_problems = set(user_submissions.filter(is_correct=False).values_list('problem_id', flat=True))
+        pending_problems = set(user_submissions.filter(is_correct=None).values_list('problem_id', flat=True))
     else:
         correct_problems = set()
         wrong_problems = set()
+        pending_problems = set()
 
     context = {
         "problems_by_category": problems_by_category,
         "correct_problems": correct_problems,
         "wrong_problems": wrong_problems,
+        "pending_problems": pending_problems,
     }
     print(wrong_problems)
     return render(request, "problems/index.html", context)
 
 @login_required
-def problem_detail(request, problem_id):
-    problem = get_object_or_404(Problem, id=problem_id)
-    feedback = None
+def problem_detail(request, pk):
+    problem = get_object_or_404(Problem, pk=pk)
+    submission = None
 
     # Vérifie si l'utilisateur a déjà soumis une réponse
-    existing_submission = Submission.objects.filter(user=request.user, problem=problem).first()
+    try:
+        submission = Submission.objects.get(user=request.user, problem=problem)
+    except Submission.DoesNotExist:
+        pass
 
-    if request.method == "POST" and not existing_submission:
+    if request.method == "POST":
         answer = request.POST.get("answer", "").strip()
-        # Crée la soumission
-        submission = Submission.objects.create(
-            user=request.user,
-            problem=problem,
-            answer=answer,
-            is_correct=(answer == problem.correct_answer)  # Correction automatique
-        )
-        feedback = "Bonne réponse !" if submission.is_correct else "Réponse incorrecte."
 
-    context = {
+        # Crée ou met à jour la soumission, sans correction automatique
+        if submission:
+            submission.answer = answer
+            submission.is_correct = None  # en attente
+            submission.save()
+        else:
+            submission = Submission.objects.create(
+                user=request.user,
+                problem=problem,
+                answer=answer,
+                is_correct=None  # pas encore corrigée
+            )
+
+        return redirect("problems:problem_detail", pk=problem.pk)
+
+    return render(request, "problems/problem_detail.html", {
         "problem": problem,
-        "submission": existing_submission,
-        "feedback": feedback,
-    }
-    return render(request, "problems/problem_detail.html", context)
+        "submission": submission,
+    })

@@ -1,42 +1,36 @@
 {% extends "base_generic.html" %}
-
 {% block title %}{{ problem.title }}{% endblock %}
 
 {% block content %}
-<div class="card mb-3">
-  <div class="card-header">
-    <h2>{{ problem.title }}</h2>
-    {% if problem.category %}
-      <small class="text-muted">{{ problem.get_category_display }}</small>
-    {% endif %}
-  </div>
-  <div class="card-body">
-    <p>{{ problem.statement }}</p>
+<div class="container my-5">
+  <div class="card shadow">
+    <div class="card-header bg-primary text-white">
+      <h3 class="mb-0">{{ problem.title }}</h3>
+    </div>
 
-    {% if submission %}
-      <div class="alert {% if submission.is_correct %}alert-success{% else %}alert-danger{% endif %}">
-        Vous avez déjà soumis une réponse : {{ submission.answer }}.
-        {% if submission.is_correct %}
-          Correct !
-        {% else %}
-          Incorrect. La réponse correcte est : {{ problem.correct_answer }}.
-        {% endif %}
-      </div>
-    {% else %}
-      <form method="post">
+    <div class="card-body">
+      <h5 class="text-secondary mb-3">Catégorie : {{ problem.get_category_display }}</h5>
+      <p>{{ problem.statement|linebreaksbr }}</p>
+
+      <hr>
+      <h5>Votre réponse :</h5>
+
+      <form method="post" class="mb-3">
         {% csrf_token %}
-        <div class="mb-3">
-          <label for="answer" class="form-label">Votre réponse :</label>
-          <input type="text" class="form-control" id="answer" name="answer" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Soumettre</button>
+        <textarea name="answer" rows="6" class="form-control mb-3" placeholder="Votre réponse ici...">{% if submission %}{{ submission.answer }}{% endif %}</textarea>
+        <button type="submit" class="btn btn-success">Soumettre</button>
       </form>
-      {% if feedback %}
-        <div class="alert mt-2 {% if submission and submission.is_correct %}alert-success{% else %}alert-danger{% endif %}">
-          {{ feedback }}
-        </div>
+
+      {% if submission %}
+        {% if submission.is_correct == True %}
+          <div class="alert alert-success">Votre réponse a été validée comme correcte !</div>
+        {% elif submission.is_correct == False %}
+          <div class="alert alert-danger">Votre réponse a été corrigée comme incorrecte.</div>
+        {% else %}
+          <div class="alert alert-warning">Votre réponse a été soumise et est en attente de correction.</div>
+        {% endif %}
       {% endif %}
-    {% endif %}
+    </div>
   </div>
 </div>
 {% endblock %}

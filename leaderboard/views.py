@@ -1,20 +1,14 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
-from problems.models import Submission,Problem
 
 def leaderboard(request):
-    # On récupère tous les utilisateurs
     users = User.objects.all()
 
     leaderboard_data = []
 
     for user in users:
-        # On récupère les soumissions correctes de cet utilisateur
-        correct_submissions = Submission.objects.filter(user=user, is_correct=True)
-        # Calcul du score total : somme des difficultés des problèmes réussis
-        total_score = sum(sub.problem.difficulty for sub in correct_submissions)
-
-        # On compte aussi le nombre de problèmes réussis
+        correct_submissions = user.profile.get_submissions().filter(is_correct=True)
+        total_score = user.profile.get_total_score()
         solved_count = correct_submissions.count()
 
         leaderboard_data.append({
@@ -23,7 +17,8 @@ def leaderboard(request):
             'solved_count': solved_count,
         })
 
-    # Tri décroissant par score
+    # Tri décroissant par score et filtrage
     leaderboard_data.sort(key=lambda x: x['total_score'], reverse=True)
+    leaderboard_data = list(filter(lambda x: x['total_score'] > 0, leaderboard_data))
 
     return render(request, 'leaderboard/leaderboard.html', {'leaderboard': leaderboard_data})

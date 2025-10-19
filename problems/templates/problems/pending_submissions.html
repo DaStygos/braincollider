@@ -1,0 +1,47 @@
+{% extends "base_generic.html" %}
+{% block title %}Soumissions à corriger{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white text-center">
+      <h2 class="mb-0">📝 Soumissions en attente de correction</h2>
+    </div>
+
+    <div class="card-body">
+      {% if submissions %}
+      <div class="table-responsive">
+        <table class="table table-hover table-bordered align-middle">
+          <thead class="table-light text-center">
+            <tr>
+              <th>Utilisateur</th>
+              <th>Problème</th>
+              <th>Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody class="text-center">
+            {% for sub in submissions %}
+            <tr>
+              <td class="fw-semibold">{{ sub.user.username }}</td>
+              <td>{{ sub.problem.title }}</td>
+              <td class="text-secondary">{{ sub.submitted_at|date:"d/m/Y H:i" }}</td>
+              <td>
+                <a href="{% url 'problems:submission_detail' sub.id %}" class="btn btn-sm btn-outline-primary">
+                  Voir la soumission
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="text-center py-5 text-muted">
+        <h5>🎉 Aucune soumission à corriger.</h5>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

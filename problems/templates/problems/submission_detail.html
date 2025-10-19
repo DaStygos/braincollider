@@ -1,0 +1,45 @@
+{% extends "base_generic.html" %}
+{% block title %}Correction de {{ submission.user.username }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="card shadow">
+    <div class="card-header bg-secondary text-white">
+      <h3 class="mb-0">
+        Soumission de <strong>{{ submission.user.username }}</strong> – {{ submission.problem.title }}
+      </h3>
+    </div>
+
+    <div class="card-body">
+      <p><strong>Catégorie :</strong> {{ submission.problem.get_category_display }}</p>
+      <p><strong>Difficulté :</strong> {{ submission.problem.get_difficulty_display }}</p>
+
+      <hr>
+      <h5 class="text-primary">Énoncé :</h5>
+      <p>{{ submission.problem.statement|linebreaksbr }}</p>
+
+      <hr>
+      <h5 class="text-primary mt-4">Solution attendue :</h5>
+      <pre class="bg-light p-3 rounded border">{{ submission.problem.expected_solution }}</pre>
+
+      <h5 class="text-primary mt-4">Réponse proposée :</h5>
+      <pre class="bg-light p-3 rounded border">{{ submission.answer }}</pre>
+
+      <form method="post" class="mt-4">
+        {% csrf_token %}
+        <div class="d-flex gap-3">
+          <button name="decision" value="correct" class="btn btn-success px-4">
+            Marquer comme correcte
+          </button>
+          <button name="decision" value="incorrect" class="btn btn-danger px-4">
+            Marquer comme incorrecte
+          </button>
+          <a href="{% url 'problems:pending_submissions' %}" class="btn btn-outline-secondary">
+            Retour à la liste
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

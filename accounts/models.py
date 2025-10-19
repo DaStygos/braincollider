@@ -11,6 +11,13 @@ class Profile(models.Model):
         if self.avatar:
             return self.avatar.url
         return static('/images/default_avatar.png')
+    
+    def get_submissions(self):
+        return self.user.submission_set.all()
+
+    def get_total_score(self):
+        submissions = self.get_submissions()
+        return sum(sub.problem.get_score() for sub in submissions if sub.is_correct)
 
     def __str__(self):
         return self.user.username

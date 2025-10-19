@@ -2,14 +2,13 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from .forms import SignUpForm, UserUpdateForm, ProfileUpdateForm
-from problems.models import Submission
 
 def signup(request):
     if request.method == "POST":
         form = SignUpForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)  # connecte automatiquement après inscription
+            login(request, user)
             return redirect("accounts:profile")
     else:
         form = SignUpForm()
@@ -17,8 +16,8 @@ def signup(request):
 
 @login_required
 def profile(request):
-    submissions = Submission.objects.filter(user=request.user)
-    total_score = sum(sub.problem.get_score() for sub in submissions if sub.is_correct)
+    submissions = request.user.profile.get_submissions()
+    total_score = request.user.profile.get_total_score()
     return render(request, "accounts/profile.html", {
         "submissions": submissions,
         "total_score": total_score

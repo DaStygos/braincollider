@@ -8,14 +8,19 @@ class ProblemAdmin(admin.ModelAdmin):
     list_display = ('title', 'category', 'difficulty')
     search_fields = ('title',)
 
-# Créer un inline pour les soumissions
-class SubmissionInline(admin.TabularInline):
-    model = Submission
-    extra = 0  # pas de formulaire vide supplémentaire
-    readonly_fields = ('problem',)  # si tu veux empêcher la modification du problème
-    can_delete = True
+@admin.register(Submission)
+class SubmissionAdmin(admin.ModelAdmin):
+    list_display = ("user", "problem", "is_correct", "submitted_at")
+    list_filter = ("is_correct", "problem")
+    readonly_fields = ('user', 'problem', 'answer', 'submitted_at')
 
 # Étendre l'admin de User
+class SubmissionInline(admin.TabularInline):
+    model = Submission
+    fields = ('problem', 'answer', 'is_correct', 'submitted_at')
+    readonly_fields = ('problem', 'answer', 'submitted_at')
+    extra = 0
+
 class CustomUserAdmin(UserAdmin):
     inlines = [SubmissionInline]
 

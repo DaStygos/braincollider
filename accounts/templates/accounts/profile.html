@@ -60,10 +60,12 @@
 
                             <!-- Validation -->
                             <div class="text-center" style="width: 50px;">
-                                {% if submission.is_correct %}
+                                {% if submission.is_correct == True %}
                                     <i class="bi bi-check-circle-fill text-success fs-5" title="Correcte"></i>
-                                {% else %}
+                                {% elif submission.is_correct == False %}
                                     <i class="bi bi-x-circle-fill text-danger fs-5" title="Incorrecte"></i>
+                                {% else %}
+                                    <i class="bi bi-hourglass-split text-warning fs-5" title="En attente de correction"></i>
                                 {% endif %}
                             </div>
                         </li>
