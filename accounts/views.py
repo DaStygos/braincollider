@@ -1,7 +1,10 @@
+import json
+from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from .forms import SignUpForm, UserUpdateForm, ProfileUpdateForm
+from dateutil import parser
 
 def signup(request):
     if request.method == "POST":
@@ -16,12 +19,19 @@ def signup(request):
 
 @login_required
 def profile(request):
-    submissions = request.user.profile.get_submissions()
+    submissions = request.user.profile.get_submissions()[:20]
     total_score = request.user.profile.get_total_score()
-    return render(request, "accounts/profile.html", {
-        "submissions": submissions,
-        "total_score": total_score
-    })
+    score_history = request.user.profile.previous_scores
+    chart_labels = [parser.parse(entry[1]).strftime("%d/%m/%Y") for entry in score_history]
+    chart_data = [entry[0] for entry in score_history]
+    context = {
+        'submissions': submissions,
+        'total_score': total_score,
+        'chart_labels': json.dumps(chart_labels, cls=DjangoJSONEncoder),
+        'chart_data': json.dumps(chart_data, cls=DjangoJSONEncoder),
+    }
+
+    return render(request, "accounts/profile.html", context)
 
 @login_required
 def edit_profile(request):

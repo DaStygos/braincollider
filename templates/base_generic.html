@@ -59,7 +59,7 @@
               <li><a class="dropdown-item" href="{% url 'accounts:password_change' %}">Changer le mot de passe</a></li>
               <form action="{% url 'accounts:logout' %}" method="post" style="display:inline;">
                 {% csrf_token %}
-                <button type="submit" class="dropdown-item">Déconnexion</button>
+                <button type="submit" class="dropdown-item"><div class="fw-bold">Déconnexion</div></button>
               </form>
 
             {% else %}

@@ -18,10 +18,17 @@ DIFFICULTY_CHOICES = [
     (5, '★★★★★'),
 ]
 
+BAREME = {
+    1: 100,
+    2: 300,
+    3: 500,
+    4: 750,
+    5: 1000,
+}
+
 class Problem(models.Model):
     title = models.CharField(max_length=200)
     statement = models.TextField()
-    solution = models.TextField()
     category = models.CharField(max_length=10, choices=CATEGORY_CHOICES, default='autre')
     expected_solution = models.TextField()
     difficulty = models.PositiveSmallIntegerField(choices=DIFFICULTY_CHOICES, default=1)
@@ -30,9 +37,7 @@ class Problem(models.Model):
         return self.title
 
     def get_score(self):
-        """Renvoie le score selon la difficulté (variante valorisante)."""
-        bareme = {1: 1, 2: 3, 3: 6, 4: 10, 5: 15}
-        return bareme.get(self.difficulty, 0)
+        return BAREME.get(self.difficulty, 0)
 
 
 class Submission(models.Model):

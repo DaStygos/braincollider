@@ -1,19 +1,18 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.admin.views.decorators import staff_member_required
+from django.utils import timezone
 
 from notifications.models import Notification
 from .models import Submission
 
 @staff_member_required
 def pending_submissions(request):
-    """Liste toutes les soumissions non encore corrigées"""
     submissions = Submission.objects.filter(is_correct__isnull=True).select_related('user', 'problem')
     return render(request, "problems/pending_submissions.html", {"submissions": submissions})
 
 
 @staff_member_required
 def submission_detail(request, pk):
-    """Affiche une soumission et permet de la corriger"""
     submission = get_object_or_404(Submission, pk=pk)
 
     if request.method == "POST":
@@ -24,6 +23,7 @@ def submission_detail(request, pk):
                 user=submission.user,
                 message=f"Votre soumission pour le problème '{submission.problem.title}' a été acceptée."
             )
+            submission.user.profile.previous_scores.append((submission.score + submission.user.profile.get_total_score(), timezone.now().isoformat()))
         elif decision == "incorrect":
             submission.is_correct = False
             Notification.objects.create(

@@ -21,6 +21,9 @@
         <p class="card-text mb-0">
           <small>Membre depuis le {{ user.date_joined|date:"d/m/Y H:i" }}</small>
         </p>
+        <div class="mt-4">
+          <canvas id="scoreChart" width="250" height="250"></canvas>
+        </div>
       </div>
     </div>
   </div>
@@ -41,6 +44,7 @@
               <th>Problème</th>
               <th class="text-center" style="width: 160px;">Difficulté</th>
               <th class="text-center" style="width: 80px;">Statut</th>
+              <th class="text-center" style="width: 120px;">Score</th>
             </tr>
           </thead>
           <tbody>
@@ -68,6 +72,9 @@
                         <i class="bi bi-hourglass-split text-warning fs-5" title="En attente de correction"></i>
                       {% endif %}
                     </td>
+                    <td class="text-center text-dark">
+                      {{ submission.problem.get_score }} pt{{ submission.problem.get_score|pluralize }}
+                    </td>
                   </tr>
                 {% endwith %}
               {% endfor %}
@@ -84,5 +91,53 @@
     </div>
   </div>
 </div>
+
+{% block extra_js %}
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+    const ctx = document.getElementById('scoreChart');
+    
+    // Récupérer les données depuis Django
+    const labels = {{ chart_labels|safe }};
+    const scores = {{ chart_data|safe }};
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Score',
+          data: scores,
+          borderWidth: 2,
+          borderColor: 'rgb(75, 192, 192)',
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          tension: 0.1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: 10
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top'
+          }
+        }
+      }
+    });
+  </script>
+
+{% endblock %}
+
 
 {% endblock %}

@@ -30,7 +30,7 @@
             <td>{{ forloop.counter }}</td>
             <td>{{ entry.user.username }}</td>
             <td>{{ entry.solved_count }}</td>
-            <td>{{ entry.total_score }}</td>
+            <td>{{ entry.total_score }} pt{{ entry.total_score|pluralize }}</td>
         </tr>
         {% empty %}
         <tr>
@@ -39,4 +39,11 @@
         {% endfor %}
     </tbody>
 </table>
+
+{% if user.is_authenticated and user.profile.get_total_score == 0 %}
+<div class="alert alert-info" role="alert">
+    Vous n'avez pas encore de points. Commencez à résoudre des problèmes pour gagner des points et rentrer dans le classement!
+</div>
+{% endif %}
+
 {% endblock %}
