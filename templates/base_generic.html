@@ -39,15 +39,27 @@
 
         <!-- Menu déroulant -->
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            Mon compte
+          <a class="nav-link dropdown-toggle text-light" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            {% if user.is_authenticated %}
+              {{ user.username }}
+            {% else %}
+              Compte
+            {% endif %}
+            {% if user.is_authenticated %}
+              {% if request.user.profile.get_unread_notifications_count > 0 %}
+                <span class="badge bg-secondary">{{ request.user.profile.get_unread_notifications_count }}</span>
+              {% endif %}
+            {% endif %}
           </a>
           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
             {% if user.is_authenticated %}
-              <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">Profil</a></li>
+              <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">Profil public</a></li>
+              <li><a class="dropdown-item" href="{% url 'notifications:notifications_list' %}">Notifications <span class ="badge bg-secondary">{{ request.user.profile.get_unread_notifications_count }}</span></a></li>
+              <li><a class="dropdown-item" href="{% url 'accounts:edit_profile' %}">Modifier le profil</a></li>
+              <li><a class="dropdown-item" href="{% url 'accounts:password_change' %}">Changer le mot de passe</a></li>
               <form action="{% url 'accounts:logout' %}" method="post" style="display:inline;">
-              {% csrf_token %}
-              <button type="submit" class="dropdown-item">Déconnexion</button>
+                {% csrf_token %}
+                <button type="submit" class="dropdown-item">Déconnexion</button>
               </form>
 
             {% else %}

@@ -4,80 +4,85 @@
 
 {% block content %}
 
-{%load custom_tags %}
-{%load static %}
+{% load custom_tags %}
+{% load static %}
 
-<div class="card mb-4 shadow-sm">
-    <div class="card-body text-center">
+<div class="row g-4">
+  <!-- Colonne gauche: profil -->
+  <div class="col-12 col-lg-4">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body text-center">
         <div class="mb-3">
-            <img src="{{ user.profile.get_avatar_url }}" alt="Avatar" class="rounded-circle border"
-                         style="width: 100px; height: 100px; object-fit: cover;">
+          <img src="{{ user.profile.get_avatar_url }}" alt="Avatar" class="rounded-circle border"
+               style="width: 120px; height: 120px; object-fit: cover;">
         </div>
-
         <h5 class="card-title mb-2">{{ user.username }}</h5>
         <p class="card-text text-muted mb-1">{{ user.email }}</p>
-        <p class="card-text mb-3">
-            <small>Membre depuis le {{ user.date_joined|date:"d/m/Y H:i" }}</small>
+        <p class="card-text mb-0">
+          <small>Membre depuis le {{ user.date_joined|date:"d/m/Y H:i" }}</small>
         </p>
-
-        <a href="{% url 'accounts:edit_profile' %}" class="btn btn-outline-primary btn-sm">
-            <i class="bi bi-pencil-square me-1"></i> Modifier les informations
-        </a>
-        <a href="{% url 'accounts:password_change' %}" class="btn btn-outline-primary btn-sm">
-            <i class="bi bi-lock me-1"></i> Changer le mot de passe
-        </a>
+      </div>
     </div>
-</div>
+  </div>
 
-
-<div class="card mt-4 shadow-sm">
-    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+  <!-- Colonne droite: soumissions -->
+  <div class="col-12 col-lg-8">
+    <div class="card shadow-sm">
+      <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
         <h5 class="mb-0">Mes soumissions</h5>
         <span class="badge bg-light text-primary">
-            Score total : {{ total_score }} point{% if total_score != 1 %}s{% endif %}
+          Score total : {{ total_score }} point{{ total_score|pluralize }}
         </span>
+      </div>
+      <div class="card-body p-0">
+        <table class="table table-hover table-striped mb-0 align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Problème</th>
+              <th class="text-center" style="width: 160px;">Difficulté</th>
+              <th class="text-center" style="width: 80px;">Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if submissions %}
+              {% for submission in submissions %}
+                {% with submission.problem.difficulty|stars as st %}
+                  <tr>
+                    <td>
+                      <a href="{% url 'problems:problem_detail' submission.problem.id %}"
+                         class="text-decoration-none fw-semibold text-dark">
+                        {{ submission.problem.title }}
+                      </a>
+                    </td>
+                    <td class="text-center">
+                      {% for s in st %}
+                        <span class="text-warning fs-5">{{ s }}</span>
+                      {% endfor %}
+                    </td>
+                    <td class="text-center">
+                      {% if submission.is_correct == True %}
+                        <i class="bi bi-check-circle-fill text-success fs-5" title="Correcte"></i>
+                      {% elif submission.is_correct == False %}
+                        <i class="bi bi-x-circle-fill text-danger fs-5" title="Incorrecte"></i>
+                      {% else %}
+                        <i class="bi bi-hourglass-split text-warning fs-5" title="En attente de correction"></i>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endwith %}
+              {% endfor %}
+            {% else %}
+              <tr>
+                <td colspan="3" class="text-center text-muted p-3">
+                  Vous n'avez soumis aucune réponse pour le moment.
+                </td>
+              </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
     </div>
-    <div class="card-body p-0">
-        {% if submissions %}
-            <ul class="list-group list-group-flush">
-                {% for submission in submissions %}
-                    {% with submission.problem.difficulty|stars as st %}
-                        <li class="list-group-item d-flex align-items-center">
-                            <!-- Titre du problème -->
-                            <div class="me-3 flex-grow-1">
-                                <a href="{% url 'problems:problem_detail' submission.problem.id %}" 
-                                   class="text-decoration-none fw-semibold text-dark">
-                                    {{ submission.problem.title }}
-                                </a>
-                            </div>
-
-                            <!-- Étoiles de difficulté -->
-                            <div class="me-3 text-center" style="width: 120px;">
-                                {% for s in st %}
-                                    <span class="text-warning fs-5">{{ s }}</span>
-                                {% endfor %}
-                            </div>
-
-                            <!-- Validation -->
-                            <div class="text-center" style="width: 50px;">
-                                {% if submission.is_correct == True %}
-                                    <i class="bi bi-check-circle-fill text-success fs-5" title="Correcte"></i>
-                                {% elif submission.is_correct == False %}
-                                    <i class="bi bi-x-circle-fill text-danger fs-5" title="Incorrecte"></i>
-                                {% else %}
-                                    <i class="bi bi-hourglass-split text-warning fs-5" title="En attente de correction"></i>
-                                {% endif %}
-                            </div>
-                        </li>
-                    {% endwith %}
-                {% endfor %}
-            </ul>
-        {% else %}
-            <div class="p-3 text-center text-muted">
-                Vous n'avez soumis aucune réponse pour le moment.
-            </div>
-        {% endif %}
-    </div>
+  </div>
 </div>
 
 {% endblock %}

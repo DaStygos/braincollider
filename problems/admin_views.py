@@ -1,5 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.admin.views.decorators import staff_member_required
+
+from notifications.models import Notification
 from .models import Submission
 
 @staff_member_required
@@ -18,8 +20,16 @@ def submission_detail(request, pk):
         decision = request.POST.get("decision")
         if decision == "correct":
             submission.is_correct = True
+            Notification.objects.create(
+                user=submission.user,
+                message=f"Votre soumission pour le problème '{submission.problem.title}' a été acceptée."
+            )
         elif decision == "incorrect":
             submission.is_correct = False
+            Notification.objects.create(
+                user=submission.user,
+                message=f"Votre soumission pour le problème '{submission.problem.title}' a été rejetée."
+            )
         submission.save()
         return redirect("problems:pending_submissions")
 

@@ -19,5 +19,8 @@ class Profile(models.Model):
         submissions = self.get_submissions()
         return sum(sub.problem.get_score() for sub in submissions if sub.is_correct)
 
+    def get_unread_notifications_count(self):
+        return self.user.notification_set.filter(read=False).count()
+
     def __str__(self):
         return self.user.username

@@ -9,5 +9,6 @@ urlpatterns = [
     path("accounts/", include("accounts.urls",namespace="accounts")),
     path("leaderboard/",include("leaderboard.urls",namespace="leaderboard")),
     path("admin/", admin.site.urls),
+    path("notifications/", include("notifications.urls",namespace="notifications")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
