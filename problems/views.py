@@ -44,18 +44,20 @@ def problem_detail(request, pk):
     if request.method == "POST":
         answer = request.POST.get("answer", "").strip()
 
-        # Crée ou met à jour la soumission, sans correction automatique
+        # Crée ou met à jour la soumission
         if submission:
             submission.answer = answer
-            submission.is_correct = None  # en attente
+            submission.is_correct = None
             submission.save()
         else:
             submission = Submission.objects.create(
                 user=request.user,
                 problem=problem,
                 answer=answer,
-                is_correct=None  # pas encore corrigée
+                is_correct=None
             )
+            problem.total_submissions += 1
+            problem.save()
 
         return redirect("problems:problem_detail", pk=problem.pk)
 

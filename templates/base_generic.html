@@ -37,6 +37,17 @@
           <a class="nav-link" href="{% url 'leaderboard:leaderboard' %}">Leaderboard</a>
         </li>
 
+        {% if user.is_staff %}
+        <li class="nav-item">
+          <a class="nav-link text-light" href="{% url 'staff:pending_submissions' %}">
+            Corrections
+            {% if pending_submissions_count > 0 %}
+              <span class ="badge bg-danger">{{ pending_submissions_count }}</span>
+            {% endif %}
+          </a>
+        </li>
+        {% endif %}
+
         <!-- Menu déroulant -->
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle text-light" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -47,14 +58,14 @@
             {% endif %}
             {% if user.is_authenticated %}
               {% if request.user.profile.get_unread_notifications_count > 0 %}
-                <span class="badge bg-secondary">{{ request.user.profile.get_unread_notifications_count }}</span>
+                <span class="badge bg-danger">{{ request.user.profile.get_unread_notifications_count }}</span>
               {% endif %}
             {% endif %}
           </a>
           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
             {% if user.is_authenticated %}
               <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">Profil public</a></li>
-              <li><a class="dropdown-item" href="{% url 'notifications:notifications_list' %}">Notifications <span class ="badge bg-secondary">{{ request.user.profile.get_unread_notifications_count }}</span></a></li>
+              <li><a class="dropdown-item" href="{% url 'notifications:notifications_list' %}">Notifications <span class ="badge bg-danger">{{ request.user.profile.get_unread_notifications_count }}</span></a></li>
               <li><a class="dropdown-item" href="{% url 'accounts:edit_profile' %}">Modifier le profil</a></li>
               <li><a class="dropdown-item" href="{% url 'accounts:password_change' %}">Changer le mot de passe</a></li>
               <form action="{% url 'accounts:logout' %}" method="post" style="display:inline;">

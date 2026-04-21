@@ -30,8 +30,9 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 NGROK_HOST = os.getenv('NGROK_HOST', 'localhost') # not really useful if not using ngrok
 
-ALLOWED_HOSTS = [NGROK_HOST,'localhost', ]
-CSRF_TRUSTED_ORIGINS = ['https://' + NGROK_HOST, 'http://localhost']
+# Allow local development via hostname and loopback addresses.
+ALLOWED_HOSTS = [NGROK_HOST, 'localhost', '127.0.0.1', '::1']
+CSRF_TRUSTED_ORIGINS = ['https://' + NGROK_HOST, 'http://localhost', 'http://127.0.0.1']
 
 
 # Application definition
@@ -49,6 +50,7 @@ INSTALLED_APPS = [
     'core',
     'leaderboard',
     'notifications',
+    'staff'
 ]
 
 MIDDLEWARE = [
@@ -66,13 +68,15 @@ ROOT_URLCONF = 'braincollider.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / "templates"],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'staff.context_processors.pending_submissions_count',
             ],
         },
     },

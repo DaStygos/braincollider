@@ -25,9 +25,9 @@
             <tr>
               <td class="fw-semibold">{{ sub.user.username }}</td>
               <td>{{ sub.problem.title }}</td>
-              <td class="text-secondary">{{ sub.submitted_at|date:"d/m/Y H:i" }}</td>
+              <td class="text-secondary">{{ sub.suggested_at|date:"d/m/Y H:i" }}</td>
               <td>
-                <a href="{% url 'problems:submission_detail' sub.id %}" class="btn btn-sm btn-outline-primary">
+                <a href="{% url 'staff:submission_detail' sub.id %}" class="btn btn-sm btn-outline-primary">
                   Voir la soumission
                 </a>
               </td>

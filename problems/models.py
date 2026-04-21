@@ -30,8 +30,10 @@ class Problem(models.Model):
     title = models.CharField(max_length=200)
     statement = models.TextField()
     category = models.CharField(max_length=10, choices=CATEGORY_CHOICES, default='autre')
-    expected_solution = models.TextField()
+    solution = models.TextField()
     difficulty = models.PositiveSmallIntegerField(choices=DIFFICULTY_CHOICES, default=1)
+    total_submissions = models.PositiveIntegerField(default=0)
+    correct_submissions = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return self.title

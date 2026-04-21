@@ -7,6 +7,20 @@
 {% block content %}
 <h1>Liste des problèmes</h1>
 
+{% block extra_css %}
+<style>
+  colgroup col:nth-child(1) { width: 50%; text-align: left; }
+  colgroup col:nth-child(2) { width: 20%; text-align: center; }
+  colgroup col:nth-child(3) { width: 10%; text-align: center; }
+  colgroup col:nth-child(4) { width: 20%; text-align: center; }
+  table { border-collapse: collapse; }
+  th,td { border: 1px solid black; }
+  th:nth-child(2), td:nth-child(2),
+  th:nth-child(3), td:nth-child(3),
+  th:nth-child(4), td:nth-child(4) { text-align: center; }
+</style>
+{% endblock %}
+
 {% if problems_by_category %}
 <div class="accordion" id="accordionCategories">
     {% for category_key, problems_in_category in problems_by_category.items %}
@@ -21,32 +35,56 @@
             <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse" 
                  aria-labelledby="heading{{ forloop.counter }}" data-bs-parent="#accordionCategories">
                 <div class="accordion-body">
-                    <ul class="list-group">
-                        {% for problem in problems_in_category %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <a href="{% url 'problems:problem_detail' problem.id %}">
-                                {{ problem.title }}
-                            </a>
+                    <table class="table table-striped">
+                        <thead>
+                            <colgroup>
+                                <col>
+                                <col>
+                                <col>
+                                <col>
+                            </colgroup>
+                            <tr class="align-middle">
+                                <th>Titre</th>
+                                <th>Difficulté</th>
+                                <th>Statut</th>
+                                <th>Taux de réussite</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for problem in problems_in_category %}
+                                <tr class="align-middle">
+                                    <td>
+                                        <a href="{% url 'problems:problem_detail' problem.id %}">
+                                            {{ problem.title }}
+                                        </a>
+                                    </td>
+                            
 
-                            <span class="me-3 text-center" style="width: 100px;">
-                                {{ problem.difficulty|stars }}
-                            </span>
+                                    <td>
+                                        {{ problem.difficulty|stars }}
+                                    </td>
+                                
+                                    {% if user.is_authenticated %}
+                                    <td>
+                                        {% if problem.id in correct_problems %}
+                                            <i class="bi bi-check-circle-fill text-success" title="Soumission correcte"></i>
+                                        {% elif problem.id in wrong_problems %}
+                                            <i class="bi bi-x-circle-fill text-danger" title="Soumission incorrecte"></i>
+                                        {% elif problem.id in pending_problems %}
+                                            <i class="bi bi-hourglass-split text-warning" title="Soumission en attente de correction"></i>
+                                        {% else %}
+                                             <i class="bi bi-dash-circle text-secondary" title="Non soumis"></i>
+                                        {% endif %}
+                                    </td>
+                                    {% else %}
+                                         <i class="bi bi-dash-circle text-secondary" title="Non connecté"></i>
+                                    {% endif %}
 
-                            {% if user.is_authenticated %}
-                                {% if problem.id in correct_problems %}
-                                    <i class="bi bi-check-circle-fill text-success" title="Soumission correcte"></i>
-                                {% elif problem.id in wrong_problems %}
-                                    <i class="bi bi-x-circle-fill text-danger" title="Soumission incorrecte"></i>
-                                {% elif problem.id in pending_problems %}
-                                    <i class="bi bi-hourglass-split text-warning" title="Soumission en attente de correction"></i>
-                                {% else %}
-                                     <i class="bi bi-dash-circle text-secondary" title="Non soumis"></i>
-                                {% endif %}
-                            {% else %}
-                                 <i class="bi bi-dash-circle text-secondary" title="Non connecté"></i>
-                            {% endif %}
-                        </li>
+                                    <td>{{ problem.correct_submissions }} / {{ problem.total_submissions }}</td>
+                                    </tr>
+                            </tbody>
                         {% endfor %}
+                        </table>
                     </ul>
                 </div>
             </div>
@@ -57,7 +95,6 @@
 <p>Aucun problème n'est disponible pour le moment.</p>
 {% endif %}
 <br>
-{% if user.is_staff %}
-    <a href="{% url 'problems:pending_submissions' %}" class="text-blue-600 hover:underline">Accéder à la page de correction des soumissions en attente</a>
-{% endif %}
+<p><a href="{% url 'staff:suggest_problem' %}">Suggérer un problème</a></p>
+
 {% endblock %}
