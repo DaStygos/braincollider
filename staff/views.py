@@ -1,20 +1,25 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.admin.views.decorators import staff_member_required
+from django.core.exceptions import PermissionDenied
 from notifications.models import Notification
 from problems.models import Submission
 from .forms import ProblemSuggestionForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from .permissions import can_access_pending_submissions, can_review_problem, get_accessible_pending_submissions
 
-@staff_member_required
+@login_required
 def pending_submissions(request):
-    submissions = Submission.objects.filter(is_correct__isnull=True).select_related("user", "problem")
+    if not can_access_pending_submissions(request.user):
+        raise PermissionDenied
+    submissions = get_accessible_pending_submissions(request.user)
     return render(request, "staff/pending_submissions.html", {"submissions": submissions})
 
 
-@staff_member_required
+@login_required
 def submission_detail(request, pk):
     submission = get_object_or_404(Submission, pk=pk)
+    if not can_review_problem(request.user, submission.problem):
+        raise PermissionDenied
 
     if request.method == "POST":
         decision = request.POST.get("decision")
