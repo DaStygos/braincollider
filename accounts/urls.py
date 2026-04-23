@@ -9,6 +9,9 @@ app_name = "accounts"
 urlpatterns = [
     path("signup/", views.signup, name="signup"),
     path("profile/", views.profile, name="profile"),
+    path("u/<str:username>/", views.public_profile, name="public_profile"),
+    path("users/", views.user_search, name="user_search"),
+    path("users/suggest/", views.matching_users, name="user_suggestions"),
     path("profile/edit/", views.edit_profile, name="edit_profile"),
     path("password/change/", auth_views.PasswordChangeView.as_view(template_name="accounts/password_change.html", success_url="/accounts/password/change/done/", form_class=PasswordChangeFormCustom), name="password_change"),
     path("password/change/done/", auth_views.PasswordChangeDoneView.as_view(template_name="accounts/password_change_done.html"), name="password_change_done"),

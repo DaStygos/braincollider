@@ -29,6 +29,21 @@
 
     <!-- Liens -->
     <div class="collapse navbar-collapse" id="navbarNavDropdown">
+      <div class="position-relative mx-lg-3 my-2 my-lg-0 flex-grow-1" style="max-width: 320px;">
+        <form class="d-flex" role="search" method="get" action="{% url 'accounts:user_search' %}" id="user-search-form">
+          <input
+            class="form-control form-control-sm"
+            type="search"
+            name="q"
+            id="user-search-input"
+            placeholder="Rechercher un utilisateur ou un problème"
+            aria-label="Rechercher un utilisateur ou un problème"
+            autocomplete="off"
+            value="{{ request.GET.q|default:'' }}"
+          >
+        </form>
+        <div class="dropdown-menu w-100 shadow-sm" id="user-search-suggestions" style="display: none; z-index: 1050;"></div>
+      </div>
       <ul class="navbar-nav ms-auto">
         <li class="nav-item">
           <a class="nav-link" href="{% url 'problems:index' %}">Problèmes</a>
@@ -64,9 +79,8 @@
           </a>
           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
             {% if user.is_authenticated %}
-              <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">Profil public</a></li>
-              <li><a class="dropdown-item" href="{% url 'notifications:notifications_list' %}">Notifications <span class ="badge bg-danger">{{ request.user.profile.get_unread_notifications_count }}</span></a></li>
-              <li><a class="dropdown-item" href="{% url 'accounts:edit_profile' %}">Modifier le profil</a></li>
+              <li><a class="dropdown-item" href="{% url 'accounts:public_profile' user.username %}">Profil public</a></li>
+              <li><a class="dropdown-item" href="{% url 'notifications:notifications_list' %}">Notifications {% if request.user.profile.get_unread_notifications_count > 0 %}<span class="badge bg-danger">{{ request.user.profile.get_unread_notifications_count }}</span>{% endif %}</a></li>
               <li><a class="dropdown-item" href="{% url 'accounts:password_change' %}">Changer le mot de passe</a></li>
               <form action="{% url 'accounts:logout' %}" method="post" style="display:inline;">
                 {% csrf_token %}
@@ -92,5 +106,166 @@
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  (function () {
+    const input = document.getElementById('user-search-input');
+    const suggestions = document.getElementById('user-search-suggestions');
+    const form = document.getElementById('user-search-form');
+    if (!input || !suggestions || !form) {
+      return;
+    }
+
+    let debounceTimer = null;
+    let abortController = null;
+    let activeIndex = -1;
+    let items = [];
+
+    function closeSuggestions() {
+      suggestions.innerHTML = '';
+      suggestions.style.display = 'none';
+      activeIndex = -1;
+      items = [];
+    }
+
+    function openSuggestions() {
+      suggestions.style.display = 'block';
+    }
+
+    function setActive(index) {
+      activeIndex = index;
+      items.forEach((item, itemIndex) => {
+        item.classList.toggle('active', itemIndex === activeIndex);
+      });
+    }
+
+    function renderSuggestions(results) {
+      suggestions.innerHTML = '';
+      items = [];
+
+      if (!results.length) {
+        closeSuggestions();
+        return;
+      }
+
+      results.forEach((result, index) => {
+        const link = document.createElement('a');
+        link.className = 'dropdown-item d-flex justify-content-between align-items-start gap-2';
+        link.href = result.url;
+
+        const label = document.createElement('span');
+        label.className = 'flex-grow-1 text-break';
+        label.style.minWidth = '0';
+        const strong = document.createElement('strong');
+        strong.textContent = result.label;
+        label.appendChild(strong);
+
+        if (result.secondary) {
+          const secondary = document.createElement('span');
+          secondary.className = 'text-muted d-block small';
+          secondary.textContent = result.secondary;
+          label.appendChild(secondary);
+        }
+
+        const badge = document.createElement('span');
+        badge.className = result.kind === 'problem' ? 'badge bg-primary' : 'badge bg-secondary';
+        badge.style.flexShrink = '0';
+        badge.textContent = result.kind === 'problem' ? 'Problème' : 'Profil';
+
+        link.appendChild(label);
+        link.appendChild(badge);
+        link.addEventListener('mouseenter', () => setActive(index));
+        suggestions.appendChild(link);
+        items.push(link);
+      });
+
+      openSuggestions();
+      setActive(0);
+    }
+
+    async function fetchSuggestions(query) {
+      if (abortController) {
+        abortController.abort();
+      }
+
+      abortController = new AbortController();
+
+      try {
+        const response = await fetch(`{% url 'accounts:user_suggestions' %}?q=${encodeURIComponent(query)}`, {
+          headers: { 'Accept': 'application/json' },
+          signal: abortController.signal,
+        });
+
+        if (!response.ok) {
+          closeSuggestions();
+          return;
+        }
+
+        const data = await response.json();
+        renderSuggestions(data.results || []);
+      } catch (error) {
+        if (error.name !== 'AbortError') {
+          closeSuggestions();
+        }
+      }
+    }
+
+    input.addEventListener('input', () => {
+      const query = input.value.trim();
+
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
+      }
+
+      if (query.length < 2) {
+        closeSuggestions();
+        return;
+      }
+
+      debounceTimer = setTimeout(() => fetchSuggestions(query), 200);
+    });
+
+    input.addEventListener('keydown', (event) => {
+      if (suggestions.style.display !== 'block' || !items.length) {
+        if (event.key === 'Enter') {
+          closeSuggestions();
+        }
+        return;
+      }
+
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        setActive((activeIndex + 1) % items.length);
+      } else if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        setActive((activeIndex - 1 + items.length) % items.length);
+      } else if (event.key === 'Enter') {
+        event.preventDefault();
+        if (items[activeIndex]) {
+          window.location.href = items[activeIndex].href;
+        } else {
+          form.submit();
+        }
+      } else if (event.key === 'Escape') {
+        closeSuggestions();
+      }
+    });
+
+    input.addEventListener('focus', () => {
+      if (items.length) {
+        openSuggestions();
+      }
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!event.target.closest('#user-search-form') && !event.target.closest('#user-search-suggestions')) {
+        closeSuggestions();
+      }
+    });
+
+    form.addEventListener('submit', () => {
+      closeSuggestions();
+    });
+  })();
+</script>
 </body>
 </html>

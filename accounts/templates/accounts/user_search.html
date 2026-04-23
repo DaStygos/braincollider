@@ -1,0 +1,70 @@
+{% extends "base_generic.html" %}
+
+{% block title %}Recherche{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-lg-8">
+    <div class="card shadow-sm">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Recherche</h5>
+      </div>
+      <div class="card-body">
+        <form method="get" action="{% url 'accounts:user_search' %}" class="mb-4">
+          <div class="input-group">
+            <input
+              type="text"
+              class="form-control"
+              name="q"
+              value="{{ query }}"
+              placeholder="Pseudo, prénom, nom ou problème"
+            >
+            <button class="btn btn-primary" type="submit">Rechercher</button>
+          </div>
+        </form>
+
+        {% if query %}
+          <p class="text-muted mb-3">Résultats pour "{{ query }}"</p>
+          {% if users or problems %}
+            {% if users %}
+              <h6 class="text-uppercase text-muted small fw-bold mt-3">Utilisateurs</h6>
+              <div class="list-group mb-4">
+                {% for result_user in users %}
+                  <a href="{% url 'accounts:public_profile' result_user.username %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-start gap-2">
+                    <span class="flex-grow-1 text-break" style="min-width: 0;">
+                      <strong>{{ result_user.username }}</strong>
+                      {% if result_user.first_name or result_user.last_name %}
+                        <span class="text-muted d-block d-md-inline">- {{ result_user.first_name }} {{ result_user.last_name }}</span>
+                      {% endif %}
+                    </span>
+                    <span class="badge bg-secondary flex-shrink-0">Voir profil</span>
+                  </a>
+                {% endfor %}
+              </div>
+            {% endif %}
+
+            {% if problems %}
+              <h6 class="text-uppercase text-muted small fw-bold mt-3">Problèmes</h6>
+              <div class="list-group">
+                {% for problem in problems %}
+                  <a href="{% url 'problems:problem_detail' problem.id %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-start gap-2">
+                    <span class="flex-grow-1 text-break" style="min-width: 0;">
+                      <strong class="d-block">{{ problem.title }}</strong>
+                      <span class="text-muted d-block small">{{ problem.get_category_display }}</span>
+                    </span>
+                    <span class="badge bg-primary flex-shrink-0">Ouvrir</span>
+                  </a>
+                {% endfor %}
+              </div>
+            {% endif %}
+          {% else %}
+            <p class="mb-0 text-muted">Aucun utilisateur ou problème trouvé.</p>
+          {% endif %}
+        {% else %}
+          <p class="mb-0 text-muted">Saisissez un nom d'utilisateur ou un problème pour lancer une recherche.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
