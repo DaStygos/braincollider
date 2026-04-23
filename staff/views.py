@@ -1,9 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import PermissionDenied
-from notifications.models import Notification
+from notifications.utils import create_notification
 from problems.models import Submission
 from .forms import ProblemSuggestionForm
-from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .permissions import can_access_pending_submissions, can_review_problem, get_accessible_pending_submissions
 
@@ -24,16 +23,19 @@ def submission_detail(request, pk):
     if request.method == "POST":
         decision = request.POST.get("decision")
         if decision == "correct":
-            if submission.is_correct == None:
+            if submission.is_correct is None:
                 submission.problem.correct_submissions += 1
                 submission.problem.save()
             submission.is_correct = True
         elif decision == "incorrect":
             submission.is_correct = False
         submission.save()
-        Notification.objects.create(
+        create_notification(
             user=submission.user,
-            message=f"Votre soumission pour le problème '{submission.problem.title}' a été évaluée comme {'correcte' if submission.is_correct else 'incorrecte'}.",
+            message=(
+                f"Votre soumission pour le problème '{submission.problem.title}' a été évaluée comme "
+                f"{'correcte' if submission.is_correct else 'incorrecte'}."
+            ),
         )
         return redirect("staff:pending_submissions")
 
@@ -47,9 +49,12 @@ def suggest_problem(request):
             suggestion = form.save(commit=False)
             suggestion.author = request.user
             suggestion.save()
-            Notification.objects.create(
+            create_notification(
                 user=request.user,
-                message=f"Merci pour votre suggestion de problème '{suggestion.title}'. Elle sera examinée par notre équipe.",
+                message=(
+                    f"Merci pour votre suggestion de problème '{suggestion.title}'. "
+                    "Elle sera examinée par notre équipe."
+                ),
             )
             return redirect("problems:index")
     else:

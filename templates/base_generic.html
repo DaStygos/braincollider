@@ -65,33 +65,33 @@
 
         <!-- Menu déroulant -->
         <li class="nav-item dropdown">
+          {% if user.is_authenticated %}
+            {% with unread_count=request.user.profile.get_unread_notifications_count %}
           <a class="nav-link dropdown-toggle text-light" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            {% if user.is_authenticated %}
-              {{ user.username }}
-            {% else %}
-              Compte
-            {% endif %}
-            {% if user.is_authenticated %}
-              {% if request.user.profile.get_unread_notifications_count > 0 %}
-                <span class="badge bg-danger">{{ request.user.profile.get_unread_notifications_count }}</span>
-              {% endif %}
+            {{ user.username }}
+            {% if unread_count > 0 %}
+              <span class="badge bg-danger">{{ unread_count }}</span>
             {% endif %}
           </a>
           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-            {% if user.is_authenticated %}
-              <li><a class="dropdown-item" href="{% url 'accounts:public_profile' user.username %}">Profil public</a></li>
-              <li><a class="dropdown-item" href="{% url 'notifications:notifications_list' %}">Notifications {% if request.user.profile.get_unread_notifications_count > 0 %}<span class="badge bg-danger">{{ request.user.profile.get_unread_notifications_count }}</span>{% endif %}</a></li>
-              <li><a class="dropdown-item" href="{% url 'accounts:password_change' %}">Changer le mot de passe</a></li>
-              <form action="{% url 'accounts:logout' %}" method="post" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit" class="dropdown-item"><div class="fw-bold">Déconnexion</div></button>
-              </form>
-
-            {% else %}
-              <li><a class="dropdown-item" href="{% url 'accounts:login' %}">Connexion</a></li>
-              <li><a class="dropdown-item" href="{% url 'accounts:signup' %}">Créer un compte</a></li>
-            {% endif %}
+            <li><a class="dropdown-item" href="{% url 'accounts:public_profile' user.username %}">Profil public</a></li>
+            <li><a class="dropdown-item" href="{% url 'notifications:notifications_list' %}">Notifications {% if unread_count > 0 %}<span class="badge bg-danger">{{ unread_count }}</span>{% endif %}</a></li>
+            <li><a class="dropdown-item" href="{% url 'accounts:password_change' %}">Changer le mot de passe</a></li>
+            <form action="{% url 'accounts:logout' %}" method="post" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="dropdown-item"><div class="fw-bold">Déconnexion</div></button>
+            </form>
           </ul>
+            {% endwith %}
+          {% else %}
+          <a class="nav-link dropdown-toggle text-light" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Compte
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+            <li><a class="dropdown-item" href="{% url 'accounts:login' %}">Connexion</a></li>
+            <li><a class="dropdown-item" href="{% url 'accounts:signup' %}">Créer un compte</a></li>
+          </ul>
+          {% endif %}
         </li>
       </ul>
     </div>
@@ -167,7 +167,7 @@
         }
 
         const badge = document.createElement('span');
-        badge.className = result.kind === 'problem' ? 'badge bg-primary' : 'badge bg-secondary';
+        badge.className = result.kind === 'problem' ? 'badge text-bg-primary' : 'badge text-bg-secondary';
         badge.style.flexShrink = '0';
         badge.textContent = result.kind === 'problem' ? 'Problème' : 'Profil';
 

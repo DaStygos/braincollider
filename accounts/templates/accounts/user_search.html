@@ -6,9 +6,7 @@
 <div class="row justify-content-center">
   <div class="col-12 col-lg-8">
     <div class="card shadow-sm">
-      <div class="card-header bg-primary text-white">
-        <h5 class="mb-0">Recherche</h5>
-      </div>
+      {% include "includes/_card_header.html" with title="Recherche" %}
       <div class="card-body">
         <form method="get" action="{% url 'accounts:user_search' %}" class="mb-4">
           <div class="input-group">
@@ -37,7 +35,7 @@
                         <span class="text-muted d-block d-md-inline">- {{ result_user.first_name }} {{ result_user.last_name }}</span>
                       {% endif %}
                     </span>
-                    <span class="badge bg-secondary flex-shrink-0">Voir profil</span>
+                    <span class="badge text-bg-secondary flex-shrink-0">Voir profil</span>
                   </a>
                 {% endfor %}
               </div>
@@ -52,7 +50,7 @@
                       <strong class="d-block">{{ problem.title }}</strong>
                       <span class="text-muted d-block small">{{ problem.get_category_display }}</span>
                     </span>
-                    <span class="badge bg-primary flex-shrink-0">Ouvrir</span>
+                    <span class="badge text-bg-primary flex-shrink-0">Ouvrir</span>
                   </a>
                 {% endfor %}
               </div>

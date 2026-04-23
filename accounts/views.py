@@ -1,6 +1,7 @@
 import json
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import JsonResponse
+from django.urls import reverse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
 from django.contrib.auth import get_user_model
@@ -13,10 +14,26 @@ from dateutil import parser
 User = get_user_model()
 
 
+def _minimum_query_length(query, minimum=2):
+    return len(query) >= minimum
+
+
+def _generic_search(queryset, query, filters, limit=8, order_by="id"):
+    if not _minimum_query_length(query):
+        return []
+
+    search_filter = Q()
+    for filter_name in filters:
+        search_filter |= Q(**{filter_name: query})
+
+    return list(queryset.filter(search_filter).order_by(order_by)[:limit])
+
+
 def _build_profile_context(user):
     submissions = Submission.objects.filter(user=user).select_related("problem").order_by("-submitted_at")[:20]
-    total_submissions = Submission.objects.filter(user=user).count()
-    correct_submissions = Submission.objects.filter(user=user, is_correct=True).count()
+    user_submissions = Submission.objects.filter(user=user)
+    total_submissions = user_submissions.count()
+    correct_submissions = user_submissions.filter(is_correct=True).count()
     total_score = user.profile.get_total_score()
     score_history = user.profile.previous_scores
     chart_labels = [parser.parse(entry[1]).strftime("%d/%m/%Y") for entry in score_history]
@@ -35,28 +52,22 @@ def _build_profile_context(user):
 
 
 def _search_users(query, limit=8):
-    if len(query) < 2:
-        return []
-
-    return list(
-        User.objects.filter(
-            Q(username__icontains=query)
-            | Q(first_name__icontains=query)
-            | Q(last_name__icontains=query)
-        ).order_by("username")[:limit]
+    return _generic_search(
+        queryset=User.objects,
+        query=query,
+        filters=["username__icontains", "first_name__icontains", "last_name__icontains"],
+        limit=limit,
+        order_by="username",
     )
 
 
 def _search_problems(query, limit=8):
-    if len(query) < 2:
-        return []
-
-    return list(
-        Problem.objects.filter(
-            Q(title__icontains=query)
-            | Q(statement__icontains=query)
-            | Q(category__icontains=query)
-        ).order_by("title")[:limit]
+    return _generic_search(
+        queryset=Problem.objects,
+        query=query,
+        filters=["title__icontains", "statement__icontains", "category__icontains"],
+        limit=limit,
+        order_by="title",
     )
 
 def signup(request):
@@ -123,7 +134,7 @@ def matching_users(request):
     query = request.GET.get("q", "").strip()
     results = []
 
-    if len(query) >= 2:
+    if _minimum_query_length(query):
         users = _search_users(query, limit=4)
         problems = _search_problems(query, limit=4)
 
@@ -132,7 +143,7 @@ def matching_users(request):
                 "kind": "user",
                 "label": user.username,
                 "secondary": (f"{user.first_name} {user.last_name}").strip(),
-                "url": f"/accounts/u/{user.username}/",
+                "url": reverse("accounts:public_profile", args=[user.username]),
             }
             for user in users
         ] + [
@@ -140,7 +151,7 @@ def matching_users(request):
                 "kind": "problem",
                 "label": problem.title,
                 "secondary": problem.get_category_display(),
-                "url": f"/problems/{problem.pk}/",
+                "url": reverse("problems:problem_detail", args=[problem.pk]),
             }
             for problem in problems
         ]

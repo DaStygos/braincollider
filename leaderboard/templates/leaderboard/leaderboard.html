@@ -4,6 +4,25 @@
 {% block title %}Leaderboard{% endblock %}
 
 {% block content %}
+<style>
+    .leaderboard-avatar-frame {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f0f0f0;
+    }
+
+    .leaderboard-avatar-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+</style>
+
 <h1>Leaderboard</h1>
 
 <table class="table table-striped">
@@ -20,9 +39,8 @@
         {% for entry in leaderboard %}
         <tr class="align-middle">
             <td>
-                <div style="width: 50px; height: 50px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background-color: #f0f0f0;">
-                    <img src="{{ entry.user.profile.get_avatar_url }}" alt="Avatar"
-                        style="width: 100%; height: 100%; object-fit: cover;">
+                <div class="leaderboard-avatar-frame">
+                    <img src="{{ entry.user.profile.get_avatar_url }}" alt="Avatar" class="leaderboard-avatar-image">
                 </div>
             </td>
 
@@ -34,7 +52,7 @@
         </tr>
         {% empty %}
         <tr>
-            <td colspan="4">Aucun utilisateur pour le moment.</td>
+            <td colspan="5">Aucun utilisateur pour le moment.</td>
         </tr>
         {% endfor %}
     </tbody>

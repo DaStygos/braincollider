@@ -4,9 +4,7 @@
 {% block content %}
 <div class="container my-5">
   <div class="card shadow-sm">
-    <div class="card-header bg-primary text-white text-center">
-      <h2 class="mb-0">📝 Soumissions en attente de correction</h2>
-    </div>
+    {% include "includes/_card_header.html" with title="📝 Soumissions en attente de correction" centered=True heading_tag="h2" %}
 
     <div class="card-body">
       {% if submissions %}
@@ -25,7 +23,7 @@
             <tr>
               <td class="fw-semibold">{{ sub.user.username }}</td>
               <td>{{ sub.problem.title }}</td>
-              <td class="text-secondary">{{ sub.suggested_at|date:"d/m/Y H:i" }}</td>
+              <td class="text-secondary">{{ sub.submitted_at|date:"d/m/Y H:i" }}</td>
               <td>
                 <a href="{% url 'staff:submission_detail' sub.id %}" class="btn btn-sm btn-outline-primary">
                   Voir la soumission
