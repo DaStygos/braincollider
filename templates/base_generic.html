@@ -51,6 +51,9 @@
         <li class="nav-item">
           <a class="nav-link" href="{% url 'leaderboard:leaderboard' %}">Leaderboard</a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'stats:dashboard' %}">Statistiques</a>
+        </li>
 
         {% if can_access_pending_submissions %}
         <li class="nav-item">

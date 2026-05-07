@@ -1,0 +1,228 @@
+{% extends "base_generic.html" %}
+
+{% block title %}Statistiques{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-4">
+  <div>
+    <h1 class="h3 mb-1">Statistiques du site</h1>
+    <p class="text-muted mb-0">Vue d'ensemble des utilisateurs, corrections et performances globales.</p>
+  </div>
+  <div class="text-muted small">Période analysée: 30 jours</div>
+</div>
+
+<ul class="nav nav-tabs" id="statsTab" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview-tab-pane" type="button" role="tab" aria-controls="overview-tab-pane" aria-selected="true">Vue d'ensemble</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="activity-tab" data-bs-toggle="tab" data-bs-target="#activity-tab-pane" type="button" role="tab" aria-controls="activity-tab-pane" aria-selected="false">Activité</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="rankings-tab" data-bs-toggle="tab" data-bs-target="#rankings-tab-pane" type="button" role="tab" aria-controls="rankings-tab-pane" aria-selected="false">Classements</button>
+  </li>
+</ul>
+
+<div class="tab-content border border-top-0 rounded-bottom bg-white shadow-sm p-3 p-lg-4" id="statsTabContent">
+  <div class="tab-pane fade show active" id="overview-tab-pane" role="tabpanel" aria-labelledby="overview-tab">
+    <div class="row g-3">
+      <div class="col-6 col-lg-3">
+        <div class="card h-100 border-0 bg-primary-subtle">
+          <div class="card-body">
+            <div class="text-muted small">Utilisateurs</div>
+            <div class="display-6 fw-semibold mb-0">{{ total_users }}</div>
+            <div class="small text-muted">{{ active_users }} actifs, {{ new_users_30d }} nouveaux sur 30 jours</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="card h-100 border-0 bg-success-subtle">
+          <div class="card-body">
+            <div class="text-muted small">Points cumulés</div>
+            <div class="display-6 fw-semibold mb-0">{{ total_points }}</div>
+            <div class="small text-muted">Moyenne: {{ average_points_per_user }} par utilisateur actif</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="card h-100 border-0 bg-warning-subtle">
+          <div class="card-body">
+            <div class="text-muted small">Corrections</div>
+            <div class="display-6 fw-semibold mb-0">{{ reviewed_submissions }}</div>
+            <div class="small text-muted">{{ correct_submissions }} correctes, {{ pending_submissions }} en attente</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="card h-100 border-0 bg-info-subtle">
+          <div class="card-body">
+            <div class="text-muted small">Taux de réussite</div>
+            <div class="display-6 fw-semibold mb-0">{{ success_rate }}%</div>
+            <div class="small text-muted">{{ total_submissions }} soumissions au total</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane fade" id="activity-tab-pane" role="tabpanel" aria-labelledby="activity-tab">
+    <div class="card border-0">
+      <div class="card-header bg-light fw-semibold">Points et corrections par jour</div>
+      <div class="card-body">
+        <div style="height: 360px;">
+          <canvas id="activityChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane fade" id="rankings-tab-pane" role="tabpanel" aria-labelledby="rankings-tab">
+    <div class="row g-3">
+      <div class="col-12 col-lg-6">
+        <div class="card h-100">
+          <div class="card-header bg-light fw-semibold">Top utilisateurs</div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table mb-0 align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>Utilisateur</th>
+                    <th class="text-center">Soumissions correctes</th>
+                    <th class="text-end">Points</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for top_user in top_users %}
+                    <tr>
+                      <td>
+                        <a href="{% url 'accounts:public_profile' top_user.username %}" class="text-decoration-none">{{ top_user.username }}</a>
+                      </td>
+                      <td class="text-center">{{ top_user.correct_count }}</td>
+                      <td class="text-end fw-semibold">{{ top_user.total_score }}</td>
+                    </tr>
+                  {% empty %}
+                    <tr><td colspan="3" class="text-center text-muted py-4">Aucune donnée disponible.</td></tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-lg-6">
+        <div class="card h-100">
+          <div class="card-header bg-light fw-semibold">Problèmes les plus résolus</div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table mb-0 align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>Problème</th>
+                    <th class="text-center">Résolutions</th>
+                    <th class="text-end">Points générés</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for problem in top_problems %}
+                    <tr>
+                      <td>{{ problem.title }}</td>
+                      <td class="text-center">{{ problem.solved_count }}</td>
+                      <td class="text-end fw-semibold">{{ problem.total_points }}</td>
+                    </tr>
+                  {% empty %}
+                    <tr><td colspan="3" class="text-center text-muted py-4">Aucune donnée disponible.</td></tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-lg-5">
+        <div class="card h-100">
+          <div class="card-header bg-light fw-semibold">Répartition par catégorie</div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table mb-0 align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>Catégorie</th>
+                    <th class="text-center">Réussites</th>
+                    <th class="text-end">Points</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for row in category_rows %}
+                    <tr>
+                      <td>{{ row.label }}</td>
+                      <td class="text-center">{{ row.count }}</td>
+                      <td class="text-end fw-semibold">{{ row.points }}</td>
+                    </tr>
+                  {% empty %}
+                    <tr><td colspan="3" class="text-center text-muted py-4">Aucune donnée disponible.</td></tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{ activity_labels|json_script:"activity-labels" }}
+{{ activity_points|json_script:"activity-points" }}
+{{ activity_corrections|json_script:"activity-corrections" }}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const activityLabels = JSON.parse(document.getElementById('activity-labels').textContent);
+  const activityPoints = JSON.parse(document.getElementById('activity-points').textContent);
+  const activityCorrections = JSON.parse(document.getElementById('activity-corrections').textContent);
+  const activityCanvas = document.getElementById('activityChart');
+
+  if (activityCanvas) {
+    const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--bs-primary').trim() || '#0d6efd';
+    const successColor = getComputedStyle(document.documentElement).getPropertyValue('--bs-success').trim() || '#198754';
+
+    new Chart(activityCanvas, {
+      type: 'line',
+      data: {
+        labels: activityLabels,
+        datasets: [
+          {
+            label: 'Points',
+            data: activityPoints,
+            borderColor: primaryColor,
+            backgroundColor: `${primaryColor}33`,
+            tension: 0.25,
+            fill: true,
+          },
+          {
+            label: 'Corrections',
+            data: activityCorrections,
+            borderColor: successColor,
+            backgroundColor: `${successColor}33`,
+            tension: 0.25,
+            fill: false,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          mode: 'index',
+          intersect: false,
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+          },
+        },
+      },
+    });
+  }
+</script>
+{% endblock %}
