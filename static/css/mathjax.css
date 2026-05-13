@@ -1,0 +1,45 @@
+/* Styles for LaTeX/Math content rendering with MathJax */
+
+.problem-statement {
+  font-size: 1.05em;
+  line-height: 1.8;
+}
+
+.submission-answer {
+  font-size: 0.95em;
+  line-height: 1.6;
+  word-break: break-word;
+  white-space: pre-wrap;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.math-render-pending {
+  visibility: hidden;
+}
+
+.math-live-preview {
+  min-height: 3rem;
+  padding: 0.75rem 1rem;
+  border: 1px dashed rgba(25, 28, 31, 0.2);
+  border-radius: 0.5rem;
+  background: #fff;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  overflow-x: auto;
+}
+
+/* Style for MathJax rendered equations */
+.MathJax {
+  font-size: 1.1em;
+}
+
+/* Inline math spacing */
+mjx-container[jax="SVG"] {
+  margin: 0 2px;
+}
+
+/* Display math centering */
+mjx-container[display="true"][jax="SVG"] {
+  display: block !important;
+  margin: 1em 0 !important;
+}

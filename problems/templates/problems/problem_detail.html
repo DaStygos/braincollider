@@ -1,4 +1,5 @@
 {% extends "base_generic.html" %}
+{% load custom_tags %}
 {% block title %}{{ problem.title }}{% endblock %}
 
 {% block content %}
@@ -10,24 +11,32 @@
 
     <div class="card-body">
       <h5 class="text-secondary mb-3">Catégorie : {{ problem.get_category_display }}</h5>
-      <p>{{ problem.statement|linebreaksbr }}</p>
+      <div class="problem-statement math-render-pending mb-4 p-3 bg-light rounded border-start border-primary border-4" style="border-left-width: 0.5rem !important;">
+        {{ problem.statement|linebreaks_preserve_latex }}
+      </div>
 
       <hr>
       <h5>Votre réponse :</h5>
 
       <form method="post" class="mb-3">
         {% csrf_token %}
-        <textarea name="answer" rows="6" class="form-control mb-3" placeholder="Votre réponse ici...">{% if submission %}{{ submission.answer }}{% endif %}</textarea>
+        <textarea name="answer" rows="6" class="form-control mb-3" placeholder="Votre réponse ici..." data-live-math-preview="answer-preview">{% if submission %}{{ submission.answer }}{% endif %}</textarea>
+        <div class="math-live-preview mb-3" id="answer-preview"></div>
         <button type="submit" class="btn btn-success">Soumettre</button>
       </form>
 
       {% if submission %}
+        <hr class="my-4">
+        <h5 class="mb-3">Votre soumission précédente :</h5>
+        <div class="submission-answer math-render-pending mb-3 p-3 bg-light rounded">
+          {{ submission.answer|linebreaks_preserve_latex }}
+        </div>
         {% if submission.is_correct == True %}
-          <div class="alert alert-success">Votre réponse a été validée comme correcte !</div>
+          <div class="alert alert-success"><i class="bi bi-check-circle-fill"></i> Votre réponse a été validée comme correcte !</div>
         {% elif submission.is_correct == False %}
-          <div class="alert alert-danger">Votre réponse a été corrigée comme incorrecte.</div>
+          <div class="alert alert-danger"><i class="bi bi-x-circle-fill"></i> Votre réponse a été corrigée comme incorrecte.</div>
         {% else %}
-          <div class="alert alert-warning">Votre réponse a été soumise et est en attente de correction.</div>
+          <div class="alert alert-warning"><i class="bi bi-hourglass-split"></i> Votre réponse a été soumise et est en attente de correction.</div>
         {% endif %}
       {% endif %}
     </div>

@@ -1,0 +1,49 @@
+{% extends 'base_generic.html' %}
+
+{% block title %}Supprimer {{ group.name }} - BrainCollider{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card border-danger">
+        <div class="card-header bg-danger text-white">
+          <h4 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Supprimer le groupe</h4>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-warning" role="alert">
+            <strong><i class="bi bi-exclamation-circle"></i> Avertissement!</strong>
+            <p class="mb-0">Cette action ne peut pas être annulée.</p>
+          </div>
+
+          <p>Êtes-vous sûr de vouloir supprimer le groupe <strong>"{{ group.name }}"</strong>?</p>
+          
+          <div class="card bg-light mb-3">
+            <div class="card-body">
+              <p class="mb-1"><strong>Détails du groupe:</strong></p>
+              <ul class="mb-0">
+                <li>Membres: {{ group.get_member_count }}</li>
+                <li>Créé le: {{ group.created_at|date:"d M Y" }}</li>
+              </ul>
+            </div>
+          </div>
+
+          <p class="text-muted small">
+            Toutes les données du groupe seront définitivement supprimées. Les membres n'auront plus accès au classement de ce groupe.
+          </p>
+
+          <form method="post" class="d-grid gap-2">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">
+              <i class="bi bi-trash"></i> Oui, supprimer le groupe
+            </button>
+            <a href="{% url 'groups:group_detail' group.id %}" class="btn btn-outline-secondary">
+              <i class="bi bi-x-circle"></i> Annuler
+            </a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

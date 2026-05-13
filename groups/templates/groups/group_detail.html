@@ -1,0 +1,167 @@
+{% extends 'base_generic.html' %}
+
+{% block title %}{{ group.name }} - BrainCollider{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-md-12">
+      <!-- Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h1>{{ group.name }}</h1>
+          {% if group.description %}
+          <p class="text-muted">{{ group.description }}</p>
+          {% endif %}
+        </div>
+        <div>
+          {% if is_admin %}
+          <a href="{% url 'groups:invite_user' group.id %}" class="btn btn-primary">
+            <i class="bi bi-person-plus"></i> Inviter un membre
+          </a>
+          <a href="{% url 'groups:delete_group' group.id %}" class="btn btn-danger">
+            <i class="bi bi-trash"></i> Supprimer le groupe
+          </a>
+          {% endif %}
+          <a href="{% url 'groups:leave_group' group.id %}" class="btn btn-secondary">
+            <i class="bi bi-box-arrow-left"></i> Quitter le groupe
+          </a>
+        </div>
+      </div>
+
+      <!-- Group Info -->
+      <div class="row mb-4">
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-body">
+              <div class="text-center">
+                <h3 class="text-primary">{{ member_count }}</h3>
+                <p class="text-muted">Membre{{ member_count|pluralize:"s" }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-body">
+              <div class="text-center">
+                <p class="text-muted">Créé par</p>
+                <a href="{% url 'accounts:public_profile' group.created_by.username %}" class="text-decoration-none">
+                  {{ group.created_by.username }}
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-body">
+              <div class="text-center">
+                <p class="text-muted">Créé le</p>
+                <strong>{{ group.created_at|date:"d M Y" }}</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Group Ranking -->
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0"><i class="bi bi-trophy"></i> Classement du groupe</h4>
+        </div>
+        <div class="card-body">
+          {% if ranking %}
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 5%">#</th>
+                  <th style="width: 40%">Pseudo</th>
+                  <th style="width: 35%" class="text-end">Score</th>
+                  <th style="width: 20%" class="text-end">Problèmes résolus</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for entry in ranking %}
+                <tr {% if entry.user == request.user %}class="table-primary"{% endif %}>
+                  <td>
+                    {% if forloop.counter == 1 %}
+                    <span class="badge bg-warning text-dark"><i class="bi bi-trophy-fill"></i> 1er</span>
+                    {% elif forloop.counter == 2 %}
+                    <span class="badge bg-secondary"><i class="bi bi-trophy-fill"></i> 2e</span>
+                    {% elif forloop.counter == 3 %}
+                    <span class="badge bg-danger"><i class="bi bi-trophy-fill"></i> 3e</span>
+                    {% else %}
+                    {{ forloop.counter }}
+                    {% endif %}
+                  </td>
+                  <td>
+                    <a href="{% url 'accounts:public_profile' entry.user.username %}" class="text-decoration-none">
+                      {{ entry.user.username }}
+                      {% if entry.user == request.user %}
+                      <span class="badge bg-primary">Vous</span>
+                      {% endif %}
+                    </a>
+                  </td>
+                  <td class="text-end">
+                    <strong>{{ entry.total_score }} pts</strong>
+                  </td>
+                  <td class="text-end">
+                    <span class="badge bg-info">{{ entry.solved_count }}</span>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> Pas encore de données de classement.
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Members List -->
+      <div class="card mt-4">
+        <div class="card-header">
+          <h4 class="mb-0"><i class="bi bi-people"></i> Membres</h4>
+        </div>
+        <div class="card-body">
+          {% if members %}
+          <div class="row">
+            {% for member in members %}
+            <div class="col-md-6 col-lg-4 mb-3">
+              <div class="d-flex align-items-center p-3 border rounded">
+                <div class="flex-grow-1">
+                  <a href="{% url 'accounts:public_profile' member.username %}" class="text-decoration-none fw-bold">
+                    {{ member.username }}
+                  </a>
+                  {% if member.id in admin_user_ids %}
+                  <span class="badge bg-secondary">Admin</span>
+                  {% endif %}
+                  <br>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> Aucun membre pour le moment.
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Back Button -->
+      <div class="mt-4 mb-4">
+        <a href="{% url 'groups:group_list' %}" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left"></i> Retour aux groupes
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

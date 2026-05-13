@@ -1,0 +1,168 @@
+{% extends 'base_generic.html' %}
+
+{% block title %}Inviter à {{ group.name }} - BrainCollider{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0"><i class="bi bi-person-plus"></i> Inviter un membre à {{ group.name }}</h4>
+        </div>
+        <div class="card-body">
+
+          <form method="post">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+              <label for="username" class="form-label">Nom d'utilisateur *</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="username" 
+                name="username" 
+                placeholder="Entrez le nom d'utilisateur" 
+                autocomplete="off"
+                required
+              >
+              <div class="dropdown-menu w-100 shadow-sm" id="invite-suggestions" style="display: none; z-index: 1050;"></div>
+              <small class="form-text text-muted">Le nom d'utilisateur de la personne que vous souhaitez inviter</small>
+            </div>
+
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-primary">
+                <i class="bi bi-send"></i> Envoyer l'invitation
+              </button>
+              <a href="{% url 'groups:group_detail' group.id %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Retour au groupe
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Group Members -->
+      <div class="card mt-4">
+        <div class="card-header">
+          <h5 class="mb-0"><i class="bi bi-people"></i> Membres actuels ({{ group.get_member_count }})</h5>
+        </div>
+        <div class="card-body">
+          {% if group.get_members %}
+          <ul class="list-group">
+            {% for member in group.get_members %}
+            <li class="list-group-item">
+              <a href="{% url 'accounts:public_profile' member.username %}" class="text-decoration-none">
+                {{ member.username }}
+              </a>
+              {% if member.id in admin_user_ids %}
+              <span class="badge bg-secondary float-end">Admin</span>
+              {% endif %}
+            </li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p class="text-muted">Aucun membre pour le moment</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Help Section -->
+      <div class="card mt-4">
+        <div class="card-header">
+          <h5 class="mb-0"><i class="bi bi-question-circle"></i> Comment ça marche</h5>
+        </div>
+        <div class="card-body small">
+          <ol class="mb-0">
+            <li>Entrez le nom d'utilisateur de la personne que vous souhaitez inviter</li>
+            <li>Elle recevra une notification d'invitation</li>
+            <li>Elle peut accepter ou refuser l'invitation</li>
+            <li>Une fois acceptée, elle apparaîtra dans le classement du groupe</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  (function () {
+    const input = document.getElementById('username');
+    const suggestions = document.getElementById('invite-suggestions');
+    if (!input || !suggestions) return;
+
+    let debounceTimer = null;
+    let abortController = null;
+
+    function closeSuggestions() {
+      suggestions.innerHTML = '';
+      suggestions.style.display = 'none';
+    }
+
+    function openSuggestions() {
+      suggestions.style.display = 'block';
+    }
+
+    function render(results) {
+      suggestions.innerHTML = '';
+      if (!results.length) { closeSuggestions(); return; }
+
+      results.forEach(result => {
+        if (result.kind !== 'user') return;
+        const a = document.createElement('a');
+        a.className = 'dropdown-item d-flex justify-content-between align-items-start gap-2';
+        a.href = '#';
+        a.dataset.username = result.label;
+
+        const strong = document.createElement('strong');
+        strong.textContent = result.label;
+        a.appendChild(strong);
+
+        if (result.secondary) {
+          const small = document.createElement('small');
+          small.className = 'text-muted d-block small';
+          small.textContent = result.secondary;
+          a.appendChild(small);
+        }
+
+        a.addEventListener('click', (e) => {
+          e.preventDefault();
+          input.value = a.dataset.username;
+          closeSuggestions();
+        });
+
+        suggestions.appendChild(a);
+      });
+
+      openSuggestions();
+    }
+
+    async function fetchSuggestions(query) {
+      if (abortController) abortController.abort();
+      abortController = new AbortController();
+
+      try {
+        const resp = await fetch(`{% url 'accounts:user_suggestions' %}?q=${encodeURIComponent(query)}`, { signal: abortController.signal, headers: { 'Accept': 'application/json' } });
+        if (!resp.ok) { closeSuggestions(); return; }
+        const data = await resp.json();
+        render(data.results || []);
+      } catch (err) {
+        if (err.name !== 'AbortError') closeSuggestions();
+      }
+    }
+
+    input.addEventListener('input', () => {
+      const q = input.value.trim();
+      if (debounceTimer) clearTimeout(debounceTimer);
+      if (q.length < 2) { closeSuggestions(); return; }
+      debounceTimer = setTimeout(() => fetchSuggestions(q), 150);
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('#username') && !e.target.closest('#invite-suggestions')) closeSuggestions();
+    });
+  })();
+</script>
+{% endblock %}

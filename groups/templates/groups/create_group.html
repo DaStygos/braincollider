@@ -1,0 +1,82 @@
+{% extends 'base_generic.html' %}
+
+{% block title %}Créer un groupe - BrainCollider{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0"><i class="bi bi-plus-circle"></i> Créer un nouveau groupe</h4>
+        </div>
+        <div class="card-body">
+          {% if messages %}
+          <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            {% for message in messages %}
+            {{ message }}
+            {% endfor %}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+          {% endif %}
+
+          <form method="post">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+              <label for="name" class="form-label">Nom du groupe *</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="name" 
+                name="name" 
+                placeholder="Entrez le nom du groupe" 
+                required
+                maxlength="200"
+              >
+              <small class="form-text text-muted">Choisissez un nom descriptif pour votre groupe</small>
+            </div>
+
+            <div class="mb-3">
+              <label for="description" class="form-label">Description</label>
+              <textarea 
+                class="form-control" 
+                id="description" 
+                name="description" 
+                rows="4" 
+                placeholder="Entrez la description du groupe (optionnel)"
+                maxlength="1000"
+              ></textarea>
+              <small class="form-text text-muted">Dites aux membres quel est l'objet de ce groupe</small>
+            </div>
+
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-circle"></i> Créer le groupe
+              </button>
+              <a href="{% url 'groups:group_list' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-x-circle"></i> Annuler
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Help Section -->
+      <div class="card mt-4">
+        <div class="card-header">
+          <h5 class="mb-0"><i class="bi bi-question-circle"></i> Conseils</h5>
+        </div>
+        <div class="card-body small">
+          <ul class="mb-0">
+            <li>Les groupes vous permettent de créer des classements privés avec vos amis ou coéquipiers</li>
+            <li>Vous serez administrateur du groupe et pourrez inviter d'autres utilisateurs</li>
+            <li>Les classements de groupe sont calculés à partir des scores de résolution de problèmes des membres</li>
+            <li>Vous pouvez inviter plusieurs utilisateurs à rejoindre votre groupe</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

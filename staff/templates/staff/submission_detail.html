@@ -1,4 +1,5 @@
 {% extends "base_generic.html" %}
+{% load custom_tags %}
 {% block title %}Correction de {{ submission.user.username }}{% endblock %}
 
 {% block content %}
@@ -16,14 +17,20 @@
 
       <hr>
       <h5 class="text-primary">Énoncé :</h5>
-      <p>{{ submission.problem.statement|linebreaksbr }}</p>
+      <div class="math-render-pending bg-light p-3 rounded border-start border-primary border-4" style="border-left-width: 0.5rem !important;">
+        {{ submission.problem.statement|linebreaks_preserve_latex }}
+      </div>
 
       <hr>
       <h5 class="text-primary mt-4">Solution attendue :</h5>
-      <pre class="bg-light p-3 rounded border">{{ submission.problem.expected_solution }}</pre>
+      <div class="math-render-pending bg-light p-3 rounded border">
+        {{ submission.problem.solution|linebreaks_preserve_latex }}
+      </div>
 
       <h5 class="text-primary mt-4">Réponse proposée :</h5>
-      <pre class="bg-light p-3 rounded border">{{ submission.answer }}</pre>
+      <div class="submission-answer math-render-pending p-3 rounded border">
+        {{ submission.answer|linebreaks_preserve_latex }}
+      </div>
 
       <form method="post" class="mt-4">
         {% csrf_token %}

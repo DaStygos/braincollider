@@ -9,6 +9,7 @@ urlpatterns = [
     path("accounts/", include("accounts.urls",namespace="accounts")),
     path("leaderboard/",include("leaderboard.urls",namespace="leaderboard")),
     path("statistics/", include("stats.urls", namespace="stats")),
+    path("groups/", include("groups.urls", namespace="groups")),
     path("admin/", admin.site.urls),
     path("notifications/", include("notifications.urls",namespace="notifications")),
     path("staff/", include("staff.urls", namespace="staff")),
