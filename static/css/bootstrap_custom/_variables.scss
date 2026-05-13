@@ -11,6 +11,20 @@ $warning: #ba8d2c;            // jaune alerte
 $danger: #dc3545;             // rouge erreur
 $light: #f8f9fa;              // gris très clair
 $dark: #191c1f;               // gris très foncé
+$locked: #d8d8d8;             // gris pour les éléments verrouillés
 
+// Theme colors map — include custom `locked` color so Bootstrap utilities
+// like `bg-locked` and `text-bg-locked` are generated.
+$theme-colors: (
+	"primary": $primary,
+	"secondary": $secondary,
+	"success": $success,
+	"info": $info,
+	"warning": $warning,
+	"danger": $danger,
+	"light": $light,
+	"dark": $dark,
+	"locked": $locked
+);
 
 @import "bootstrap/scss/bootstrap";

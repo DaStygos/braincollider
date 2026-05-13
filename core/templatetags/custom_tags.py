@@ -1,6 +1,9 @@
 from django import template
+from django.contrib.staticfiles import finders
+from django.templatetags.static import static
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
+import os
 import re
 
 register = template.Library()
@@ -15,6 +18,20 @@ def times(number):
 @register.filter
 def dict_key(d, key):
     return d.get(key)
+
+
+@register.simple_tag
+def static_versioned(path):
+    """
+    Return a static URL with a file modification timestamp query string.
+    This helps browsers pick up rebuilt assets without manual cache clearing.
+    """
+    resolved_path = finders.find(path)
+    if not resolved_path:
+        return static(path)
+
+    version = int(os.path.getmtime(resolved_path))
+    return f"{static(path)}?v={version}"
 
 @register.filter
 def stars(number):

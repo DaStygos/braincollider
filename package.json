@@ -1,4 +1,8 @@
 {
+  "scripts": {
+    "build:css": "sass static/css/main.scss static/css/main.css --load-path=node_modules",
+    "watch:css": "sass --watch static/css/main.scss:static/css/main.css --load-path=node_modules"
+  },
   "dependencies": {
     "bootstrap": "^5.3.8",
     "chart.js": "^4.5.1",

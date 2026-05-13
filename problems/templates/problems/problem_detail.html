@@ -28,7 +28,7 @@
       {% if submission %}
         <hr class="my-4">
         <h5 class="mb-3">Votre soumission précédente :</h5>
-        <div class="submission-answer math-render-pending mb-3 p-3 bg-light rounded">
+        <div class="submission-answer math-render-pending mb-3 p-3 bg-locked rounded">
           {{ submission.answer|linebreaks_preserve_latex }}
         </div>
         {% if submission.is_correct == True %}
