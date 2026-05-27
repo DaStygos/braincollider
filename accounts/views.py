@@ -88,6 +88,9 @@ def profile(request):
 
 
 def public_profile(request, username):
+    if request.user.is_authenticated and request.user.username == username:
+        return redirect("accounts:profile")
+
     profile_user = get_object_or_404(User, username=username)
     context = _build_profile_context(profile_user)
     return render(request, "accounts/public_profile.html", context)

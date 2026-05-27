@@ -2,44 +2,44 @@
 {% block title %}Soumissions à corriger{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-  <div class="card shadow-sm">
-    {% include "includes/_card_header.html" with title="📝 Soumissions en attente de correction" centered=True heading_tag="h2" %}
+{% include "includes/_page_header.html" with title="Soumissions à corriger" subtitle="Traitez les réponses en attente de validation." %}
 
-    <div class="card-body">
-      {% if submissions %}
-      <div class="table-responsive">
-        <table class="table table-hover table-bordered align-middle">
-          <thead class="table-light text-center">
-            <tr>
-              <th>Utilisateur</th>
-              <th>Problème</th>
-              <th>Date</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody class="text-center">
-            {% for sub in submissions %}
-            <tr>
-              <td class="fw-semibold">{{ sub.user.username }}</td>
-              <td>{{ sub.problem.title }}</td>
-              <td class="text-secondary">{{ sub.submitted_at|date:"d/m/Y H:i" }}</td>
-              <td>
-                <a href="{% url 'staff:submission_detail' sub.id %}" class="btn btn-sm btn-outline-primary">
-                  Voir la soumission
-                </a>
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      {% else %}
-      <div class="text-center py-5 text-muted">
-        <h5>🎉 Aucune soumission à corriger.</h5>
-      </div>
-      {% endif %}
+<div class="card border-0 shadow-sm">
+  {% include "includes/_card_header.html" with title="📝 Soumissions en attente de correction" centered=True header_class="bg-light" heading_tag="h2" %}
+
+  <div class="card-body">
+    {% if submissions %}
+    <div class="table-responsive">
+      <table class="table table-hover table-bordered align-middle mb-0">
+        <thead class="table-light text-center">
+          <tr>
+            <th>Utilisateur</th>
+            <th>Problème</th>
+            <th>Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody class="text-center">
+          {% for sub in submissions %}
+          <tr>
+            <td class="fw-semibold">{{ sub.user.username }}</td>
+            <td>{{ sub.problem.title }}</td>
+            <td class="text-secondary">{{ sub.submitted_at|date:"d/m/Y H:i" }}</td>
+            <td>
+              <a href="{% url 'staff:submission_detail' sub.id %}" class="btn btn-sm btn-outline-primary">
+                Voir la soumission
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
+    {% else %}
+    <div class="text-center py-5 text-muted">
+      <h5>🎉 Aucune soumission à corriger.</h5>
+    </div>
+    {% endif %}
   </div>
 </div>
 {% endblock %}

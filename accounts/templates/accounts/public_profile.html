@@ -4,9 +4,11 @@
 {% block title %}Profil de {{ profile_user.username }}{% endblock %}
 
 {% block content %}
+{% include "includes/_page_header.html" with title=profile_user.username subtitle="Profil public et dernières soumissions" %}
+<p class="text-muted mb-4">Membre depuis le {{ profile_user.date_joined|date:"d/m/Y" }}</p>
 <div class="row g-4">
   <div class="col-12 col-lg-4">
-    <div class="card h-100 shadow-sm">
+    <div class="card h-100 border-0 shadow-sm">
       <div class="card-body text-center">
         <div class="mb-3">
           <img src="{{ profile_user.profile.get_avatar_url }}" alt="Avatar" class="rounded-circle border" style="width: 120px; height: 120px; object-fit: cover;">
@@ -25,17 +27,17 @@
   </div>
 
   <div class="col-12 col-lg-8">
-    <div class="card shadow-sm">
+    <div class="card border-0 shadow-sm">
       <div class="card-header bg-light d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">Soumissions recentes</h5>
-        <a href="{% url 'accounts:user_search' %}" class="btn btn-sm btn-outline-secondary">Retour a la recherche</a>
+        <h2 class="h5 mb-0">Soumissions récentes</h2>
+        <a href="{% url 'accounts:user_search' %}" class="btn btn-sm btn-outline-secondary">Retour à la recherche</a>
       </div>
       <div class="card-body p-0">
         <table class="table table-hover table-striped mb-0 align-middle">
           <thead class="table-light">
             <tr>
-              <th>Probleme</th>
-              <th class="text-center" style="width: 160px;">Difficulte</th>
+              <th>Problème</th>
+              <th class="text-center" style="width: 160px;">Difficulté</th>
               <th class="text-center" style="width: 80px;">Statut</th>
               <th class="text-center" style="width: 120px;">Score</th>
             </tr>

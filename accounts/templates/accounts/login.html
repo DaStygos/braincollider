@@ -7,31 +7,34 @@
 {% block content %}
 <div class="row justify-content-center">
   <div class="col-md-6 col-lg-4">
-    <h2 class="mb-4 text-center">Connexion</h2>
+    <div class="card border-0 shadow-sm">
+      {% include "includes/_card_header.html" with title="Connexion" centered=True header_class="bg-primary text-white" heading_tag="h2" %}
+      <div class="card-body">
+        {% if form.errors %}
+          <div class="alert alert-danger">
+            Nom d’utilisateur ou mot de passe incorrect.
+          </div>
+        {% endif %}
 
-    {% if form.errors %}
-      <div class="alert alert-danger">
-        Nom d’utilisateur ou mot de passe incorrect.
+        <form method="post">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="id_username" class="form-label">Nom d'utilisateur</label>
+            {{ form.username|add_class:"form-control" }}
+          </div>
+          <div class="mb-3">
+            <label for="id_password" class="form-label">Mot de passe</label>
+            {{ form.password|add_class:"form-control" }}
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100">Se connecter</button>
+        </form>
+
+        <p class="mt-3 mb-0 text-center text-muted">
+          Pas encore de compte ? <a href="{% url 'accounts:signup' %}">Inscris-toi</a>
+        </p>
       </div>
-    {% endif %}
-
-    <form method="post" class="card p-4 shadow-sm">
-      {% csrf_token %}
-      <div class="mb-3">
-        <label for="id_username" class="form-label">Nom d'utilisateur</label>
-        {{ form.username|add_class:"form-control" }}
-      </div>
-      <div class="mb-3">
-        <label for="id_password" class="form-label">Mot de passe</label>
-        {{ form.password|add_class:"form-control" }}
-      </div>
-
-      <button type="submit" class="btn btn-primary w-100">Se connecter</button>
-    </form>
-
-    <p class="mt-3 text-center">
-      Pas encore de compte ? <a href="{% url 'accounts:signup' %}">Inscris-toi</a>
-    </p>
+    </div>
   </div>
 </div>
 {% endblock %}

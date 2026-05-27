@@ -4,8 +4,62 @@
 {% block title %}Accueil{% endblock %}
 
 {% block content %}
-<div class="container mt-5 text-center">
-    <h1>Bienvenue sur BrainCollider 🧠</h1>
-    <p class="lead">Résolvez des problèmes, suivez vos scores et grimpez dans le classement !</p>
+{% include "includes/_page_header.html" with title="Bienvenue sur BrainCollider 🧠" subtitle="Une plateforme pour progresser en résolution de problèmes, comparer vos performances et apprendre en continu." %}
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <p class="mb-0">
+            BrainCollider est un espace d'entraînement intellectuel où vous pouvez résoudre des exercices, suivre votre évolution
+            et vous challenger avec les autres membres de la communauté. Chaque problème résolu améliore vos statistiques
+            et vous aide à identifier vos points forts ainsi que les notions à retravailler.
+        </p>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <h2 class="h6 mb-2">1. Choisissez un problème</h2>
+                <p class="mb-0 text-muted">Parcourez les exercices proposés selon le niveau, le thème ou la difficulté.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <h2 class="h6 mb-2">2. Soumettez votre réponse</h2>
+                <p class="mb-0 text-muted">Résolvez l'exercice puis envoyez votre solution pour une vérification immédiate.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <h2 class="h6 mb-2">3. Analysez vos résultats</h2>
+                <p class="mb-0 text-muted">Consultez vos scores, votre historique et votre position dans le classement.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body text-center">
+        <p class="mb-2">L'objectif est simple : pratiquer régulièrement, progresser étape par étape et prendre plaisir à apprendre.</p>
+        <p class="text-muted mb-0">Commencez dès maintenant et voyez jusqu'où votre logique peut vous mener.</p>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body bg-info-subtle">
+        <h2 class="h5 mb-2">Et après une bonne réponse ?</h2>
+        <p class="mb-2">
+            Pensez aussi à revenir sur les problèmes que vous avez déjà résolus pour relire et améliorer vos soumissions.
+            Corriger une solution existante est l'un des meilleurs moyens de consolider vos acquis.
+        </p>
+        <p class="mb-0">
+            En affinant vos raisonnements (clarté, méthode, rigueur), vous progressez plus vite et vous aidez aussi la communauté à apprendre.
+        </p>
+    </div>
 </div>
 {% endblock %}

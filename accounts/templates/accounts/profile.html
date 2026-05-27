@@ -3,14 +3,14 @@
 {% block title %}Profil{% endblock %}
 
 {% block content %}
-
 {% load custom_tags %}
 {% load static %}
 
+{% include "includes/_page_header.html" with title=user.username subtitle=user.email meta="Profil personnel et historique des soumissions" %}
+
 <div class="row g-4">
-  <!-- Colonne gauche: profil -->
   <div class="col-12 col-lg-4">
-    <div class="card h-100 shadow-sm">
+    <div class="card h-100 border-0 shadow-sm">
       <div class="card-body text-center">
         <div class="mb-3">
           <img src="{{ user.profile.get_avatar_url }}" alt="Avatar" class="rounded-circle border"
@@ -28,12 +28,11 @@
     </div>
   </div>
 
-  <!-- Colonne droite: soumissions -->
   <div class="col-12 col-lg-8">
-    <div class="card shadow-sm">
-      <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">Mes soumissions</h5>
-        <span class="badge bg-light text-primary">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <h2 class="h5 mb-0">Mes soumissions</h2>
+        <span class="badge text-bg-primary">
           Score total : {{ total_score }} point{{ total_score|pluralize }}
         </span>
       </div>

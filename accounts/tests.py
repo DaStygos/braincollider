@@ -46,6 +46,25 @@ class AccountsViewsTests(TestCase):
 		user.refresh_from_db()
 		self.assertEqual(len(user.profile.previous_scores), 1)
 
+	def test_public_profile_redirects_to_private_profile_for_current_user(self):
+		user = User.objects.create_user(username="player", password="password123")
+		self.client.force_login(user)
+
+		response = self.client.get(reverse("accounts:public_profile", args=[user.username]))
+
+		self.assertRedirects(response, reverse("accounts:profile"))
+
+	def test_public_profile_shows_other_users_profile(self):
+		viewer = User.objects.create_user(username="viewer", password="password123")
+		profile_user = User.objects.create_user(username="player", password="password123")
+		self.client.force_login(viewer)
+
+		response = self.client.get(reverse("accounts:public_profile", args=[profile_user.username]))
+
+		self.assertEqual(response.status_code, 200)
+		self.assertTemplateUsed(response, "accounts/public_profile.html")
+		self.assertEqual(response.context["profile_user"], profile_user)
+
 	def test_edit_profile_updates_user_fields(self):
 		user = User.objects.create_user(username="player", password="password123", email="old@example.com")
 		self.client.force_login(user)

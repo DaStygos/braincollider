@@ -5,7 +5,7 @@
     {% with submission.problem.difficulty|stars as st %}
       <tr>
         <td>
-          <a href="{% url 'problems:problem_detail' submission.problem.id %}" class="text-decoration-none fw-semibold text-dark">
+          <a href="{% url 'problems:problem_detail' submission.problem.id %}" class="text-decoration-none fw-semibold text-body">
             {{ submission.problem.title }}
           </a>
         </td>
@@ -23,7 +23,7 @@
             <i class="bi bi-hourglass-split text-warning fs-5" title="En attente de correction"></i>
           {% endif %}
         </td>
-        <td class="text-center text-dark">
+        <td class="text-center fw-semibold">
           {{ submission.problem.get_score }} pt{{ submission.problem.get_score|pluralize }}
         </td>
       </tr>

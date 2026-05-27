@@ -3,10 +3,12 @@
 {% block title %}Recherche{% endblock %}
 
 {% block content %}
+{% include "includes/_page_header.html" with title="Recherche" subtitle="Trouvez un utilisateur ou un problème en quelques secondes." %}
+
 <div class="row justify-content-center">
   <div class="col-12 col-lg-8">
-    <div class="card shadow-sm">
-      {% include "includes/_card_header.html" with title="Recherche" %}
+    <div class="card border-0 shadow-sm">
+      {% include "includes/_card_header.html" with title="Recherche" centered=True header_class="bg-primary text-white" heading_tag="h2" %}
       <div class="card-body">
         <form method="get" action="{% url 'accounts:user_search' %}" class="mb-4">
           <div class="input-group">
@@ -25,7 +27,7 @@
           <p class="text-muted mb-3">Résultats pour "{{ query }}"</p>
           {% if users or problems %}
             {% if users %}
-              <h6 class="text-uppercase text-muted small fw-bold mt-3">Utilisateurs</h6>
+              <h3 class="h6 text-uppercase text-muted small fw-bold mt-3">Utilisateurs</h3>
               <div class="list-group mb-4">
                 {% for result_user in users %}
                   <a href="{% url 'accounts:public_profile' result_user.username %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-start gap-2">
@@ -42,7 +44,7 @@
             {% endif %}
 
             {% if problems %}
-              <h6 class="text-uppercase text-muted small fw-bold mt-3">Problèmes</h6>
+              <h3 class="h6 text-uppercase text-muted small fw-bold mt-3">Problèmes</h3>
               <div class="list-group">
                 {% for problem in problems %}
                   <a href="{% url 'problems:problem_detail' problem.id %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-start gap-2">

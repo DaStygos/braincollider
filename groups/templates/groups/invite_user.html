@@ -3,83 +3,70 @@
 {% block title %}Inviter à {{ group.name }} - BrainCollider{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-  <div class="row justify-content-center">
-    <div class="col-md-6">
-      <div class="card">
-        <div class="card-header bg-primary text-white">
-          <h4 class="mb-0"><i class="bi bi-person-plus"></i> Inviter un membre à {{ group.name }}</h4>
-        </div>
-        <div class="card-body">
-
-          <form method="post">
-            {% csrf_token %}
-            
-            <div class="mb-3">
-              <label for="username" class="form-label">Nom d'utilisateur *</label>
-              <input 
-                type="text" 
-                class="form-control" 
-                id="username" 
-                name="username" 
-                placeholder="Entrez le nom d'utilisateur" 
-                autocomplete="off"
-                required
-              >
-              <div class="dropdown-menu w-100 shadow-sm" id="invite-suggestions" style="display: none; z-index: 1050;"></div>
-              <small class="form-text text-muted">Le nom d'utilisateur de la personne que vous souhaitez inviter</small>
-            </div>
-
-            <div class="d-grid gap-2">
-              <button type="submit" class="btn btn-primary">
-                <i class="bi bi-send"></i> Envoyer l'invitation
-              </button>
-              <a href="{% url 'groups:group_detail' group.id %}" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left"></i> Retour au groupe
-              </a>
-            </div>
-          </form>
-        </div>
+<div class="row justify-content-center">
+  <div class="col-12 col-md-8 col-lg-6">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-primary text-white">
+        <h1 class="h4 mb-0"><i class="bi bi-person-plus"></i> Inviter un membre à {{ group.name }}</h1>
       </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
 
-      <!-- Group Members -->
-      <div class="card mt-4">
-        <div class="card-header">
-          <h5 class="mb-0"><i class="bi bi-people"></i> Membres actuels ({{ group.get_member_count }})</h5>
-        </div>
-        <div class="card-body">
-          {% if group.get_members %}
-          <ul class="list-group">
-            {% for member in group.get_members %}
-            <li class="list-group-item">
-              <a href="{% url 'accounts:public_profile' member.username %}" class="text-decoration-none">
-                {{ member.username }}
-              </a>
-              {% if member.id in admin_user_ids %}
-              <span class="badge bg-secondary float-end">Admin</span>
-              {% endif %}
-            </li>
-            {% endfor %}
-          </ul>
-          {% else %}
-          <p class="text-muted">Aucun membre pour le moment</p>
-          {% endif %}
-        </div>
+          <div class="mb-3 position-relative">
+            <label for="username" class="form-label">Nom d'utilisateur *</label>
+            <input type="text" class="form-control" id="username" name="username" placeholder="Entrez le nom d'utilisateur" autocomplete="off" required>
+            <div class="dropdown-menu w-100 shadow-sm" id="invite-suggestions" style="display: none; z-index: 1050;"></div>
+            <small class="form-text text-muted">Le nom d'utilisateur de la personne que vous souhaitez inviter</small>
+          </div>
+
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-send"></i> Envoyer l'invitation
+            </button>
+            <a href="{% url 'groups:group_detail' group.id %}" class="btn btn-outline-secondary">
+              <i class="bi bi-arrow-left"></i> Retour au groupe
+            </a>
+          </div>
+        </form>
       </div>
+    </div>
 
-      <!-- Help Section -->
-      <div class="card mt-4">
-        <div class="card-header">
-          <h5 class="mb-0"><i class="bi bi-question-circle"></i> Comment ça marche</h5>
-        </div>
-        <div class="card-body small">
-          <ol class="mb-0">
-            <li>Entrez le nom d'utilisateur de la personne que vous souhaitez inviter</li>
-            <li>Elle recevra une notification d'invitation</li>
-            <li>Elle peut accepter ou refuser l'invitation</li>
-            <li>Une fois acceptée, elle apparaîtra dans le classement du groupe</li>
-          </ol>
-        </div>
+    <div class="card border-0 shadow-sm mt-4">
+      <div class="card-header bg-light fw-semibold">
+        <i class="bi bi-people"></i> Membres actuels ({{ group.get_member_count }})
+      </div>
+      <div class="card-body">
+        {% if group.get_members %}
+        <ul class="list-group list-group-flush">
+          {% for member in group.get_members %}
+          <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+            <a href="{% url 'accounts:public_profile' member.username %}" class="text-decoration-none">
+              {{ member.username }}
+            </a>
+            {% if member.id in admin_user_ids %}
+            <span class="badge bg-secondary">Admin</span>
+            {% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted mb-0">Aucun membre pour le moment</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mt-4">
+      <div class="card-header bg-light fw-semibold">
+        <i class="bi bi-question-circle"></i> Comment ça marche
+      </div>
+      <div class="card-body small">
+        <ol class="mb-0">
+          <li>Entrez le nom d'utilisateur de la personne que vous souhaitez inviter</li>
+          <li>Elle recevra une notification d'invitation</li>
+          <li>Elle peut accepter ou refuser l'invitation</li>
+          <li>Une fois acceptée, elle apparaîtra dans le classement du groupe</li>
+        </ol>
       </div>
     </div>
   </div>

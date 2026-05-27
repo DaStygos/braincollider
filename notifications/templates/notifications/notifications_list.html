@@ -3,38 +3,43 @@
 {% block title %}Notifications{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-  {% if unread_count > 0 %}
-    <h2 class="mb-4">
-      Vous avez {{ unread_count }} nouvelle{{ unread_count|pluralize }} notification{{ unread_count|pluralize }}.
-    </h2>
-    
-    <ul class="list-group">
-      {% for notification in unread_notifications %}
-        <li class="list-group-item list-group-item-info">
-          <div class="d-flex justify-content-between align-items-center">
-            <span>{{ notification.message }} <small>({{ notification.created_at|date:"d M Y H:i" }})</small></span>
-            <form action="{% url 'notifications:mark_as_read' notification.pk %}" method="post" style="display:inline;">
-              {% csrf_token %}
-              <button type="submit" class="btn btn-sm btn-white">Marquer comme lu</button>
-            </form>
-          </div>
-        </li>
-      {% endfor %}
-    </ul>
-  {% endif %}
-  <h3 class="mt-5">Historique des notifications</h3>
-  <ul class="list-group mt-4">
-    {% for notification in read_notifications %}
-      <li class="list-group-item">
-        <div class="d-flex justify-content-between align-items-center">
-          <span>{{ notification.message }}</span>
+{% include "includes/_page_header.html" with title="Notifications" subtitle="Suivez les messages récents et l'historique de vos notifications." %}
+
+{% if unread_count > 0 %}
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-header bg-info-subtle fw-semibold">Notifications non lues</div>
+  <div class="list-group list-group-flush">
+    {% for notification in unread_notifications %}
+    <div class="list-group-item list-group-item-info">
+      <div class="d-flex justify-content-between align-items-center gap-3">
+        <div>
+          <div>{{ notification.message }}</div>
           <small class="text-muted">{{ notification.created_at|date:"d M Y H:i" }}</small>
         </div>
-      </li>
-    {% empty %}
-      <li class="list-group-item">Vous n'avez aucune ancienne notification.</li>
+        <form action="{% url 'notifications:mark_as_read' notification.pk %}" method="post" class="m-0">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-sm btn-outline-primary">Marquer comme lu</button>
+        </form>
+      </div>
+    </div>
     {% endfor %}
-  </ul>
+  </div>
+</div>
+{% endif %}
+
+<div class="card border-0 shadow-sm">
+  <div class="card-header bg-light fw-semibold">Historique des notifications</div>
+  <div class="list-group list-group-flush">
+    {% for notification in read_notifications %}
+    <div class="list-group-item">
+      <div class="d-flex justify-content-between align-items-center gap-3">
+        <span>{{ notification.message }}</span>
+        <small class="text-muted">{{ notification.created_at|date:"d M Y H:i" }}</small>
+      </div>
+    </div>
+    {% empty %}
+    <div class="list-group-item text-muted">Vous n'avez aucune ancienne notification.</div>
+    {% endfor %}
+  </div>
 </div>
 {% endblock %}

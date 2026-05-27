@@ -81,7 +81,7 @@
             {% endif %}
           </a>
           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-            <li><a class="dropdown-item" href="{% url 'accounts:public_profile' user.username %}">Profil public</a></li>
+            <li><a class="dropdown-item" href="{% url 'accounts:public_profile' user.username %}">Mon profil</a></li>
             <li><a class="dropdown-item" href="{% url 'groups:group_list' %}">Groupes</a></li>
             <li><a class="dropdown-item" href="{% url 'notifications:notifications_list' %}">Notifications {% if unread_count > 0 %}<span class="badge bg-danger">{{ unread_count }}</span>{% endif %}</a></li>
             <li><a class="dropdown-item" href="{% url 'accounts:password_change' %}">Changer le mot de passe</a></li>
@@ -107,7 +107,7 @@
 </nav>
 
 <!-- 🔹 Contenu principal -->
-<div class="container mt-4">
+<div class="container mt-4 mb-5">
   {% block content %}
   {% endblock %}
 </div>
@@ -347,5 +347,8 @@
     }
   });
 </script>
+
+{% block extra_js %}{% endblock %}
+{% block extra_scripts %}{% endblock %}
 </body>
 </html>

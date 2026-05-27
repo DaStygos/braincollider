@@ -4,62 +4,45 @@
 {% block title %}Leaderboard{% endblock %}
 
 {% block content %}
-<style>
-    .leaderboard-avatar-frame {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        overflow: hidden;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: #f0f0f0;
-    }
+{% include "includes/_page_header.html" with title="Leaderboard" subtitle="Classement des utilisateurs par points obtenus." %}
 
-    .leaderboard-avatar-image {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-</style>
-
-<h1>Leaderboard</h1>
-
-<table class="table table-striped">
-    <thead>
-        <tr class ="align-middle">
-            <th>Avatar</th>
-            <th>Rang</th>
-            <th>Utilisateur</th>
-            <th>Problèmes réussis</th>
-            <th>Score total</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for entry in leaderboard %}
-        <tr class="align-middle">
-            <td>
-                <div class="leaderboard-avatar-frame">
-                    <img src="{{ entry.user.profile.get_avatar_url }}" alt="Avatar" class="leaderboard-avatar-image">
-                </div>
-            </td>
-
-
-            <td>{{ forloop.counter }}</td>
-            <td><a href="{% url 'accounts:public_profile' entry.user.username %}">{{ entry.user.username }}</a></td>
-            <td>{{ entry.solved_count }}</td>
-            <td>{{ entry.total_score }} pt{{ entry.total_score|pluralize }}</td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="5">Aucun utilisateur pour le moment.</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Avatar</th>
+                        <th>Rang</th>
+                        <th>Utilisateur</th>
+                        <th>Problèmes réussis</th>
+                        <th class="text-end">Score total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in leaderboard %}
+                    <tr>
+                        <td>
+                            <img src="{{ entry.user.profile.get_avatar_url }}" alt="Avatar" class="rounded-circle border" style="width: 48px; height: 48px; object-fit: cover;">
+                        </td>
+                        <td class="fw-semibold">{{ forloop.counter }}</td>
+                        <td><a href="{% url 'accounts:public_profile' entry.user.username %}" class="text-decoration-none">{{ entry.user.username }}</a></td>
+                        <td>{{ entry.solved_count }}</td>
+                        <td class="text-end fw-semibold">{{ entry.total_score }} pt{{ entry.total_score|pluralize }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">Aucun utilisateur pour le moment.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
 {% if user.is_authenticated and user.profile.get_total_score == 0 %}
-<div class="alert alert-info" role="alert">
+<div class="alert alert-info mt-4 mb-0" role="alert">
     Vous n'avez pas encore de points. Commencez à résoudre des problèmes pour gagner des points et rentrer dans le classement!
 </div>
 {% endif %}
