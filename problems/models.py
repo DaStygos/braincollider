@@ -47,7 +47,28 @@ class Submission(models.Model):
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
     answer = models.TextField()
     is_correct = models.BooleanField(null=True, blank=True)
+    STATUS_CHOICES = [
+        ("pending", "En attente"),
+        ("accepted", "Acceptée"),
+        ("rejected", "Refusée"),
+        ("clarification", "Précisions demandées"),
+    ]
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
     submitted_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.user.username} - {self.problem.title}"
+
+
+class SubmissionComment(models.Model):
+    submission = models.ForeignKey(Submission, on_delete=models.CASCADE, related_name="comments")
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    text = models.TextField()
+    is_reviewer = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at"]
+
+    def __str__(self):
+        return f"Commentaire de {self.author.username} sur {self.submission_id}"

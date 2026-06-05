@@ -15,12 +15,12 @@
           {% endfor %}
         </td>
         <td class="text-center">
-          {% if submission.is_correct %}
+          {% if submission.status == 'accepted' %}
             <i class="bi bi-check-circle-fill text-success fs-5" title="Correcte"></i>
-          {% elif submission.is_correct == False %}
+          {% elif submission.status == 'rejected' %}
             <i class="bi bi-x-circle-fill text-danger fs-5" title="Incorrecte"></i>
           {% else %}
-            <i class="bi bi-hourglass-split text-warning fs-5" title="En attente de correction"></i>
+            <i class="bi bi-hourglass-split text-secondary fs-5" title="En attente de correction"></i>
           {% endif %}
         </td>
         <td class="text-center fw-semibold">

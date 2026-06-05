@@ -21,30 +21,67 @@
           {{ submission.problem.statement|linebreaks_preserve_latex }}
         </div>
 
-        <h2 class="h5 text-primary">Solution attendue</h2>
-        <div class="math-render-pending bg-light p-3 rounded border mb-4">
-          {{ submission.problem.solution|linebreaks_preserve_latex }}
-        </div>
+        <h2 class="h5 text-primary">Conversation</h2>
+        <div class="card mb-4">
+          <div class="card-body">
+            <div class="mb-2">
+              {% if submission.status == 'accepted' %}
+                <span class="badge bg-success">Validée</span>
+              {% elif submission.status == 'rejected' %}
+                <span class="badge bg-danger">Incorrecte</span>
+              {% elif submission.status == 'clarification' %}
+                <span class="badge bg-warning text-dark">Précisions demandées</span>
+              {% else %}
+                <span class="badge bg-secondary">En attente</span>
+              {% endif %}
+            </div>
 
-        <h2 class="h5 text-primary">Réponse proposée</h2>
-        <div class="submission-answer math-render-pending p-3 rounded border mb-4">
-          {{ submission.answer|linebreaks_preserve_latex }}
-        </div>
+            <div class="discussion">
+              <div class="list-group list-group-flush mb-3">
+                <div class="list-group-item py-3">
+                  <div class="d-flex w-100 justify-content-between">
+                    <strong class="mb-0">{{ submission.user.username }}</strong>
+                    <small class="text-muted">{{ submission.submitted_at }}</small>
+                  </div>
+                  <div class="mt-2 math-render-pending">{{ submission.answer|linebreaks_preserve_latex }}</div>
+                </div>
+                {% for c in submission.comments.all %}
+                  <div class="list-group-item py-3">
+                    <div class="d-flex w-100 justify-content-between">
+                      <strong class="mb-0">{{ c.author.username }}</strong>
+                      <small class="text-muted">{{ c.created_at }}</small>
+                    </div>
+                    <div class="mt-2 math-render-pending">{{ c.text|linebreaks_preserve_latex }}</div>
+                  </div>
+                {% empty %}
+                {% endfor %}
+              </div>
 
-        <form method="post">
-          {% csrf_token %}
-          <div class="d-flex flex-wrap gap-2">
-            <button name="decision" value="correct" class="btn btn-success px-4">
-              Marquer comme correcte
-            </button>
-            <button name="decision" value="incorrect" class="btn btn-danger px-4">
-              Marquer comme incorrecte
-            </button>
-            <a href="{% url 'staff:pending_submissions' %}" class="btn btn-outline-secondary">
-              Retour à la liste
-            </a>
+              {# Unified composer + decision buttons in one form for reviewers #}
+              <form method="post">
+                {% csrf_token %}
+                <div class="mb-2">
+                  <textarea name="content" rows="3" class="form-control" placeholder="Ajouter un message à la conversation..."></textarea>
+                </div>
+                  <div class="d-flex flex-wrap gap-2">
+                    {# Removed free 'add message' button to force reviewers to pick an action #}
+                    <button name="decision" value="clarify" class="btn btn-warning text-dark" title="Demander des précisions" aria-label="Demander des précisions">
+                      <i class="bi bi-question-circle"></i>
+                    </button>
+                    <button name="decision" value="correct" class="btn btn-success" title="Marquer correcte" aria-label="Marquer correcte">
+                      <i class="bi bi-check-lg"></i>
+                    </button>
+                    <button name="decision" value="incorrect" class="btn btn-danger" title="Marquer incorrecte" aria-label="Marquer incorrecte">
+                      <i class="bi bi-x-lg"></i>
+                    </button>
+                    <a href="{% url 'staff:pending_submissions' %}" class="btn btn-outline-secondary" title="Retour" aria-label="Retour">
+                      <i class="bi bi-list"></i>
+                    </a>
+                  </div>
+              </form>
+            </div>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   </div>

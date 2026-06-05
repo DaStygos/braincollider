@@ -1,6 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Problem, Submission
+from .models import Problem, Submission, SubmissionComment
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from notifications.utils import create_notification
 
 
 def _group_problems_by_category(problems):
@@ -41,22 +43,62 @@ def problem_detail(request, pk):
     submission = Submission.objects.filter(user=request.user, problem=problem).first()
 
     if request.method == "POST":
-        answer = request.POST.get("answer", "").strip()
+        # Backwards-compatible: if 'answer' is present, keep legacy behavior
+        answer = request.POST.get("answer")
+        if answer is not None:
+            answer = answer.strip()
+            if submission:
+                submission.answer = answer
+                submission.is_correct = None
+                submission.status = "pending"
+                submission.save()
+            else:
+                submission = Submission.objects.create(
+                    user=request.user,
+                    problem=problem,
+                    answer=answer,
+                    is_correct=None,
+                    status="pending",
+                )
+                problem.total_submissions += 1
+                problem.save()
+            return redirect("problems:problem_detail", pk=problem.pk)
 
-        # Cree ou met a jour la soumission.
+        # Unified form: single field `content`.
+        content = request.POST.get("content", "").strip()
+        if not content:
+            return redirect("problems:problem_detail", pk=problem.pk)
+
         if submission:
-            submission.answer = answer
-            submission.is_correct = None
-            submission.save()
-        else:
-            submission = Submission.objects.create(
-                user=request.user,
-                problem=problem,
-                answer=answer,
-                is_correct=None
+            # If submission exists, adding elements means appending a comment to the conversation.
+            # Only the submission owner may add comments from this page.
+            if submission.user != request.user:
+                return redirect("problems:problem_detail", pk=problem.pk)
+
+            SubmissionComment.objects.create(
+                submission=submission,
+                author=request.user,
+                text=content,
+                is_reviewer=False,
             )
-            problem.total_submissions += 1
-            problem.save()
+            submission.status = "pending"
+            submission.save()
+
+            # Do not notify staff when the submission owner adds clarifications.
+            # Staff will see the updated conversation when they visit pending submissions.
+
+            return redirect("problems:problem_detail", pk=problem.pk)
+
+        # No submission exists yet: create the initial submission using content.
+        submission = Submission.objects.create(
+            user=request.user,
+            problem=problem,
+            answer=content,
+            is_correct=None,
+            status="pending",
+        )
+        problem.total_submissions += 1
+        problem.save()
 
         return redirect("problems:problem_detail", pk=problem.pk)
 
