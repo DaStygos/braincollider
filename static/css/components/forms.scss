@@ -1,0 +1,28 @@
+
+.signup-consent {
+	.signup-consent-label {
+		display: inline-block;
+		line-height: 1.35;
+	}
+
+	.form-check-input {
+		margin-top: 0;
+		flex: 0 0 auto;
+	}
+}
+
+.signup-form {
+	.errorlist {
+		color: var(--bs-danger);
+		margin: 0.35rem 0 0;
+		padding-left: 1.1rem;
+	}
+
+	.errorlist li {
+		color: var(--bs-danger);
+	}
+
+	.alert-danger {
+		color: var(--bs-danger-text-emphasis);
+	}
+}

@@ -5,7 +5,9 @@ from django.db.models import Prefetch
 from problems.models import Submission
 
 def leaderboard(request):
-    users = User.objects.select_related("profile").prefetch_related(
+    users = User.objects.select_related("profile").filter(
+        profile__allow_leaderboard_display=True,
+    ).prefetch_related(
         Prefetch(
             "submission_set",
             queryset=Submission.objects.select_related("problem"),

@@ -47,4 +47,10 @@
 </div>
 {% endif %}
 
+{% if user.is_authenticated and not user.profile.allow_leaderboard_display %}
+<div class="alert alert-warning mt-4 mb-0" role="alert">
+    Vous avez choisi de ne pas afficher votre profil dans le classement. Si vous souhaitez apparaître dans le leaderboard, vous pouvez modifier ce paramètre dans votre <a href="{% url 'accounts:edit_profile' %}">profil</a>.
+</div>
+{% endif %}
+
 {% endblock %}

@@ -4,7 +4,7 @@
 {% block title %}Profil de {{ profile_user.username }}{% endblock %}
 
 {% block content %}
-{% include "includes/_page_header.html" with title=profile_user.username subtitle="Profil public et dernières soumissions" %}
+{% include "includes/_page_header.html" with title=profile_user.username subtitle="Profil et dernières soumissions" %}
 <p class="text-muted mb-4">Membre depuis le {{ profile_user.date_joined|date:"d/m/Y" }}</p>
 <div class="row g-4">
   <div class="col-12 col-lg-4">
@@ -17,12 +17,16 @@
         <p class="card-text mb-1">
           <small>Membre depuis le {{ profile_user.date_joined|date:"d/m/Y" }}</small>
         </p>
-        <div class="mt-3 d-flex justify-content-center gap-2 flex-wrap">
-          <span class="badge text-bg-primary">Score: {{ total_score }}</span>
-          <span class="badge text-bg-success">Correctes: {{ correct_submissions }}/{{ total_submissions }}</span>
-          <span class="badge text-bg-dark">Taux: {{ success_rate }}%</span>
-        </div>
       </div>
+        {% if profile_user.profile.allow_leaderboard_display %}
+          <div class="mt-3 d-flex justify-content-center gap-2 flex-wrap">
+            <span class="badge text-bg-primary">Score: {{ total_score }}</span>
+            <span class="badge text-bg-success">Correctes: {{ correct_submissions }}/{{ total_submissions }}</span>
+            <span class="badge text-bg-dark">Taux: {{ success_rate }}%</span>
+          </div>
+        {% else %}
+          <span class="badge text-bg-secondary">Profil privé</span>
+        {% endif %}
     </div>
   </div>
 
@@ -32,6 +36,7 @@
         <h2 class="h5 mb-0">Soumissions récentes</h2>
         <a href="{% url 'accounts:user_search' %}" class="btn btn-sm btn-outline-secondary">Retour à la recherche</a>
       </div>
+      {% if profile_user.profile.allow_leaderboard_display %}
       <div class="card-body p-0">
         <table class="table table-hover table-striped mb-0 align-middle">
           <thead class="table-light">
@@ -47,6 +52,11 @@
           </tbody>
         </table>
       </div>
+      {% else %}
+        <div class="card-body">
+          <p class="text-muted">Cet utilisateur a choisi de ne pas afficher ses soumissions.</p>
+        </div>
+      {% endif %}
     </div>
   </div>
 </div>

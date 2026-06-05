@@ -43,6 +43,15 @@
                         </div>
                     </div>
 
+                    <div class="mb-3">
+                        <div class="form-check">
+                            {{ profile_form.allow_leaderboard_display }}
+                            <label for="{{ profile_form.allow_leaderboard_display.id_for_label }}" class="form-check-label">
+                                Afficher mon pseudo et mon profil dans les classements
+                            </label>
+                        </div>
+                    </div>
+
                     <div class="d-flex justify-content-center gap-2 flex-wrap mt-4">
                         <button type="submit" class="btn btn-primary px-4">Enregistrer</button>
                         <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary">Annuler</a>

@@ -10,23 +10,62 @@
     <div class="card border-0 shadow-sm">
       {% include "includes/_card_header.html" with title="Créer un compte" centered=True header_class="bg-primary text-white" heading_tag="h2" %}
       <div class="card-body p-4">
-        <form method="post">
+        <form method="post" class="signup-form">
           {% csrf_token %}
           {{ form.non_field_errors }}
+
+          {% if form.errors %}
+          <div class="alert alert-danger" role="alert">
+            Une erreur est survenue lors de l'inscription. Veuillez vérifier les champs et réessayer.
+          </div>
+          {% endif %}
 
           <div class="mb-3">
             <label for="id_username" class="form-label">Nom d’utilisateur</label>
             {{ form.username|add_class:"form-control" }}
+            {{ form.username.errors }}
           </div>
 
           <div class="mb-3">
             <label for="id_password1" class="form-label">Mot de passe</label>
             {{ form.password1|add_class:"form-control" }}
+            {{ form.password1.errors }}
           </div>
 
           <div class="mb-3">
             <label for="id_password2" class="form-label">Confirmer le mot de passe</label>
             {{ form.password2|add_class:"form-control" }}
+            {{ form.password2.errors }}
+          </div>
+
+          <div class="mb-3 signup-consent d-flex gap-2 align-items-center">
+            {{ form.accepted_terms }}
+            <div>
+              <label for="id_accepted_terms" class="form-check-label signup-consent-label">
+                J'accepte les CGU <span class="text-danger fw-semibold">*</span>
+              </label>
+              {{ form.accepted_terms.errors }}
+            </div>
+          </div>
+
+          <div class="mb-3 signup-consent d-flex gap-2 align-items-center">
+            {{ form.allow_leaderboard_display }}
+            <div>
+              <label for="id_allow_leaderboard_display" class="form-check-label signup-consent-label">
+                J'autorise l'affichage de mon pseudo et de mon profil dans les classements
+              </label>
+              {{ form.allow_leaderboard_display.errors }}
+            </div>
+          </div>
+
+          <div class="mb-3 signup-consent d-flex gap-2 align-items-center">
+            {{ form.age_confirmation }}
+            <div>
+              <label for="id_age_confirmation" class="form-check-label signup-consent-label">
+                Je confirme avoir 15 ans ou disposer de l'autorisation de mon tuteur légal <span class="text-danger fw-semibold">*</span>
+              </label>
+              {{ form.age_confirmation.errors }}
+            </div>
           </div>
 
           <div class="d-grid">

@@ -13,6 +13,9 @@ class AccountsViewsTests(TestCase):
 				"username": "newuser",
 				"password1": "Testpass123!",
 				"password2": "Testpass123!",
+				"accepted_terms": "on",
+				"allow_leaderboard_display": "on",
+				"age_confirmation": "on",
 			},
 		)
 
@@ -20,6 +23,22 @@ class AccountsViewsTests(TestCase):
 		self.assertTrue(User.objects.filter(username="newuser").exists())
 		user = User.objects.get(username="newuser")
 		self.assertTrue(hasattr(user, "profile"))
+		self.assertTrue(user.profile.accepted_terms)
+		self.assertTrue(user.profile.allow_leaderboard_display)
+		self.assertTrue(user.profile.age_confirmation)
+
+	def test_signup_requires_consents(self):
+		response = self.client.post(
+			reverse("accounts:signup"),
+			{
+				"username": "newuser",
+				"password1": "Testpass123!",
+				"password2": "Testpass123!",
+			},
+		)
+
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, "Ce champ est obligatoire.")
 
 	def test_profile_requires_login(self):
 		response = self.client.get(reverse("accounts:profile"))
@@ -81,3 +100,20 @@ class AccountsViewsTests(TestCase):
 		user.refresh_from_db()
 		self.assertEqual(user.username, "updated")
 		self.assertEqual(user.email, "updated@example.com")
+
+	def test_edit_profile_updates_leaderboard_visibility(self):
+		user = User.objects.create_user(username="player", password="password123")
+		self.client.force_login(user)
+
+		response = self.client.post(
+			reverse("accounts:edit_profile"),
+			{
+				"username": "player",
+				"email": "",
+				"allow_leaderboard_display": "on",
+			},
+		)
+
+		self.assertRedirects(response, reverse("accounts:profile"))
+		user.refresh_from_db()
+		self.assertTrue(user.profile.allow_leaderboard_display)
