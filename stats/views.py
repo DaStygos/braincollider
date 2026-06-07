@@ -39,11 +39,11 @@ def dashboard(request):
 
     total_problems = Problem.objects.count()
     total_submissions = Submission.objects.count()
-    correct_submissions = Submission.objects.filter(is_correct=True).count()
-    pending_submissions = Submission.objects.filter(is_correct__isnull=True).count()
-    reviewed_submissions = Submission.objects.filter(is_correct__isnull=False).count()
+    correct_submissions = Submission.objects.filter(status="accepted").count()
+    pending_submissions = Submission.objects.filter(status="pending").count()
+    reviewed_submissions = Submission.objects.exclude(status="pending").count()
 
-    total_points = Submission.objects.filter(is_correct=True).aggregate(
+    total_points = Submission.objects.filter(status="accepted").aggregate(
         total=Coalesce(Sum(_submission_score_case()), 0)
     )["total"]
 
@@ -51,7 +51,7 @@ def dashboard(request):
         User.objects.select_related("profile")
         .annotate(
             total_score=Coalesce(Sum(_submission_score_case("submission__")), 0),
-            correct_count=Count("submission", filter=Q(submission__is_correct=True)),
+            correct_count=Count("submission", filter=Q(submission__status="accepted")),
         )
         .filter(total_score__gt=0)
         .order_by("-total_score", "username")[:5]
@@ -59,24 +59,28 @@ def dashboard(request):
 
     top_problems = list(
         Problem.objects.annotate(
-            solved_count=Count("submission", filter=Q(submission__is_correct=True)),
+            solved_count=Count("submission", filter=Q(submission__status="accepted")),
         )
         .filter(solved_count__gt=0)
         .order_by("-solved_count", "title")[:5]
     )
+    
+    comments = 0
+    for sub in Submission.objects.filter():
+        comments += sub.comments.count()
 
     for problem in top_problems:
         problem.total_points = problem.solved_count * problem.get_score()
 
     points_rows = list(
-        Submission.objects.filter(is_correct=True, submitted_at__date__gte=start_date)
+        Submission.objects.filter(status="accepted", submitted_at__date__gte=start_date)
         .annotate(day=TruncDate("submitted_at"))
         .values("day")
         .annotate(points=Sum(_submission_score_case()), count=Count("id"))
         .order_by("day")
     )
     corrections_rows = list(
-        Submission.objects.filter(is_correct__isnull=False, submitted_at__date__gte=start_date)
+        Submission.objects.filter(status__in=["accepted", "rejected"], submitted_at__date__gte=start_date)
         .annotate(day=TruncDate("submitted_at"))
         .values("day")
         .annotate(count=Count("id"))
@@ -84,7 +88,7 @@ def dashboard(request):
     )
 
     category_rows = list(
-        Submission.objects.filter(is_correct=True)
+        Submission.objects.filter(status="accepted")
         .values("problem__category")
         .annotate(count=Count("id"), points=Sum(_submission_score_case()))
         .order_by("-points", "problem__category")
@@ -121,4 +125,5 @@ def dashboard(request):
             }
             for row in category_rows
         ],
+        "comments": comments,
     })

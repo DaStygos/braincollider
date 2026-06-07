@@ -3,226 +3,523 @@
 {% block title %}Statistiques{% endblock %}
 
 {% block content %}
-<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-4">
-  <div>
-    <h1 class="h3 mb-1">Statistiques du site</h1>
-    <p class="text-muted mb-0">Vue d'ensemble des utilisateurs, corrections et performances globales.</p>
-  </div>
-  <div class="text-muted small">Période analysée: 30 jours</div>
-</div>
+{% load static %}
 
-<ul class="nav nav-tabs" id="statsTab" role="tablist">
-  <li class="nav-item" role="presentation">
-    <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview-tab-pane" type="button" role="tab" aria-controls="overview-tab-pane" aria-selected="true">Vue d'ensemble</button>
+{% include "includes/_page_header.html" with title="Statistiques du site" subtitle="Vue d'ensemble des utilisateurs, corrections et performances globales" meta="Période analysée : 30 jours" %}
+
+<style>
+  .stats-card {
+    transition:
+      transform 0.18s ease,
+      box-shadow 0.18s ease;
+  }
+
+  .stats-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.08);
+  }
+
+  .stats-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+  }
+
+  .stats-number {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .stats-label {
+    font-size: .75rem;
+    letter-spacing: .04em;
+  }
+
+  .nav-tabs .nav-link {
+    border: 0;
+    border-bottom: 2px solid transparent;
+    color: var(--bs-secondary-color);
+    font-weight: 500;
+  }
+
+  .nav-tabs .nav-link.active {
+    color: var(--bs-primary);
+    border-bottom-color: var(--bs-primary);
+    background: transparent;
+  }
+
+  .table tbody tr {
+    transition: background-color .15s ease;
+  }
+
+  .table tbody tr:hover {
+    background-color: rgba(0,0,0,.02);
+  }
+
+  .tooltip-inner {
+    border-radius: .75rem;
+    padding: .55rem .75rem;
+  }
+</style>
+
+<ul class="nav nav-tabs mb-4" id="statsTab" role="tablist">
+
+  <li class="nav-item">
+    <button class="nav-link active"
+            id="overview-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#overview-tab-pane"
+            type="button">
+      Vue d'ensemble
+    </button>
   </li>
-  <li class="nav-item" role="presentation">
-    <button class="nav-link" id="activity-tab" data-bs-toggle="tab" data-bs-target="#activity-tab-pane" type="button" role="tab" aria-controls="activity-tab-pane" aria-selected="false">Activité</button>
+
+  <li class="nav-item">
+    <button class="nav-link"
+            id="activity-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#activity-tab-pane"
+            type="button">
+      Activité
+    </button>
   </li>
-  <li class="nav-item" role="presentation">
-    <button class="nav-link" id="rankings-tab" data-bs-toggle="tab" data-bs-target="#rankings-tab-pane" type="button" role="tab" aria-controls="rankings-tab-pane" aria-selected="false">Classements</button>
+
+  <li class="nav-item">
+    <button class="nav-link"
+            id="rankings-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#rankings-tab-pane"
+            type="button">
+      Classements
+    </button>
   </li>
+
 </ul>
 
-<div class="tab-content border border-top-0 rounded-bottom bg-white shadow-sm p-3 p-lg-4" id="statsTabContent">
-  <div class="tab-pane fade show active" id="overview-tab-pane" role="tabpanel" aria-labelledby="overview-tab">
+<div class="tab-content" id="statsTabContent">
+
+  <!-- OVERVIEW -->
+  <div class="tab-pane fade show active"
+       id="overview-tab-pane"
+       role="tabpanel">
+
     <div class="row g-3">
-      <div class="col-6 col-lg-3">
-        <div class="card h-100 border-0 bg-primary-subtle">
-          <div class="card-body">
-            <div class="text-muted small">Utilisateurs</div>
-            <div class="display-6 fw-semibold mb-0">{{ total_users }}</div>
-            <div class="small text-muted">{{ active_users }} actifs, {{ new_users_30d }} nouveaux sur 30 jours</div>
+
+      <!-- USERS -->
+      <div class="col-6 col-xl">
+        <div class="card border-0 shadow-sm h-100 stats-card">
+          <div class="card-body p-4">
+
+            <div class="d-flex justify-content-between align-items-start mb-3">
+
+              <div class="stats-icon bg-primary-subtle text-primary">
+                <i class="bi bi-people-fill"></i>
+              </div>
+
+              <button class="btn btn-sm btn-link text-muted p-0"
+                      data-bs-toggle="tooltip"
+                      title="Nombre total d'utilisateurs inscrits">
+                <i class="bi bi-info-circle"></i>
+              </button>
+
+            </div>
+
+            <div class="text-uppercase text-muted fw-semibold stats-label mb-2">
+              Utilisateurs
+            </div>
+
+            <div class="stats-number text-primary mb-2">
+              {{ total_users }}
+            </div>
+
+            <p class="text-muted small mb-0">
+              {{ active_users }} actifs ·
+              {{ new_users_30d }} nouveaux
+            </p>
+
           </div>
         </div>
       </div>
-      <div class="col-6 col-lg-3">
-        <div class="card h-100 border-0 bg-success-subtle">
-          <div class="card-body">
-            <div class="text-muted small">Points cumulés</div>
-            <div class="display-6 fw-semibold mb-0">{{ total_points }}</div>
-            <div class="small text-muted">Moyenne: {{ average_points_per_user }} par utilisateur actif</div>
+
+      <!-- POINTS -->
+      <div class="col-6 col-xl">
+        <div class="card border-0 shadow-sm h-100 stats-card">
+          <div class="card-body p-4">
+
+            <div class="d-flex justify-content-between align-items-start mb-3">
+
+              <div class="stats-icon bg-success-subtle text-success">
+                <i class="bi bi-stars"></i>
+              </div>
+
+              <button class="btn btn-sm btn-link text-muted p-0"
+                      data-bs-toggle="tooltip"
+                      title="Total des points gagnés">
+                <i class="bi bi-info-circle"></i>
+              </button>
+
+            </div>
+
+            <div class="text-uppercase text-muted fw-semibold stats-label mb-2">
+              Points cumulés
+            </div>
+
+            <div class="stats-number text-success mb-2">
+              {{ total_points }}
+            </div>
+
+            <p class="text-muted small mb-0">
+              Moyenne : {{ average_points_per_user }}
+            </p>
+
           </div>
         </div>
       </div>
-      <div class="col-6 col-lg-3">
-        <div class="card h-100 border-0 bg-warning-subtle">
-          <div class="card-body">
-            <div class="text-muted small">Corrections</div>
-            <div class="display-6 fw-semibold mb-0">{{ reviewed_submissions }}</div>
-            <div class="small text-muted">{{ correct_submissions }} correctes, {{ pending_submissions }} en attente</div>
+
+      <!-- CORRECTIONS -->
+      <div class="col-6 col-xl">
+        <div class="card border-0 shadow-sm h-100 stats-card">
+          <div class="card-body p-4">
+
+            <div class="d-flex justify-content-between align-items-start mb-3">
+
+              <div class="stats-icon bg-warning-subtle text-warning">
+                <i class="bi bi-check2-square"></i>
+              </div>
+
+              <button class="btn btn-sm btn-link text-muted p-0"
+                      data-bs-toggle="tooltip"
+                      title="Soumissions corrigées">
+                <i class="bi bi-info-circle"></i>
+              </button>
+
+            </div>
+
+            <div class="text-uppercase text-muted fw-semibold stats-label mb-2">
+              Corrections
+            </div>
+
+            <div class="stats-number text-warning mb-2">
+              {{ reviewed_submissions }}
+            </div>
+
+            <p class="text-muted small mb-0">
+              {{ correct_submissions }} correctes ·
+              {{ pending_submissions }} attente
+            </p>
+
           </div>
         </div>
       </div>
-      <div class="col-6 col-lg-3">
-        <div class="card h-100 border-0 bg-info-subtle">
-          <div class="card-body">
-            <div class="text-muted small">Taux de réussite</div>
-            <div class="display-6 fw-semibold mb-0">{{ success_rate }}%</div>
-            <div class="small text-muted">{{ total_submissions }} soumissions au total</div>
+
+      <!-- COMMENTS -->
+      <div class="col-6 col-xl">
+        <div class="card border-0 shadow-sm h-100 stats-card">
+          <div class="card-body p-4">
+
+            <div class="d-flex justify-content-between align-items-start mb-3">
+
+              <div class="stats-icon bg-info-subtle text-info">
+                <i class="bi bi-chat-left-text-fill"></i>
+              </div>
+
+              <button class="btn btn-sm btn-link text-muted p-0"
+                      data-bs-toggle="tooltip"
+                      title="Commentaires des correcteurs">
+                <i class="bi bi-info-circle"></i>
+              </button>
+
+            </div>
+
+            <div class="text-uppercase text-muted fw-semibold stats-label mb-2">
+              Commentaires
+            </div>
+
+            <div class="stats-number text-info mb-2">
+              {{ comments }}
+            </div>
+
+            <p class="text-muted small mb-0">
+              Réponses aux soumissions
+            </p>
+
           </div>
         </div>
       </div>
+
+      <!-- SUCCESS -->
+      <div class="col-6 col-xl">
+        <div class="card border-0 shadow-sm h-100 stats-card">
+          <div class="card-body p-4">
+
+            <div class="d-flex justify-content-between align-items-start mb-3">
+
+              <div class="stats-icon bg-primary-subtle text-primary">
+                <i class="bi bi-graph-up-arrow"></i>
+              </div>
+
+              <button class="btn btn-sm btn-link text-muted p-0"
+                      data-bs-toggle="tooltip"
+                      title="Pourcentage de réussite">
+                <i class="bi bi-info-circle"></i>
+              </button>
+
+            </div>
+
+            <div class="text-uppercase text-muted fw-semibold stats-label mb-2">
+              Taux de réussite
+            </div>
+
+            <div class="stats-number text-primary mb-2">
+              {{ success_rate }}%
+            </div>
+
+            <p class="text-muted small mb-0">
+              {{ total_submissions }} soumissions
+            </p>
+
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
-  <div class="tab-pane fade" id="activity-tab-pane" role="tabpanel" aria-labelledby="activity-tab">
-    <div class="card border-0">
-      <div class="card-header bg-light fw-semibold">Points et corrections par jour</div>
-      <div class="card-body">
+  <!-- ACTIVITY -->
+  <div class="tab-pane fade"
+       id="activity-tab-pane"
+       role="tabpanel">
+
+    <div class="card border-0 shadow-sm">
+
+      <div class="card-header bg-white border-bottom py-3 px-4">
+        <h6 class="text-uppercase text-muted fw-semibold small mb-0 d-flex align-items-center gap-2">
+          <i class="bi bi-graph-up-arrow"></i>
+          Activité journalière
+        </h6>
+      </div>
+
+      <div class="card-body p-4">
         <div style="height: 360px;">
           <canvas id="activityChart"></canvas>
         </div>
       </div>
+
     </div>
   </div>
 
-  <div class="tab-pane fade" id="rankings-tab-pane" role="tabpanel" aria-labelledby="rankings-tab">
+  <!-- RANKINGS -->
+  <div class="tab-pane fade"
+       id="rankings-tab-pane"
+       role="tabpanel">
+
     <div class="row g-3">
+
+      <!-- TOP PROBLEMS -->
       <div class="col-12 col-lg-6">
-        <div class="card h-100">
-          <div class="card-header bg-light fw-semibold">Top utilisateurs</div>
-          <div class="card-body p-0">
-            <div class="table-responsive">
-              <table class="table mb-0 align-middle">
-                <thead class="table-light">
-                  <tr>
-                    <th>Utilisateur</th>
-                    <th class="text-center">Soumissions correctes</th>
-                    <th class="text-end">Points</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for top_user in top_users %}
-                    <tr>
-                      <td>
-                        <a href="{% url 'accounts:public_profile' top_user.username %}" class="text-decoration-none">{{ top_user.username }}</a>
-                      </td>
-                      <td class="text-center">{{ top_user.correct_count }}</td>
-                      <td class="text-end fw-semibold">{{ top_user.total_score }}</td>
-                    </tr>
-                  {% empty %}
-                    <tr><td colspan="3" class="text-center text-muted py-4">Aucune donnée disponible.</td></tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-            </div>
+
+        <div class="card border-0 shadow-sm h-100">
+
+          <div class="card-header bg-white border-bottom py-3 px-4">
+            <h6 class="text-uppercase text-muted fw-semibold small mb-0 d-flex align-items-center gap-2">
+              <i class="bi bi-trophy-fill"></i>
+              Problèmes les plus résolus
+            </h6>
           </div>
-        </div>
-      </div>
-      <div class="col-12 col-lg-6">
-        <div class="card h-100">
-          <div class="card-header bg-light fw-semibold">Problèmes les plus résolus</div>
+
           <div class="card-body p-0">
+
             <div class="table-responsive">
-              <table class="table mb-0 align-middle">
+
+              <table class="table table-hover mb-0 align-middle">
+
                 <thead class="table-light">
                   <tr>
-                    <th>Problème</th>
+                    <th class="ps-4">Problème</th>
                     <th class="text-center">Résolutions</th>
-                    <th class="text-end">Points générés</th>
+                    <th class="text-end pe-4">Points</th>
                   </tr>
                 </thead>
+
                 <tbody>
+
                   {% for problem in top_problems %}
-                    <tr>
-                      <td>{{ problem.title }}</td>
-                      <td class="text-center">{{ problem.solved_count }}</td>
-                      <td class="text-end fw-semibold">{{ problem.total_points }}</td>
-                    </tr>
+                  <tr>
+                    <td class="ps-4">{{ problem.title }}</td>
+                    <td class="text-center">{{ problem.solved_count }}</td>
+                    <td class="text-end pe-4 fw-semibold">{{ problem.total_points }}</td>
+                  </tr>
                   {% empty %}
-                    <tr><td colspan="3" class="text-center text-muted py-4">Aucune donnée disponible.</td></tr>
+                  <tr>
+                    <td colspan="3" class="text-center text-muted py-4">
+                      Aucune donnée disponible.
+                    </td>
+                  </tr>
                   {% endfor %}
+
                 </tbody>
+
               </table>
+
             </div>
+
           </div>
+
         </div>
+
       </div>
-      <div class="col-12 col-lg-5">
-        <div class="card h-100">
-          <div class="card-header bg-light fw-semibold">Répartition par catégorie</div>
+
+      <!-- CATEGORIES -->
+      <div class="col-12 col-lg-6">
+
+        <div class="card border-0 shadow-sm h-100">
+
+          <div class="card-header bg-white border-bottom py-3 px-4">
+            <h6 class="text-uppercase text-muted fw-semibold small mb-0 d-flex align-items-center gap-2">
+              <i class="bi bi-diagram-3-fill"></i>
+              Répartition par catégorie
+            </h6>
+          </div>
+
           <div class="card-body p-0">
+
             <div class="table-responsive">
-              <table class="table mb-0 align-middle">
+
+              <table class="table table-hover mb-0 align-middle">
+
                 <thead class="table-light">
                   <tr>
-                    <th>Catégorie</th>
+                    <th class="ps-4">Catégorie</th>
                     <th class="text-center">Réussites</th>
-                    <th class="text-end">Points</th>
+                    <th class="text-end pe-4">Points</th>
                   </tr>
                 </thead>
+
                 <tbody>
+
                   {% for row in category_rows %}
-                    <tr>
-                      <td>{{ row.label }}</td>
-                      <td class="text-center">{{ row.count }}</td>
-                      <td class="text-end fw-semibold">{{ row.points }}</td>
-                    </tr>
+                  <tr>
+                    <td class="ps-4">{{ row.label }}</td>
+                    <td class="text-center">{{ row.count }}</td>
+                    <td class="text-end pe-4 fw-semibold">{{ row.points }}</td>
+                  </tr>
                   {% empty %}
-                    <tr><td colspan="3" class="text-center text-muted py-4">Aucune donnée disponible.</td></tr>
+                  <tr>
+                    <td colspan="3" class="text-center text-muted py-4">
+                      Aucune donnée disponible.
+                    </td>
+                  </tr>
                   {% endfor %}
+
                 </tbody>
+
               </table>
+
             </div>
+
           </div>
+
         </div>
+
       </div>
+
     </div>
+
   </div>
+
 </div>
 
 {{ activity_labels|json_script:"activity-labels" }}
 {{ activity_points|json_script:"activity-points" }}
-{{ activity_corrections|json_script:"activity-corrections" }}
+
+{% endblock %}
+
+{% block extra_js %}
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
-  const activityLabels = JSON.parse(document.getElementById('activity-labels').textContent);
-  const activityPoints = JSON.parse(document.getElementById('activity-points').textContent);
-  const activityCorrections = JSON.parse(document.getElementById('activity-corrections').textContent);
+
+  // Tooltips Bootstrap
+  document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
+    new bootstrap.Tooltip(el);
+  });
+
+  const activityLabels = JSON.parse(
+    document.getElementById('activity-labels').textContent
+  );
+
+  const activityPoints = JSON.parse(
+    document.getElementById('activity-points').textContent
+  );
+
   const activityCanvas = document.getElementById('activityChart');
 
-  if (activityCanvas) {
-    const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--bs-primary').trim() || '#0d6efd';
-    const successColor = getComputedStyle(document.documentElement).getPropertyValue('--bs-success').trim() || '#198754';
+  const primaryColor = getComputedStyle(document.documentElement)
+    .getPropertyValue('--bs-primary').trim() || '#0d6efd';
 
-    new Chart(activityCanvas, {
-      type: 'line',
-      data: {
-        labels: activityLabels,
-        datasets: [
-          {
-            label: 'Points',
-            data: activityPoints,
-            borderColor: primaryColor,
-            backgroundColor: `${primaryColor}33`,
-            tension: 0.25,
-            fill: true,
-          },
-          {
-            label: 'Corrections',
-            data: activityCorrections,
-            borderColor: successColor,
-            backgroundColor: `${successColor}33`,
-            tension: 0.25,
-            fill: false,
-          },
-        ],
+  new Chart(activityCanvas, {
+
+    type: 'line',
+
+    data: {
+      labels: activityLabels,
+
+      datasets: [{
+        label: 'Points gagnés',
+        data: activityPoints,
+        borderColor: primaryColor,
+        backgroundColor: primaryColor + '22',
+        tension: 0.35,
+        fill: true,
+        pointRadius: 3,
+        pointHoverRadius: 5,
+        borderWidth: 2,
+      }]
+    },
+
+    options: {
+
+      responsive: true,
+      maintainAspectRatio: false,
+
+      interaction: {
+        mode: 'index',
+        intersect: false,
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: {
-          mode: 'index',
-          intersect: false,
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-          },
-        },
+
+      plugins: {
+        legend: {
+          display: false
+        }
       },
-    });
-  }
+
+      scales: {
+
+        x: {
+          grid: {
+            display: false
+          }
+        },
+
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: 'rgba(0,0,0,0.05)'
+          }
+        }
+
+      }
+
+    }
+
+  });
+
 </script>
+
 {% endblock %}
