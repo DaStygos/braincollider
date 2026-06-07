@@ -95,3 +95,10 @@ class UserUpdateForm(forms.ModelForm):
             'username': forms.TextInput(attrs=form_control_attrs(placeholder="Nom d'utilisateur")),
             'email': forms.EmailInput(attrs=form_control_attrs(placeholder='Adresse email')),
         }
+
+class AccountDeletionForm(forms.Form):
+    confirm_deletion = forms.BooleanField(
+        label="Je confirme que je souhaite supprimer mon compte de manière irréversible",
+        required=True,
+        widget=forms.CheckboxInput(),
+    )

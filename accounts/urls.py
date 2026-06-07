@@ -14,6 +14,7 @@ urlpatterns = [
     path("users/", views.user_search, name="user_search"),
     path("users/suggest/", views.matching_users, name="user_suggestions"),
     path("profile/edit/", views.edit_profile, name="edit_profile"),
+    path("delete/", views.delete_account, name="delete_account"),
     path(
         "password/change/",
         auth_views.PasswordChangeView.as_view(

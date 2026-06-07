@@ -7,7 +7,7 @@ from django.contrib.auth import login
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from .forms import SignUpForm, UserUpdateForm, ProfileUpdateForm
+from .forms import AccountDeletionForm, SignUpForm, UserUpdateForm, ProfileUpdateForm
 from problems.models import Submission, Problem
 from dateutil import parser
 
@@ -164,3 +164,15 @@ def matching_users(request):
         ]
 
     return JsonResponse({"results": results})
+
+@login_required
+def delete_account(request):
+    if request.method == "POST":
+        form = AccountDeletionForm(request.POST)
+        if form.is_valid():
+            user = request.user
+            user.delete()
+            return redirect("accounts:login")
+    else:
+        form = AccountDeletionForm()
+    return render(request, "accounts/delete_account.html", {"form": form})

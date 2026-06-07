@@ -1,0 +1,30 @@
+{% extends "base_generic.html" %}
+{% load static %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-8 col-xl-7">
+        <div class="card border-0 shadow-sm">
+            {% include "includes/_card_header.html" with title="Supprimer les données personnelles" centered=True header_class="bg-primary text-white" heading_tag="h2" %}
+            <div class="card-body p-4">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <p class="mb-4">Êtes-vous sûr de vouloir supprimer votre compte ? 
+                        Cette action est irréversible et entraînera la suppression de toutes vos données personnelles, y compris vos projets, vos commentaires et votre historique d'activité, dans un délai de 30 jours.</p>
+                    <div class="mb-3 account-delete d-flex gap-2 align-items-center">
+                        {{ form.confirm_deletion }}
+                        <label for="{{ form.confirm_deletion.id_for_label }}" class="form-check-label">
+                            Je confirme que je souhaite supprimer mon compte de manière irréversible
+                        </label>
+                    </div>
+                    <div class="d-flex justify-content-center gap-2 flex-wrap mt-4">
+                        <button type="submit" class="btn btn-danger px-4">Supprimer le compte</button>
+                        <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary">Annuler</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
