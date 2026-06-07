@@ -1,83 +1,202 @@
 {% extends "base_generic.html" %}
-
 {% load widget_tweaks %}
 
 {% block title %}Inscription{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
-  <div class="col-md-6">
-    <div class="card border-0 shadow-sm">
-      {% include "includes/_card_header.html" with title="Créer un compte" centered=True header_class="bg-primary text-white" heading_tag="h2" %}
-      <div class="card-body p-4">
-        <form method="post" class="signup-form">
-          {% csrf_token %}
-          {{ form.non_field_errors }}
+    <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4 p-md-5">
 
-          {% if form.errors %}
-          <div class="alert alert-danger" role="alert">
-            Une erreur est survenue lors de l'inscription. Veuillez vérifier les champs et réessayer.
-          </div>
-          {% endif %}
+                <!-- ── En-tête ────────────────────────────────────────── -->
+                <div class="text-center mb-4">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary bg-opacity-10 mb-3"
+                         style="width: 56px; height: 56px;">
+                        <i class="bi bi-person-plus-fill text-primary fs-4"></i>
+                    </div>
+                    <h2 class="h4 fw-semibold mb-0">Créer un compte</h2>
+                </div>
 
-          <div class="mb-3">
-            <label for="id_username" class="form-label">Nom d’utilisateur</label>
-            {{ form.username|add_class:"form-control" }}
-            {{ form.username.errors }}
-          </div>
+                <!-- ── Erreurs globales ───────────────────────────────── -->
+                {% if form.errors %}
+                    <div class="alert alert-danger border-0 bg-danger bg-opacity-10 small" role="alert">
+                        <i class="bi bi-exclamation-circle me-1"></i>
+                        Une erreur est survenue. Veuillez vérifier les champs et réessayer.
+                    </div>
+                {% endif %}
 
-          <div class="mb-3">
-            <label for="id_password1" class="form-label">Mot de passe</label>
-            {{ form.password1|add_class:"form-control" }}
-            {{ form.password1.errors }}
-          </div>
+                <!-- ── Formulaire ─────────────────────────────────────── -->
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {{ form.non_field_errors }}
 
-          <div class="mb-3">
-            <label for="id_password2" class="form-label">Confirmer le mot de passe</label>
-            {{ form.password2|add_class:"form-control" }}
-            {{ form.password2.errors }}
-          </div>
+                    <!-- Section : Identifiants -->
+                    <h6 class="text-uppercase text-muted fw-semibold small mb-3 d-flex align-items-center gap-2">
+                        <i class="bi bi-person-fill"></i> Identifiants
+                    </h6>
 
-          <div class="mb-3 signup-consent d-flex gap-2 align-items-center">
-            {{ form.accepted_terms }}
-            <div>
-              <label for="id_accepted_terms" class="form-check-label signup-consent-label">
-                J'accepte les CGU <span class="text-danger fw-semibold">*</span>
-              </label>
-              {{ form.accepted_terms.errors }}
+                    <div class="form-floating mb-3">
+                        {{ form.username|add_class:"form-control" }}
+                        <label for="id_username">Nom d'utilisateur</label>
+                        {% if form.username.errors %}
+                            <div class="text-danger small mt-1">{{ form.username.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        {{ form.password1|add_class:"form-control" }}
+                        <label for="id_password1">Mot de passe</label>
+                        {% if form.password1.errors %}
+                            <div class="text-danger small mt-1">{{ form.password1.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-floating mb-4">
+                        {{ form.password2|add_class:"form-control" }}
+                        <label for="id_password2">Confirmer le mot de passe</label>
+                        {% if form.password2.errors %}
+                            <div class="text-danger small mt-1">{{ form.password2.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Section : Consentements -->
+                    <h6 class="text-uppercase text-muted fw-semibold small mb-3 d-flex align-items-center gap-2">
+                        <i class="bi bi-shield-check-fill"></i> Consentements
+                    </h6>
+
+                    <div class="d-flex align-items-start gap-2 mb-3">
+                        {{ form.accepted_terms|add_class:"form-check-input flex-shrink-0 mt-1" }}
+                        <div>
+                            <label for="id_accepted_terms" class="small">
+                                J'accepte les <a href="{% url 'core:terms' %}" class="text-decoration-none">Conditions Générales d'Utilisation</a>
+                                <span class="text-danger fw-semibold">*</span>
+                            </label>
+                            {% if form.accepted_terms.errors %}
+                                <div class="text-danger small mt-1">{{ form.accepted_terms.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-start gap-2 mb-3">
+                        {{ form.age_confirmation|add_class:"form-check-input flex-shrink-0 mt-1" }}
+                        <div>
+                            <label for="id_age_confirmation" class="small">
+                                Je confirme avoir 15 ans ou disposer de l'autorisation de mon tuteur légal
+                                <span class="text-danger fw-semibold">*</span>
+                            </label>
+                            {% if form.age_confirmation.errors %}
+                                <div class="text-danger small mt-1">{{ form.age_confirmation.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-start gap-2 mb-4">
+                        {{ form.allow_leaderboard_display|add_class:"form-check-input flex-shrink-0 mt-1" }}
+                        <div>
+                            <label for="id_allow_leaderboard_display" class="small">
+                                J'autorise l'affichage de mon pseudo et de mon profil dans les classements
+                            </label>
+                            {% if form.allow_leaderboard_display.errors %}
+                                <div class="text-danger small mt-1">{{ form.allow_leaderboard_display.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <p class="text-muted small mb-4">
+                        <span class="text-danger fw-semibold">*</span> Champs obligatoires
+                    </p>
+
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-person-check me-1"></i> S'inscrire
+                    </button>
+                </form>
+
+                <!-- ── Pied de carte ──────────────────────────────────── -->
+                <hr class="my-4">
+                <p class="mb-0 text-center text-muted small">
+                    Déjà un compte ?
+                    <a href="{% url 'accounts:login' %}" class="text-decoration-none fw-semibold">
+                        Se connecter
+                    </a>
+                </p>
+
             </div>
-          </div>
-
-          <div class="mb-3 signup-consent d-flex gap-2 align-items-center">
-            {{ form.allow_leaderboard_display }}
-            <div>
-              <label for="id_allow_leaderboard_display" class="form-check-label signup-consent-label">
-                J'autorise l'affichage de mon pseudo et de mon profil dans les classements
-              </label>
-              {{ form.allow_leaderboard_display.errors }}
-            </div>
-          </div>
-
-          <div class="mb-3 signup-consent d-flex gap-2 align-items-center">
-            {{ form.age_confirmation }}
-            <div>
-              <label for="id_age_confirmation" class="form-check-label signup-consent-label">
-                Je confirme avoir 15 ans ou disposer de l'autorisation de mon tuteur légal <span class="text-danger fw-semibold">*</span>
-              </label>
-              {{ form.age_confirmation.errors }}
-            </div>
-          </div>
-
-          <div class="d-grid">
-            <button type="submit" class="btn btn-primary">S'inscrire</button>
-          </div>
-        </form>
-
-        <p class="mt-3 mb-0 text-center text-muted">
-          Déjà un compte ? <a href="{% url 'accounts:login' %}">Se connecter</a>
-        </p>
-      </div>
+        </div>
     </div>
-  </div>
 </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    body { background-color: #f0f4ff; margin: 0; }
+    #auth-bg { position: fixed; inset: 0; z-index: -1; }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  const canvas = document.createElement('canvas');
+  canvas.id = 'auth-bg';
+  document.body.prepend(canvas);
+  const ctx = canvas.getContext('2d');
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const PRIMARY = '#0d6efd';
+  function hexAlpha(hex, a) {
+    const r = parseInt(hex.slice(1,3),16);
+    const g = parseInt(hex.slice(3,5),16);
+    const b = parseInt(hex.slice(5,7),16);
+    return `rgba(${r},${g},${b},${a})`;
+  }
+
+  const triangles = Array.from({length: 18}, () => ({
+    x: Math.random() * window.innerWidth,
+    y: Math.random() * window.innerHeight,
+    size: 30 + Math.random() * 60,
+    angle: Math.random() * Math.PI * 2,
+    speed: (Math.random() - 0.5) * 0.3,
+    rotSpeed: (Math.random() - 0.5) * 0.008,
+    alpha: 0.05 + Math.random() * 0.12,
+    filled: Math.random() > 0.5,
+  }));
+
+  function draw() {
+    const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0, 0, W, H);
+    for (const t of triangles) {
+      t.angle += t.rotSpeed;
+      t.y += t.speed;
+      if (t.y > H + t.size) t.y = -t.size;
+      if (t.y < -t.size) t.y = H + t.size;
+      ctx.save();
+      ctx.translate(t.x, t.y);
+      ctx.rotate(t.angle);
+      ctx.beginPath();
+      ctx.moveTo(0, -t.size / 2);
+      ctx.lineTo(t.size / 2, t.size / 2);
+      ctx.lineTo(-t.size / 2, t.size / 2);
+      ctx.closePath();
+      if (t.filled) {
+        ctx.fillStyle = hexAlpha(PRIMARY, t.alpha);
+        ctx.fill();
+      } else {
+        ctx.strokeStyle = hexAlpha(PRIMARY, t.alpha + 0.05);
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
 {% endblock %}

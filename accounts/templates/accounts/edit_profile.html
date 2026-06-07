@@ -1,89 +1,152 @@
 {% extends "base_generic.html" %}
 {% load static %}
+{% load widget_tweaks %}
 
 {% block content %}
+{% include "includes/_page_header.html" with title="Modifier le profil" %}
+
 <div class="row justify-content-center">
-    <div class="col-12 col-lg-8 col-xl-7">
-        <div class="card border-0 shadow-sm">
-            {% include "includes/_card_header.html" with title="Modifier le profil" centered=True header_class="bg-primary text-white" heading_tag="h2" %}
-            <div class="card-body p-4">
-                <form method="post" enctype="multipart/form-data">
-                    {% csrf_token %}
+    <div class="col-12 col-md-10 col-lg-8 col-xl-7">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- ── Section : Informations du compte ───────────────────── -->
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-body p-4">
+                    <h6 class="text-uppercase text-muted fw-semibold small mb-3 d-flex align-items-center gap-2">
+                        <i class="bi bi-person-fill"></i> Informations du compte
+                    </h6>
 
                     <div class="mb-3">
-                        <label for="{{ user_form.username.id_for_label }}" class="form-label">Nom d'utilisateur</label>
+                        <label for="{{ user_form.username.id_for_label }}" class="form-label">
+                            Nom d'utilisateur
+                        </label>
                         {{ user_form.username }}
+                        {% if user_form.username.errors %}
+                            <div class="invalid-feedback d-block">{{ user_form.username.errors }}</div>
+                        {% endif %}
                     </div>
 
-                    <div class="mb-3">
-                        <label for="{{ user_form.email.id_for_label }}" class="form-label">Email</label>
+                    <div class="mb-0">
+                        <label for="{{ user_form.email.id_for_label }}" class="form-label">
+                            Adresse e-mail
+                        </label>
                         {{ user_form.email }}
+                        {% if user_form.email.errors %}
+                            <div class="invalid-feedback d-block">{{ user_form.email.errors }}</div>
+                        {% endif %}
                     </div>
+                </div>
+            </div>
 
-                    <div class="mb-3">
-                        <label class="form-label d-block text-center mb-3">Photo de profil</label>
-                        <div class="d-flex justify-content-center gap-4 flex-wrap">
-                            <div class="text-center">
-                                <p class="small text-muted mb-2">Actuelle</p>
-                                <img
-                                    src="{% if request.user.profile.avatar %}{{ request.user.profile.avatar.url }}{% else %}{% static 'images/default_avatar.png' %}{% endif %}"
-                                    alt="Avatar actuel"
-                                    class="rounded-circle border"
-                                    style="width: 120px; height: 120px; object-fit: cover;">
-                            </div>
+            <!-- ── Section : Photo de profil ─────────────────────────── -->
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-body p-4">
+                    <h6 class="text-uppercase text-muted fw-semibold small mb-3 d-flex align-items-center gap-2">
+                        <i class="bi bi-image-fill"></i> Photo de profil
+                    </h6>
 
-                            <div class="text-center" id="new-avatar-container" style="display: none;">
-                                <p class="small text-muted mb-2">Nouvelle</p>
-                                <img id="new-avatar-preview" src="" alt="Aperçu nouvel avatar" class="rounded-circle border" style="width: 120px; height: 120px; object-fit: cover;">
-                            </div>
+                    <div class="d-flex align-items-center gap-4 flex-wrap mb-3">
+                        <!-- Avatar actuel -->
+                        <div class="text-center">
+                            <p class="small text-muted mb-2">Actuelle</p>
+                            <img
+                                src="{% if request.user.profile.avatar %}{{ request.user.profile.avatar.url }}{% else %}{% static 'images/default_avatar.png' %}{% endif %}"
+                                alt="Avatar actuel"
+                                class="rounded-circle border"
+                                style="width: 96px; height: 96px; object-fit: cover;">
                         </div>
 
-                        <div class="mt-3">
-                            <input type="file" name="avatar" id="id_avatar" class="form-control">
+                        <!-- Flèche de transition (masquée tant qu'aucune image n'est sélectionnée) -->
+                        <div id="arrow-indicator" class="text-muted fs-4" style="display: none;">
+                            <i class="bi bi-arrow-right"></i>
+                        </div>
+
+                        <!-- Nouvel avatar (aperçu) -->
+                        <div class="text-center" id="new-avatar-container" style="display: none;">
+                            <p class="small text-muted mb-2">Nouvelle</p>
+                            <img id="new-avatar-preview" src="" alt="Aperçu nouvel avatar"
+                                class="rounded-circle border"
+                                style="width: 96px; height: 96px; object-fit: cover;">
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <div class="form-check">
-                            {{ profile_form.allow_leaderboard_display }}
+                    <input type="file" name="avatar" id="id_avatar" accept="image/*" class="form-control">
+                    <div class="form-text">Formats acceptés : JPG, PNG, GIF. Taille max : 2 Mo.</div>
+                </div>
+            </div>
+
+            <!-- ── Section : Préférences ──────────────────────────────── -->
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-body p-4">
+                    <h6 class="text-uppercase text-muted fw-semibold small mb-3 d-flex align-items-center gap-2">
+                        <i class="bi bi-sliders"></i> Préférences
+                    </h6>
+
+                    <div class="d-flex align-items-start gap-2">
+                        {{ profile_form.allow_leaderboard_display|add_class:"form-check-input flex-shrink-0 mt-1" }}
+                        <div>
                             <label for="{{ profile_form.allow_leaderboard_display.id_for_label }}" class="form-check-label">
                                 Afficher mon pseudo et mon profil dans les classements
                             </label>
+                            <div class="form-text">
+                                Désactivez cette option pour rester anonyme dans les classements publics.
+                            </div>
                         </div>
                     </div>
-
-                    <div class="d-flex justify-content-center gap-2 flex-wrap mt-4">
-                        <button type="submit" class="btn btn-primary px-4">Enregistrer</button>
-                        <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary">Annuler</a>
-                    </div>
-                </form>
+                </div>
             </div>
-            <p class="card-text mt-3 text-center">
-                <a href="{% url 'accounts:delete_account' %}" class="btn text-danger">Supprimer mes données personnelles</a>
-            </p>
+
+            <!-- ── Actions principales ────────────────────────────────── -->
+            <div class="d-flex justify-content-end gap-2 flex-wrap mb-4">
+                <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary">
+                    Annuler
+                </a>
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="bi bi-check-lg me-1"></i> Enregistrer
+                </button>
+            </div>
+        </form>
+
+        <!-- ── Zone dangereuse ────────────────────────────────────────── -->
+        <div class="card border-danger border-opacity-25 shadow-sm mb-4">
+            <div class="card-body p-4">
+                <h6 class="text-uppercase fw-semibold small mb-1 d-flex align-items-center gap-2 text-danger">
+                    <i class="bi bi-exclamation-triangle-fill"></i> Zone dangereuse
+                </h6>
+                <p class="text-muted small mb-3">
+                    Cette action est irréversible. Toutes vos données personnelles seront supprimées définitivement.
+                </p>
+                <a href="{% url 'accounts:delete_account' %}" class="btn btn-outline-danger btn-sm">
+                    <i class="bi bi-trash me-1"></i> Supprimer mes données personnelles
+                </a>
+            </div>
         </div>
+
     </div>
 </div>
 
-<!-- Apercu avatar -->
+<!-- ── Aperçu avatar ─────────────────────────────────────────────────── -->
 <script>
     const avatarInput = document.getElementById('id_avatar');
+    const arrowIndicator = document.getElementById('arrow-indicator');
     const previewContainer = document.getElementById('new-avatar-container');
     const previewImage = document.getElementById('new-avatar-preview');
 
-    avatarInput.addEventListener('change', function(event) {
+    avatarInput.addEventListener('change', function (event) {
         const file = event.target.files[0];
-
         if (file) {
             const reader = new FileReader();
             reader.onload = e => {
                 previewImage.src = e.target.result;
                 previewContainer.style.display = 'block';
+                arrowIndicator.style.display = 'block';
             };
             reader.readAsDataURL(file);
         } else {
-            previewImage.src = "";
+            previewImage.src = '';
             previewContainer.style.display = 'none';
+            arrowIndicator.style.display = 'none';
         }
     });
 </script>

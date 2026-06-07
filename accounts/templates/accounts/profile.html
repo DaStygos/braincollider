@@ -8,111 +8,191 @@
 
 {% include "includes/_page_header.html" with title=user.username subtitle=user.email meta="Profil personnel et historique des soumissions" %}
 
-<div class="row g-4">
-  <div class="col-12 col-lg-4">
-    <div class="card h-100 border-0 shadow-sm">
-      <div class="card-body text-center">
-        <div class="mb-3">
-          <img src="{{ user.profile.get_avatar_url }}" alt="Avatar" class="rounded-circle border"
-               style="width: 120px; height: 120px; object-fit: cover;">
-        </div>
-        <h5 class="card-title mb-2">{{ user.username }}</h5>
-        <p class="card-text text-muted mb-1">{{ user.email }}</p>
-        <p class="card-text mb-0">
-          <small>Membre depuis le {{ user.date_joined|date:"d/m/Y H:i" }}</small>
+<div class="row g-4 align-items-start">
+
+  <!-- ── Colonne gauche : identité + stats + graphique ──────────────── -->
+  <div class="col-12 col-lg-4 d-flex flex-column gap-3">
+
+    <!-- Identité -->
+    <div class="card border-0 shadow-sm">
+      <div class="card-body text-center p-4">
+        <img
+          src="{{ user.profile.get_avatar_url }}"
+          alt="Avatar de {{ user.username }}"
+          class="rounded-circle border mb-3"
+          style="width: 100px; height: 100px; object-fit: cover;">
+
+        <h5 class="fw-semibold mb-1">{{ user.username }}</h5>
+        <p class="text-muted small mb-2">{{ user.email }}</p>
+
+        <div class="d-flex justify-content-center gap-2 mb-3">
           {% if user.profile.allow_leaderboard_display %}
-            <br>
-            <span class="badge text-bg-primary">Profil Public</span>
+            <span class="badge text-bg-primary">Profil public</span>
           {% else %}
-            <br>
             <span class="badge text-bg-secondary">Profil privé</span>
           {% endif %}
+        </div>
 
+        <p class="text-muted small mb-3">
+          <i class="bi bi-calendar3 me-1"></i>
+          Membre depuis le {{ user.date_joined|date:"d/m/Y" }}
         </p>
-        <p class="card-text mb-0">
-          <a href="{% url 'accounts:edit_profile' %}" class="btn btn-sm btn-outline-primary mt-3">Modifier le profil</a>
-        </p>
-        <div class="mt-4">
-          <canvas id="scoreChart" width="250" height="250"></canvas>
+
+        <a href="{% url 'accounts:edit_profile' %}" class="btn btn-sm btn-outline-primary w-100">
+          <i class="bi bi-pencil me-1"></i> Modifier le profil
+        </a>
+      </div>
+    </div>
+
+    <!-- Score total -->
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-4">
+        <h6 class="text-uppercase text-muted fw-semibold small mb-3 d-flex align-items-center gap-2">
+          <i class="bi bi-bar-chart-fill"></i> Score
+        </h6>
+        <div class="text-center">
+          <span class="display-6 fw-bold text-primary">{{ total_score }}</span>
+          <p class="text-muted small mb-0">point{{ total_score|pluralize }} au total</p>
         </div>
       </div>
     </div>
+
+    <!-- Graphique progression -->
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="text-uppercase text-muted fw-semibold small mb-0 d-flex align-items-center gap-2">
+            <i class="bi bi-graph-up-arrow"></i> Progression
+          </h6>
+          <div class="btn-group btn-group-sm" role="group" id="chart-range-btns">
+            <button type="button" class="btn btn-outline-secondary" data-days="7">7j</button>
+            <button type="button" class="btn btn-outline-secondary" data-days="30">30j</button>
+            <button type="button" class="btn btn-outline-secondary active" data-days="0">Tout</button>
+          </div>
+        </div>
+        <canvas id="scoreChart"></canvas>
+      </div>
+    </div>
+
   </div>
 
+  <!-- ── Colonne droite : tableau des soumissions ────────────────────── -->
   <div class="col-12 col-lg-8">
     <div class="card border-0 shadow-sm">
-      <div class="card-header bg-light d-flex justify-content-between align-items-center">
-        <h2 class="h5 mb-0">Mes soumissions</h2>
-        <span class="badge text-bg-primary">
-          Score total : {{ total_score }} point{{ total_score|pluralize }}
+      <div class="card-header bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h6 class="text-uppercase text-muted fw-semibold small mb-0 d-flex align-items-center gap-2">
+          <i class="bi bi-send-fill"></i> Mes soumissions
+        </h6>
+        <span class="badge text-bg-primary fs-6 fw-normal">
+          {{ total_score }} point{{ total_score|pluralize }}
         </span>
       </div>
       <div class="card-body p-0">
-        <table class="table table-hover table-striped mb-0 align-middle">
-          <thead class="table-light">
-            <tr>
-              <th>Problème</th>
-              <th class="text-center" style="width: 160px;">Difficulté</th>
-              <th class="text-center" style="width: 80px;">Statut</th>
-              <th class="text-center" style="width: 120px;">Score</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% include "accounts/_submission_rows.html" with empty_colspan=4 empty_message="Vous n'avez soumis aucune réponse pour le moment." %}
-          </tbody>
-        </table>
+        <div class="table-responsive">
+          <table class="table table-hover table-striped mb-0 align-middle">
+            <thead class="table-light">
+              <tr>
+                <th class="ps-4">Problème</th>
+                <th class="text-center" style="width: 160px;">Difficulté</th>
+                <th class="text-center" style="width: 80px;">Statut</th>
+                <th class="text-center pe-4" style="width: 120px;">Score</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% include "accounts/_submission_rows.html" with empty_colspan=4 empty_message="Vous n'avez soumis aucune réponse pour le moment." %}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
+
 </div>
-
-{% block extra_js %}
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <script>
-    const ctx = document.getElementById('scoreChart');
-    
-    const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--bs-primary').trim() || '#0d6efd';
-  
-    const labels = {{ chart_labels|safe }};
-    const scores = {{ chart_data|safe }};
-
-    new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: 'Score',
-          data: scores,
-          borderWidth: 2,
-          borderColor: primaryColor,
-          backgroundColor: primaryColor + '33',
-          tension: 0.1
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: {
-              stepSize: 10
-            }
-          }
-        },
-        plugins: {
-          legend: {
-            display: true,
-            position: 'top'
-          }
-        }
-      }
-    });
-  </script>
-
 {% endblock %}
 
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+<script>
+  const ctx = document.getElementById('scoreChart');
+  const primaryColor = getComputedStyle(document.documentElement)
+    .getPropertyValue('--bs-primary').trim() || '#0d6efd';
 
+  const rawLabels = {{ chart_labels|safe }};
+  const rawData   = {{ chart_data|safe }};
+  const allPoints = rawLabels.map((d, i) => ({ x: new Date(d), y: rawData[i] }));
+
+  function filterPoints(days) {
+    if (!days) return allPoints;
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    const filtered = allPoints.filter(p => p.x >= cutoff);
+    if (filtered.length === 0) return [];
+    const lastBefore = allPoints.filter(p => p.x < cutoff).at(-1);
+    return lastBefore ? [{ x: cutoff, y: lastBefore.y }, ...filtered] : filtered;
+  }
+
+  const chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      datasets: [{
+        label: 'Score cumulé',
+        data: allPoints,
+        borderWidth: 2,
+        borderColor: primaryColor,
+        backgroundColor: primaryColor + '33',
+        stepped: true,
+        pointRadius: 0,
+        pointHoverRadius: 5,
+        pointHoverBackgroundColor: primaryColor,
+        fill: true,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        x: {
+          type: 'time',
+          time: {
+            tooltipFormat: 'dd/MM/yyyy',
+            displayFormats: {
+              day:   'dd MMM',
+              week:  'dd MMM',
+              month: 'MMM yyyy',
+              year:  'yyyy',
+            },
+          },
+          grid: { display: false },
+          ticks: { maxTicksLimit: 6 },
+        },
+        y: {
+          beginAtZero: true,
+          ticks: { stepSize: 10 },
+          grid: { color: 'rgba(0,0,0,0.05)' },
+        },
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            title: items => items[0].raw.x.toLocaleDateString('fr-FR'),
+          },
+        },
+      },
+    },
+  });
+
+  // Boutons d'intervalle
+  document.querySelectorAll('#chart-range-btns button').forEach(btn => {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('#chart-range-btns button').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      const days = parseInt(this.dataset.days);
+      chart.data.datasets[0].data = filterPoints(days);
+      chart.update();
+    });
+  });
+</script>
 {% endblock %}

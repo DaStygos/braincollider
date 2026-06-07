@@ -37,7 +37,7 @@ def _build_profile_context(user):
     correct_submissions = user_submissions.filter(is_correct=True).count()
     total_score = user.profile.get_total_score()
     score_history = user.profile.previous_scores
-    chart_labels = [parser.parse(entry[1]).strftime("%d/%m/%Y") for entry in score_history]
+    chart_labels = [parser.parse(entry[1]).strftime("%Y-%m-%d") for entry in score_history]
     chart_data = [entry[0] for entry in score_history]
 
     return {
