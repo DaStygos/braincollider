@@ -1,0 +1,18 @@
+{% extends "base_generic.html" %}
+
+{% block title %}Accès refusé | Braincollider{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-4 p-md-5 text-center">
+        <p class="text-muted mb-2">Erreur 403</p>
+        <h1 class="h3 mb-3">Accès refusé</h1>
+        <p class="lead text-muted mb-4">Vous n’avez pas l’autorisation d’accéder à cette page.</p>
+        <a class="btn btn-primary" href="{% url 'core:home' %}">Retour à l’accueil</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

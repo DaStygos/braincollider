@@ -5,6 +5,45 @@ def home(request):
     return render(request, "core/home.html")
 
 
+def _render_error(request, template_name, status_code):
+    return render(request, template_name, status=status_code)
+
+
+def error_400(request, exception=None):
+    return _render_error(request, "errors/400.html", 400)
+
+
+def error_403(request, exception=None):
+    return _render_error(request, "errors/403.html", 403)
+
+
+def error_404(request, exception=None):
+    path = request.path.lower()
+    if path.startswith("/problems/"):
+        error_title = "Problème introuvable"
+        error_message = "Le problème demandé n’existe pas ou n’est plus disponible."
+    elif path.startswith("/accounts/u/"):
+        error_title = "Utilisateur introuvable"
+        error_message = "L’utilisateur demandé n’existe pas ou n’est plus disponible."
+    elif path.startswith("/groups/"):
+        error_title = "Groupe introuvable"
+        error_message = "Le groupe demandé n’existe pas ou n’est plus disponible."
+    else:
+        error_title = "Page introuvable"
+        error_message = "La page demandée n’existe pas ou n’est plus disponible."
+
+    return render(
+        request,
+        "errors/404.html",
+        {"error_title": error_title, "error_message": error_message},
+        status=404,
+    )
+
+
+def error_500(request):
+    return _render_error(request, "errors/500.html", 500)
+
+
 def _render_static_page(request, title, lead, sections):
     return render(
         request,
