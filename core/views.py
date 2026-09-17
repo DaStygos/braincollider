@@ -236,7 +236,7 @@ def terms(request):
             {
                 "title": "Contenu soumis par les utilisateurs",
                 "content": (
-                    "Les utilisateurs peuvent publier des commentaires et proposer des solutions aux problèmes. "
+                    "Les utilisateurs peuvent publier des commentaires et proposer des solutions aux problèmes, à condition d'en être les auteurs originaux. "
                     "Vous êtes seul responsable des contenus que vous publiez. "
                     "En publiant un contenu, vous accordez à Braincollider une licence gratuite, non exclusive, pour l'afficher sur le site. "
                     "Sont interdits : les contenus hors-sujet, injurieux, discriminatoires, copiés sans attribution, "

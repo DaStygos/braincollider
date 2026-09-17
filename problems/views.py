@@ -36,14 +36,19 @@ def index(request):
     }
     return render(request, "problems/index.html", context)
 
+
 @login_required
 def problem_detail(request, pk):
     problem = get_object_or_404(Problem, pk=pk)
-    # Verifie si l'utilisateur a deja soumis une reponse.
-    submission = Submission.objects.filter(user=request.user, problem=problem).first()
+    # Récupère la soumission la plus récente de l'utilisateur pour ce problème.
+    submission = Submission.objects.filter(user=request.user, problem=problem).order_by("-submitted_at").first()
 
     if request.method == "POST":
-        # Backwards-compatible: if 'answer' is present, keep legacy behavior
+        # Soumission validée : l'utilisateur ne peut plus rien soumettre depuis cette vue.
+        if submission and submission.status == "accepted":
+            return redirect("problems:problem_detail", pk=problem.pk)
+
+        # Rétrocompat : champ `answer` (legacy).
         answer = request.POST.get("answer")
         if answer is not None:
             answer = answer.strip()
@@ -64,14 +69,25 @@ def problem_detail(request, pk):
                 problem.save()
             return redirect("problems:problem_detail", pk=problem.pk)
 
-        # Unified form: single field `content`.
         content = request.POST.get("content", "").strip()
         if not content:
             return redirect("problems:problem_detail", pk=problem.pk)
 
+        # Soumission refusée → nouvelle soumission from scratch.
+        if submission and submission.status == "rejected":
+            submission = Submission.objects.create(
+                user=request.user,
+                problem=problem,
+                answer=content,
+                is_correct=None,
+                status="pending",
+            )
+            problem.total_submissions += 1
+            problem.save()
+            return redirect("problems:problem_detail", pk=problem.pk)
+
         if submission:
-            # If submission exists, adding elements means appending a comment to the conversation.
-            # Only the submission owner may add comments from this page.
+            # Soumission existante (pending ou clarification) : ajout d'un commentaire.
             if submission.user != request.user:
                 return redirect("problems:problem_detail", pk=problem.pk)
 
@@ -83,13 +99,9 @@ def problem_detail(request, pk):
             )
             submission.status = "pending"
             submission.save()
-
-            # Do not notify staff when the submission owner adds clarifications.
-            # Staff will see the updated conversation when they visit pending submissions.
-
             return redirect("problems:problem_detail", pk=problem.pk)
 
-        # No submission exists yet: create the initial submission using content.
+        # Aucune soumission : création initiale.
         submission = Submission.objects.create(
             user=request.user,
             problem=problem,
@@ -99,10 +111,18 @@ def problem_detail(request, pk):
         )
         problem.total_submissions += 1
         problem.save()
-
         return redirect("problems:problem_detail", pk=problem.pk)
+
+    # Toutes les soumissions sauf la plus récente, pour l'historique
+    previous_submissions = (
+        Submission.objects
+        .filter(user=request.user, problem=problem)
+        .order_by("-submitted_at")
+        .prefetch_related("comments")[1:]
+    )
 
     return render(request, "problems/problem_detail.html", {
         "problem": problem,
         "submission": submission,
+        "previous_submissions": previous_submissions,
     })
