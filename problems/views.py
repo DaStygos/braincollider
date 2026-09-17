@@ -1,35 +1,63 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Problem, Submission, SubmissionComment
+from .models import CATEGORY_CHOICES, DIFFICULTY_CHOICES, Problem, Submission, SubmissionComment
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from notifications.utils import create_notification
-
-
-def _group_problems_by_category(problems):
-    problems_by_category = {}
-    for problem in problems:
-        problems_by_category.setdefault(problem.category, []).append(problem)
-    return problems_by_category
 
 
 def _get_submission_status_sets(user):
     if not user.is_authenticated:
         return set(), set(), set()
 
-    user_submissions = Submission.objects.filter(user=user)
-    correct_problems = set(user_submissions.filter(is_correct=True).values_list("problem_id", flat=True))
-    wrong_problems = set(user_submissions.filter(is_correct=False).values_list("problem_id", flat=True))
-    pending_problems = set(user_submissions.filter(is_correct=None).values_list("problem_id", flat=True))
+    latest_submissions = {}
+    user_submissions = Submission.objects.filter(user=user).order_by("problem_id", "-submitted_at", "-id")
+    for submission in user_submissions:
+        latest_submissions.setdefault(submission.problem_id, submission.is_correct)
+
+    correct_problems = {problem_id for problem_id, is_correct in latest_submissions.items() if is_correct is True}
+    wrong_problems = {problem_id for problem_id, is_correct in latest_submissions.items() if is_correct is False}
+    pending_problems = {problem_id for problem_id, is_correct in latest_submissions.items() if is_correct is None}
     return correct_problems, wrong_problems, pending_problems
 
 
 def index(request):
     problems = Problem.objects.all()
-    problems_by_category = _group_problems_by_category(problems)
     correct_problems, wrong_problems, pending_problems = _get_submission_status_sets(request.user)
 
+    search = request.GET.get("q", "").strip()
+    category = request.GET.get("category", "")
+    difficulty = request.GET.get("difficulty", "")
+    status = request.GET.get("status", "")
+
+    valid_categories = {value for value, _ in CATEGORY_CHOICES}
+    valid_difficulties = {str(value) for value, _ in DIFFICULTY_CHOICES}
+
+    if search:
+        problems = problems.filter(title__icontains=search)
+    if category in valid_categories:
+        problems = problems.filter(category=category)
+    if difficulty in valid_difficulties:
+        problems = problems.filter(difficulty=int(difficulty))
+    if status == "correct":
+        problems = problems.filter(id__in=correct_problems)
+    elif status == "wrong":
+        problems = problems.filter(id__in=wrong_problems)
+    elif status == "pending":
+        problems = problems.filter(id__in=pending_problems)
+    elif status == "unsolved":
+        submitted_problem_ids = correct_problems | wrong_problems | pending_problems
+        problems = problems.exclude(id__in=submitted_problem_ids)
+
+    problems = problems.order_by("category", "difficulty", "title")
+
     context = {
-        "problems_by_category": problems_by_category,
+        "problems": problems,
+        "category_choices": CATEGORY_CHOICES,
+        "difficulty_choices": DIFFICULTY_CHOICES,
+        "selected_search": search,
+        "selected_category": category,
+        "selected_difficulty": difficulty,
+        "selected_status": status,
         "correct_problems": correct_problems,
         "wrong_problems": wrong_problems,
         "pending_problems": pending_problems,

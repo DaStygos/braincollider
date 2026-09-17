@@ -23,7 +23,7 @@ class ProblemsViewsTests(TestCase):
 			difficulty=2,
 		)
 
-	def test_index_groups_problems_and_tracks_user_state(self):
+	def test_index_lists_problems_and_tracks_user_state(self):
 		Submission.objects.create(user=self.user, problem=self.problem_a, answer="ok", is_correct=True)
 		Submission.objects.create(user=self.user, problem=self.problem_b, answer="nope", is_correct=False)
 		pending_problem = Problem.objects.create(
@@ -42,8 +42,46 @@ class ProblemsViewsTests(TestCase):
 		self.assertIn(self.problem_a.id, response.context["correct_problems"])
 		self.assertIn(self.problem_b.id, response.context["wrong_problems"])
 		self.assertIn(pending_problem.id, response.context["pending_problems"])
-		self.assertIn("meca", response.context["problems_by_category"])
-		self.assertIn("opt", response.context["problems_by_category"])
+		self.assertQuerySetEqual(
+			response.context["problems"],
+			[self.problem_a, self.problem_b, pending_problem],
+			ordered=False,
+		)
+
+	def test_index_uses_only_latest_submission_status(self):
+		Submission.objects.create(user=self.user, problem=self.problem_a, answer="wrong", is_correct=False)
+		Submission.objects.create(user=self.user, problem=self.problem_a, answer="correct", is_correct=True)
+
+		self.client.force_login(self.user)
+		response = self.client.get(reverse("problems:index"))
+
+		self.assertIn(self.problem_a.id, response.context["correct_problems"])
+		self.assertNotIn(self.problem_a.id, response.context["wrong_problems"])
+
+	def test_index_filters_problems(self):
+		self.client.force_login(self.user)
+
+		response = self.client.get(
+			reverse("problems:index"),
+			{"category": "meca", "difficulty": "3", "status": "unsolved"},
+		)
+
+		self.assertEqual(response.status_code, 200)
+		self.assertQuerySetEqual(response.context["problems"], [], ordered=False)
+
+		pending_problem = Problem.objects.create(
+			title="Problem C",
+			statement="Statement C",
+			solution="Solution C",
+			category="meca",
+			difficulty=3,
+		)
+		response = self.client.get(
+			reverse("problems:index"),
+			{"category": "meca", "difficulty": "3", "status": "unsolved"},
+		)
+
+		self.assertQuerySetEqual(response.context["problems"], [pending_problem], ordered=False)
 
 	def test_problem_detail_requires_login(self):
 		response = self.client.get(reverse("problems:problem_detail", args=[self.problem_a.pk]))
