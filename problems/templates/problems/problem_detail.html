@@ -3,19 +3,28 @@
 {% block title %}{{ problem.title }}{% endblock %}
 
 {% block content %}
-{% include "includes/_page_header.html" with title=problem.title %}
+<header class="problem-detail-header d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+  <h1 class="h3 mb-0">{{ problem.title }}</h1>
+  <div class="d-flex flex-wrap gap-2" aria-label="Informations du problème">
+    <span class="badge text-bg-secondary">{{ problem.get_category_display }}</span>
+    <span class="badge text-bg-warning text-dark">{{ problem.get_difficulty_display }}</span>
+    <span class="badge text-bg-primary">{{ problem.get_score }} pt{{ problem.get_score|pluralize }}</span>
+  </div>
+</header>
 
 <div class="row g-4 align-items-start">
 
-  <!-- ── Colonne gauche : énoncé + métadonnées ─────────────────────── -->
-  <div class="col-12 col-lg-5 d-flex flex-column gap-3">
+  <!-- Statement principal : placé au-dessus de l'espace de réponse -->
+  <div class="col-12">
+    <section class="problem-statement-panel" aria-label="Contenu du problème">
+      <div class="problem-statement math-render-pending">
+        {{ problem.statement|linebreaks_preserve_latex }}
+      </div>
+    </section>
+  </div>
 
-    <!-- Badges -->
-    <div class="d-flex flex-wrap gap-2">
-      <span class="badge text-bg-secondary">{{ problem.get_category_display }}</span>
-      <span class="badge text-bg-warning text-dark">{{ problem.get_difficulty_display }}</span>
-      <span class="badge text-bg-primary">{{ problem.get_score }} pt{{ problem.get_score|pluralize }}</span>
-    </div>
+  <!-- ── Colonne gauche : métadonnées et aide ───────────────────────── -->
+  <aside class="col-12 col-lg-3 order-2 order-lg-2 problem-secondary-sidebar d-flex flex-column gap-3">
 
     <!-- Bannière de statut -->
     {% if submission %}
@@ -54,20 +63,8 @@
       {% endif %}
     {% endif %}
 
-    <!-- Énoncé -->
-    <div class="card border-0 shadow-sm">
-      <div class="card-body p-4">
-        <h6 class="text-uppercase text-muted fw-semibold small mb-3 d-flex align-items-center gap-2">
-          <i class="bi bi-file-text-fill"></i> Énoncé
-        </h6>
-        <div class="problem-statement math-render-pending">
-          {{ problem.statement|linebreaks_preserve_latex }}
-        </div>
-      </div>
-    </div>
-
     <!-- Détails -->
-    <div class="card border-0 shadow-sm">
+    <div class="card problem-secondary-card border-0 shadow-sm">
       <div class="card-body p-4">
         <h6 class="text-uppercase text-muted fw-semibold small mb-3 d-flex align-items-center gap-2">
           <i class="bi bi-info-circle-fill"></i> Détails
@@ -89,7 +86,7 @@
 
     <!-- Aide (masquée si accepté) -->
     {% if not submission or submission.status != 'accepted' %}
-    <div class="card border-0 shadow-sm">
+    <div class="card problem-secondary-card border-0 shadow-sm">
       <div class="card-body p-4">
         <h6 class="text-uppercase text-muted fw-semibold small mb-3 d-flex align-items-center gap-2">
           <i class="bi bi-lightbulb-fill"></i> Aide
@@ -101,10 +98,10 @@
     </div>
     {% endif %}
 
-  </div>
+  </aside>
 
-  <!-- ── Colonne droite : conversation + formulaire ─────────────────── -->
-  <div class="col-12 col-lg-7 d-flex flex-column gap-3">
+  <!-- ── Zone principale : conversation + formulaire ────────────────── -->
+  <div class="col-12 col-lg-9 order-1 order-lg-1 d-flex flex-column gap-3">
 
     <!-- Conversation courante (masquée si statut rejected) -->
     {% if submission and submission.status != 'rejected' %}
@@ -228,8 +225,8 @@
     </div>
     {% endif %}
 
-    <!-- Historique : soumission acceptée + tentatives précédentes -->
-    {% if submission and submission.status == 'accepted' or previous_submissions %}
+    <!-- Historique : soumission courante refusée/acceptée + tentatives précédentes -->
+    {% if submission and submission.status == 'accepted' or submission and submission.status == 'rejected' or previous_submissions %}
     <div class="card border-0 shadow-sm">
       <div class="card-header bg-white border-bottom py-3 px-4">
         <a class="d-flex justify-content-between align-items-center text-decoration-none text-reset"
@@ -251,6 +248,42 @@
               </small>
               <div class="d-flex align-items-center gap-2 ms-auto">
                 <span class="badge text-bg-success">Validée</span>
+                {% if submission.comments.all %}
+                  <a class="text-muted small text-decoration-none"
+                     data-bs-toggle="collapse" href="#comments-current" role="button" aria-expanded="false">
+                    <i class="bi bi-chat-left-dots me-1"></i>{{ submission.comments.all|length }} commentaire{{ submission.comments.all|length|pluralize }}
+                  </a>
+                {% endif %}
+              </div>
+            </div>
+            <div class="px-4 pb-3">
+              <div class="math-render-pending small text-muted">{{ submission.answer|linebreaks_preserve_latex }}</div>
+            </div>
+            {% if submission.comments.all %}
+              <div class="collapse" id="comments-current">
+                {% for c in submission.comments.all %}
+                  <div class="px-4 py-2 bg-light border-top">
+                    <div class="d-flex justify-content-between align-items-baseline mb-1">
+                      <strong class="small">{{ c.author.username }}</strong>
+                      <small class="text-muted">{{ c.created_at|date:"d/m H:i" }}</small>
+                    </div>
+                    <div class="math-render-pending small">{{ c.text|linebreaks_preserve_latex }}</div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        {% endif %}
+
+        <!-- Soumission courante si refusée -->
+        {% if submission and submission.status == 'rejected' %}
+          <div class="border-bottom">
+            <div class="px-4 pt-3 pb-2 d-flex justify-content-between align-items-center gap-2">
+              <small class="text-muted">
+                <i class="bi bi-calendar3 me-1"></i>{{ submission.submitted_at|date:"d/m/Y H:i" }}
+              </small>
+              <div class="d-flex align-items-center gap-2 ms-auto">
+                <span class="badge text-bg-danger">Incorrecte</span>
                 {% if submission.comments.all %}
                   <a class="text-muted small text-decoration-none"
                      data-bs-toggle="collapse" href="#comments-current" role="button" aria-expanded="false">

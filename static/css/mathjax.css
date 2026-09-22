@@ -1,8 +1,60 @@
 /* Styles for LaTeX/Math content rendering with MathJax */
 
 .problem-statement {
-  font-size: 1.05em;
-  line-height: 1.8;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+  color: #263746;
+  font-family: "STIX Two Text", "Cambria Math", "STIX Two Math", "DejaVu Serif", serif;
+  font-size: 1.16rem;
+  line-height: 1.85;
+  border: 1px solid #bfd9dc;
+  border-left: 0.45rem solid #146c75;
+  border-radius: 0.5rem;
+  background: #f5fbfa;
+  box-shadow: 0 0.65rem 1.75rem rgba(13, 76, 87, 0.12);
+}
+
+.problem-statement-panel {
+  width: 100%;
+}
+
+.problem-secondary-sidebar {
+  color: #52616b;
+}
+
+.problem-secondary-card {
+  border: 1px solid #dce4e7 !important;
+  border-left: 0.25rem solid #9db5bd !important;
+  background: #fbfcfc;
+  box-shadow: 0 0.25rem 0.75rem rgba(38, 55, 70, 0.06) !important;
+}
+
+.problem-secondary-card .card-body {
+  padding: 1.15rem !important;
+}
+
+.problem-secondary-card h6 {
+  color: #52616b !important;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+}
+
+.problem-secondary-sidebar .alert {
+  font-size: 0.875rem;
+}
+
+@media (max-width: 575.98px) {
+  .problem-statement-panel {
+    width: 100%;
+  }
+
+  .problem-statement {
+    padding: 1.25rem;
+    font-size: 1.05rem;
+    line-height: 1.75;
+  }
 }
 
 .submission-answer {
