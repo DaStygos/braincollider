@@ -7,7 +7,7 @@
 {% block content %}
 {% include "includes/_page_header.html" with title="Liste des problèmes" subtitle="Trouvez les problèmes qui correspondent à votre niveau ou vos envies et testez vos compétences." %}
 
-<div class="card border-0 shadow-sm mb-3">
+<div class="card border-0 shadow-sm mb-3 problem-filter-panel">
     <div class="card-body">
         <form method="get" class="row g-3 align-items-end">
             <div class="col-12 col-lg-4">
@@ -51,11 +51,11 @@
 </div>
 
 {% if problems %}
-<div class="card border-0 shadow-sm">
+<div class="card border-0 shadow-sm problem-list-panel">
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-striped table-hover align-middle mb-0">
-                <thead class="table-light">
+            <table class="table table-striped table-hover align-middle mb-0 problem-table">
+                <thead>
                     <tr>
                         <th>Titre</th>
                         <th>Catégorie</th>
@@ -96,7 +96,7 @@
     </div>
 </div>
 {% else %}
-<div class="card border-0 shadow-sm">
+<div class="card border-0 shadow-sm problem-list-panel">
     <div class="card-body text-muted">Aucun problème ne correspond à ces filtres.</div>
 </div>
 {% endif %}

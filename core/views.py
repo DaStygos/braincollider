@@ -1,8 +1,24 @@
+from django.contrib.auth.models import User
+from django.db.models import Q
 from django.shortcuts import render
+
+from problems.models import Problem, Submission
 
 
 def home(request):
-    return render(request, "core/home.html")
+    accepted_submissions = Submission.objects.filter(
+        Q(status="accepted") | Q(is_correct=True),
+    )
+    context = {
+        "home_metrics": {
+            "problem_count": Problem.objects.count(),
+            "accepted_submission_count": accepted_submissions.count(),
+            "solving_member_count": User.objects.filter(
+                Q(submission__status="accepted") | Q(submission__is_correct=True),
+            ).distinct().count(),
+        },
+    }
+    return render(request, "core/home.html", context)
 
 
 def _render_error(request, template_name, status_code):

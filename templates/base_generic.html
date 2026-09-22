@@ -21,7 +21,7 @@
 <body class="d-flex flex-column min-vh-100">
 
 <!-- 🔹 Barre de navigation Bootstrap -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg site-navbar sticky-top">
   <div class="container-fluid">
     <!-- Logo -->
     <a class="navbar-brand" href="{% url 'core:home' %}">🧠 BrainCollider</a>
@@ -113,18 +113,18 @@
   {% endblock %}
 </main>
 
-<footer class="mt-auto bg-dark text-light border-top border-secondary">
+<footer class="mt-auto">
   <div class="container py-3 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
     <div>
       <div class="fw-semibold">BrainCollider</div>
-      <div class="text-light-emphasis small">Un espace pour progresser, partager et suivre vos performances.</div>
+      <div class="text-muted small">Un espace pour progresser, partager et suivre vos performances.</div>
     </div>
     <nav aria-label="Liens de pied de page">
       <ul class="list-inline mb-0 d-flex flex-wrap gap-3">
-        <li class="list-inline-item"><a class="link-light text-decoration-none" href="{% url 'core:contact' %}">Contact</a></li>
-        <li class="list-inline-item"><a class="link-light text-decoration-none" href="{% url 'core:legal_notice' %}">Mentions légales</a></li>
-        <li class="list-inline-item"><a class="link-light text-decoration-none" href="{% url 'core:privacy' %}">Confidentialité</a></li>
-        <li class="list-inline-item"><a class="link-light text-decoration-none" href="{% url 'core:terms' %}">CGU</a></li>
+        <li class="list-inline-item"><a class="text-decoration-none" href="{% url 'core:contact' %}">Contact</a></li>
+        <li class="list-inline-item"><a class="text-decoration-none" href="{% url 'core:legal_notice' %}">Mentions légales</a></li>
+        <li class="list-inline-item"><a class="text-decoration-none" href="{% url 'core:privacy' %}">Confidentialité</a></li>
+        <li class="list-inline-item"><a class="text-decoration-none" href="{% url 'core:terms' %}">CGU</a></li>
       </ul>
     </nav>
   </div>

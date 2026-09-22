@@ -13,7 +13,10 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("notifications/", include("notifications.urls",namespace="notifications")),
     path("staff/", include("staff.urls", namespace="staff")),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 handler400 = "core.views.error_400"
 handler403 = "core.views.error_403"

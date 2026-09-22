@@ -8,15 +8,19 @@
 {% include "includes/_page_header.html" with title="Statistiques du site" subtitle="Vue d'ensemble des utilisateurs, corrections et performances globales" meta="Période analysée : 30 jours" %}
 
 <style>
+  .stats-shell {
+    background: linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.06));
+    border-radius: 1.1rem;
+  }
+
   .stats-card {
-    transition:
-      transform 0.18s ease,
-      box-shadow 0.18s ease;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    border: 1px solid rgba(148, 163, 184, 0.18);
   }
 
   .stats-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 .5rem 1rem rgba(0,0,0,.08);
+    box-shadow: 0 0.85rem 1.6rem rgba(15, 23, 42, 0.08);
   }
 
   .stats-icon {
@@ -33,24 +37,40 @@
     font-size: 2rem;
     font-weight: 700;
     line-height: 1;
+    letter-spacing: -0.04em;
   }
 
   .stats-label {
     font-size: .75rem;
-    letter-spacing: .04em;
+    letter-spacing: .06em;
+  }
+
+  .nav-tabs {
+    border-bottom: 1px solid rgba(148, 163, 184, 0.2);
   }
 
   .nav-tabs .nav-link {
     border: 0;
     border-bottom: 2px solid transparent;
-    color: var(--bs-secondary-color);
-    font-weight: 500;
+    color: #52607a;
+    font-weight: 600;
+    padding: 0.8rem 1rem;
+    border-radius: 0.8rem 0.8rem 0 0;
   }
 
   .nav-tabs .nav-link.active {
-    color: var(--bs-primary);
-    border-bottom-color: var(--bs-primary);
-    background: transparent;
+    color: #1b2430;
+    border-bottom-color: #5d6cff;
+    background: rgba(93, 108, 255, 0.04);
+  }
+
+  .table thead th {
+    background: #eef2ff;
+    color: #1b2430;
+    font-size: 0.74rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border-bottom: 0;
   }
 
   .table tbody tr {
@@ -58,7 +78,7 @@
   }
 
   .table tbody tr:hover {
-    background-color: rgba(0,0,0,.02);
+    background-color: rgba(93, 108, 255, 0.03);
   }
 
   .tooltip-inner {
@@ -67,6 +87,7 @@
   }
 </style>
 
+<div class="stats-shell">
 <ul class="nav nav-tabs mb-4" id="statsTab" role="tablist">
 
   <li class="nav-item">
@@ -432,6 +453,7 @@
 
   </div>
 
+</div>
 </div>
 
 {{ activity_labels|json_script:"activity-labels" }}

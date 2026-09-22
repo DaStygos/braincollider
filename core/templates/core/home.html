@@ -4,38 +4,66 @@
 {% block title %}Accueil{% endblock %}
 
 {% block content %}
-{% include "includes/_page_header.html" with title="Bienvenue sur BrainCollider 🧠" subtitle="Une plateforme pour progresser en résolution de problèmes, comparer vos performances et apprendre en continu." %}
-
-<div class="card border-0 shadow-sm mb-4">
-    <div class="card-body">
-        <p class="mb-0">
-            BrainCollider est un espace d'entraînement intellectuel où vous pouvez résoudre des exercices, suivre votre évolution
-            et vous challenger avec les autres membres de la communauté. Chaque problème résolu améliore vos statistiques
-            et vous aide à identifier vos points forts ainsi que les notions à retravailler.
-        </p>
+<div class="home-hero card border-0 mb-4">
+    <div class="card-body p-4 p-lg-5">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-7">
+                <span class="home-badge mb-3">Plateforme d'entraînement</span>
+                <h1 class="display-6 fw-bold mb-3">Bienvenue sur BrainCollider</h1>
+                <p class="lead mb-4">
+                    Une plateforme pour progresser en résolution de problèmes, comparer vos performances et apprendre en continu.
+                </p>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{% url 'problems:index' %}" class="btn btn-primary">Explorer les problèmes</a>
+                    <a href="{% url 'leaderboard:leaderboard' %}" class="btn btn-outline-secondary">Voir le leaderboard</a>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="home-hero-panel">
+                    <div class="home-hero-stat">
+                        <span class="home-stat-label">Problèmes</span>
+                        <strong>{{ home_metrics.problem_count }}</strong>
+                        <small>Disponibles sur la plateforme</small>
+                    </div>
+                    <div class="home-hero-stat muted">
+                        <span class="home-stat-label">Réponses validées</span>
+                        <strong>{{ home_metrics.accepted_submission_count }}</strong>
+                        <small>Résolutions enregistrées</small>
+                    </div>
+                    <div class="home-hero-stat accent">
+                        <span class="home-stat-label">Membres actifs</span>
+                        <strong>{{ home_metrics.solving_member_count }}</strong>
+                        <small>Avec au moins une résolution</small>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 <div class="row g-3 mb-4">
     <div class="col-md-4">
-        <div class="card h-100 border-0 shadow-sm">
+        <div class="card h-100 border-0 home-feature-card">
             <div class="card-body">
+                <div class="feature-icon bg-primary-subtle text-primary"><i class="bi bi-search"></i></div>
                 <h2 class="h6 mb-2">1. Choisissez un problème</h2>
                 <p class="mb-0 text-muted">Parcourez les exercices proposés selon le niveau, le thème ou la difficulté.</p>
             </div>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card h-100 border-0 shadow-sm">
+        <div class="card h-100 border-0 home-feature-card">
             <div class="card-body">
+                <div class="feature-icon bg-success-subtle text-success"><i class="bi bi-pencil-square"></i></div>
                 <h2 class="h6 mb-2">2. Soumettez votre réponse</h2>
                 <p class="mb-0 text-muted">Résolvez l'exercice puis envoyez votre solution pour une vérification immédiate.</p>
             </div>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card h-100 border-0 shadow-sm">
+        <div class="card h-100 border-0 home-feature-card">
             <div class="card-body">
+                <div class="feature-icon bg-warning-subtle text-warning"><i class="bi bi-graph-up-arrow"></i></div>
                 <h2 class="h6 mb-2">3. Analysez vos résultats</h2>
                 <p class="mb-0 text-muted">Consultez vos scores, votre historique et votre position dans le classement.</p>
             </div>
@@ -43,15 +71,15 @@
     </div>
 </div>
 
-<div class="card border-0 shadow-sm mb-4">
-    <div class="card-body text-center">
-        <p class="mb-2">L'objectif est simple : pratiquer régulièrement, progresser étape par étape et prendre plaisir à apprendre.</p>
+<div class="card border-0 shadow-sm mb-4 home-cta-card">
+    <div class="card-body text-center py-4 py-lg-5">
+        <p class="mb-2 fw-semibold">L'objectif est simple : pratiquer régulièrement, progresser étape par étape et prendre plaisir à apprendre.</p>
         <p class="text-muted mb-0">Commencez dès maintenant et voyez jusqu'où votre logique peut vous mener.</p>
     </div>
 </div>
 
-<div class="card border-0 shadow-sm">
-    <div class="card-body bg-info-subtle">
+<div class="card border-0 shadow-sm home-highlight-card">
+    <div class="card-body">
         <h2 class="h5 mb-2">Et après une bonne réponse ?</h2>
         <p class="mb-2">
             Pensez aussi à revenir sur les problèmes que vous avez déjà résolus pour relire et améliorer vos soumissions.

@@ -24,7 +24,7 @@
 <div class="row g-3">
   {% for group in groups %}
   <div class="col-md-6 col-lg-4">
-    <div class="card h-100 border-0 shadow-sm">
+    <div class="card h-100 border-0 shadow-sm group-panel">
       <div class="card-body">
         <h2 class="h5 card-title">{{ group.name }}</h2>
         {% if group.description %}
@@ -65,7 +65,7 @@
   <div class="row g-3">
     {% for invitation in pending_invitations %}
     <div class="col-md-6 col-lg-4">
-      <div class="card border-warning h-100 shadow-sm">
+      <div class="card border-warning h-100 shadow-sm group-panel">
         <div class="card-body">
           <h3 class="h5 card-title">{{ invitation.group.name }}</h3>
           <p class="card-text text-muted mb-2">

@@ -39,11 +39,17 @@ def dashboard(request):
 
     total_problems = Problem.objects.count()
     total_submissions = Submission.objects.count()
-    correct_submissions = Submission.objects.filter(status="accepted").count()
-    pending_submissions = Submission.objects.filter(status="pending").count()
-    reviewed_submissions = Submission.objects.exclude(status="pending").count()
+    accepted_filter = Q(status="accepted") | Q(is_correct=True)
+    correct_submissions = Submission.objects.filter(accepted_filter).count()
+    pending_submissions = Submission.objects.filter(
+        status="pending",
+        is_correct__isnull=True,
+    ).count()
+    reviewed_submissions = Submission.objects.filter(
+        Q(status__in=["accepted", "rejected"]) | Q(is_correct__isnull=False),
+    ).count()
 
-    total_points = Submission.objects.filter(status="accepted").aggregate(
+    total_points = Submission.objects.filter(accepted_filter).aggregate(
         total=Coalesce(Sum(_submission_score_case()), 0)
     )["total"]
 
@@ -51,7 +57,7 @@ def dashboard(request):
         User.objects.select_related("profile")
         .annotate(
             total_score=Coalesce(Sum(_submission_score_case("submission__")), 0),
-            correct_count=Count("submission", filter=Q(submission__status="accepted")),
+            correct_count=Count("submission", filter=Q(submission__status="accepted") | Q(submission__is_correct=True)),
         )
         .filter(total_score__gt=0)
         .order_by("-total_score", "username")[:5]
@@ -59,7 +65,7 @@ def dashboard(request):
 
     top_problems = list(
         Problem.objects.annotate(
-            solved_count=Count("submission", filter=Q(submission__status="accepted")),
+            solved_count=Count("submission", filter=Q(submission__status="accepted") | Q(submission__is_correct=True)),
         )
         .filter(solved_count__gt=0)
         .order_by("-solved_count", "title")[:5]
@@ -73,7 +79,7 @@ def dashboard(request):
         problem.total_points = problem.solved_count * problem.get_score()
 
     points_rows = list(
-        Submission.objects.filter(status="accepted", submitted_at__date__gte=start_date)
+        Submission.objects.filter(accepted_filter, submitted_at__date__gte=start_date)
         .annotate(day=TruncDate("submitted_at"))
         .values("day")
         .annotate(points=Sum(_submission_score_case()), count=Count("id"))
@@ -88,7 +94,7 @@ def dashboard(request):
     )
 
     category_rows = list(
-        Submission.objects.filter(status="accepted")
+        Submission.objects.filter(accepted_filter)
         .values("problem__category")
         .annotate(count=Count("id"), points=Sum(_submission_score_case()))
         .order_by("-points", "problem__category")
