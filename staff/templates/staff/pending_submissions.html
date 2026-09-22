@@ -5,27 +5,36 @@
 {% include "includes/_page_header.html" with title="Soumissions à corriger" subtitle="Traitez les réponses en attente de validation." %}
 
 <div class="card border-0 shadow-sm">
-  {% include "includes/_card_header.html" with title="📝 Soumissions en attente de correction" centered=True header_class="bg-light" heading_tag="h2" %}
-
   <div class="card-body">
+    <form method="get" class="row g-3 align-items-end mb-3">
+      <div class="col-12 col-lg-10">
+        <label for="pending-search" class="form-label">Rechercher</label>
+        <input type="search" class="form-control" id="pending-search" name="q" value="{{ selected_search }}" placeholder="Utilisateur ou problème">
+      </div>
+      <div class="col-12 col-lg-2 d-flex gap-2">
+        <button type="submit" class="btn btn-primary flex-grow-1">Filtrer</button>
+        <a href="{% url 'staff:pending_submissions' %}" class="btn btn-outline-secondary" aria-label="Réinitialiser la recherche" title="Réinitialiser la recherche"><i class="bi bi-arrow-counterclockwise"></i></a>
+      </div>
+    </form>
+
     {% if rows %}
     <div class="table-responsive">
-      <table class="table table-hover table-bordered align-middle mb-0">
-        <thead class="table-light text-center">
+      <table class="table table-striped table-hover align-middle mb-0">
+        <thead class="table-light">
           <tr>
             <th>Utilisateur</th>
             <th>Problème</th>
-            <th>Date</th>
-            <th>Action</th>
+            <th class="text-center">Dernière activité</th>
+            <th class="text-center" style="width: 170px;">Action</th>
           </tr>
         </thead>
-        <tbody class="text-center">
+        <tbody>
           {% for row in rows %}
           <tr>
             <td class="fw-semibold">{{ row.submission.user.username }}</td>
             <td>{{ row.submission.problem.title }}</td>
-            <td class="text-secondary">{{ row.last_at|date:"d/m/Y H:i" }}</td>
-            <td>
+            <td class="text-center text-secondary">{{ row.last_at|date:"d/m/Y H:i" }}</td>
+            <td class="text-center">
               <a href="{% url 'staff:submission_detail' row.submission.id %}" class="btn btn-sm btn-outline-primary">
                 Voir la soumission
               </a>
@@ -36,8 +45,8 @@
       </table>
     </div>
     {% else %}
-    <div class="text-center py-5 text-muted">
-      <h5>🎉 Aucune soumission à corriger.</h5>
+    <div class="py-4 text-muted">
+      Aucune soumission ne correspond à cette recherche.
     </div>
     {% endif %}
   </div>

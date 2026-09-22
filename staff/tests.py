@@ -80,6 +80,17 @@ class PendingSubmissionsAccessTests(TestCase):
 		self.assertContains(response, self.accessible_submission.problem.title)
 		self.assertContains(response, self.hidden_submission.problem.title)
 
+	def test_pending_submissions_can_be_filtered(self):
+		self.client.force_login(self.staff_user)
+
+		response = self.client.get(
+			reverse("staff:pending_submissions"),
+			{"q": self.accessible_submission.problem.title},
+		)
+
+		self.assertContains(response, self.accessible_submission.problem.title)
+		self.assertNotContains(response, self.hidden_submission.problem.title)
+
 	def test_suggest_problem_creates_suggestion(self):
 		self.client.force_login(self.reviewer)
 

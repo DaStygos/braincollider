@@ -3,84 +3,133 @@
 {% block title %}Correction de {{ submission.user.username }}{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-12 col-lg-10">
-    <div class="card border-0 shadow-sm">
-      <div class="card-header bg-secondary text-white">
-        <h1 class="h4 mb-0">Soumission de <strong>{{ submission.user.username }}</strong> - {{ submission.problem.title }}</h1>
+<header class="problem-detail-header d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+  <div>
+    <div class="text-muted small mb-1">Réponse à évaluer</div>
+    <h1 class="h3 mb-0">{{ submission.user.username }}</h1>
+  </div>
+  <div class="d-flex flex-wrap gap-2" aria-label="Informations de la soumission">
+    <span class="badge text-bg-secondary">{{ submission.problem.get_category_display }}</span>
+    <span class="badge text-bg-warning text-dark">{{ submission.problem.get_difficulty_display }}</span>
+    <span class="badge text-bg-primary">{{ submission.problem.title }}</span>
+  </div>
+</header>
+
+<div class="row g-4 align-items-start">
+  <div class="col-12">
+    <section class="card border-0 shadow-sm" aria-label="Contexte du problème">
+      <div class="card-header bg-light border-bottom py-2 px-4">
+        <h2 class="h6 text-uppercase text-muted fw-semibold mb-0">
+          <i class="bi bi-journal-text me-1"></i> Contexte du problème
+        </h2>
       </div>
-
-      <div class="card-body">
-        <div class="d-flex flex-wrap gap-2 mb-3">
-          <span class="badge text-bg-light text-dark">Catégorie : {{ submission.problem.get_category_display }}</span>
-          <span class="badge text-bg-light text-dark">Difficulté : {{ submission.problem.get_difficulty_display }}</span>
-        </div>
-
-        <h2 class="h5 text-primary">Énoncé</h2>
-        <div class="math-render-pending bg-light p-3 rounded border-start border-primary border-4 mb-4" style="border-left-width: 0.5rem !important;">
+      <div class="card-body p-3">
+        <div class="problem-statement math-render-pending">
           {{ submission.problem.statement|linebreaks_preserve_latex }}
         </div>
+      </div>
+    </section>
+  </div>
+  <aside class="col-12 col-lg-3 order-2 order-lg-2 problem-secondary-sidebar d-flex flex-column gap-3">
+    {% if submission.status == 'accepted' %}
+      <div class="alert alert-success border-0 d-flex align-items-center gap-3 mb-0 py-3" role="alert">
+        <i class="bi bi-patch-check-fill fs-4 flex-shrink-0"></i>
+        <div><div class="fw-semibold">Soumission validée</div><div class="small">Cette réponse est correcte.</div></div>
+      </div>
+    {% elif submission.status == 'rejected' %}
+      <div class="alert alert-danger border-0 d-flex align-items-center gap-3 mb-0 py-3" role="alert">
+        <i class="bi bi-x-circle-fill fs-4 flex-shrink-0"></i>
+        <div><div class="fw-semibold">Soumission incorrecte</div><div class="small">Une nouvelle réponse pourra être proposée.</div></div>
+      </div>
+    {% elif submission.status == 'clarification' %}
+      <div class="alert alert-warning border-0 d-flex align-items-center gap-3 mb-0 py-3" role="alert">
+        <i class="bi bi-question-circle-fill fs-4 flex-shrink-0"></i>
+        <div><div class="fw-semibold">Précisions demandées</div><div class="small">La discussion est en cours.</div></div>
+      </div>
+    {% else %}
+      <div class="alert alert-secondary border-0 d-flex align-items-center gap-3 mb-0 py-3" role="alert">
+        <i class="bi bi-hourglass-split fs-4 flex-shrink-0"></i>
+        <div><div class="fw-semibold">En attente de correction</div><div class="small">Cette réponse attend votre évaluation.</div></div>
+      </div>
+    {% endif %}
 
-        <h2 class="h5 text-primary">Conversation</h2>
-        <div class="card mb-4">
-          <div class="card-body">
-            <div class="mb-2">
-              {% if submission.status == 'accepted' %}
-                <span class="badge bg-success">Validée</span>
-              {% elif submission.status == 'rejected' %}
-                <span class="badge bg-danger">Incorrecte</span>
-              {% elif submission.status == 'clarification' %}
-                <span class="badge bg-warning text-dark">Précisions demandées</span>
-              {% else %}
-                <span class="badge bg-secondary">En attente</span>
-              {% endif %}
-            </div>
+    <div class="card problem-secondary-card border-0 shadow-sm">
+      <div class="card-body p-4">
+        <h6 class="text-uppercase text-muted fw-semibold small mb-3 d-flex align-items-center gap-2">
+          <i class="bi bi-clipboard-check-fill"></i> Informations de revue
+        </h6>
+        <dl class="row small mb-0">
+          <dt class="col-6 text-muted fw-normal">Utilisateur</dt>
+          <dd class="col-6 mb-1">{{ submission.user.username }}</dd>
+          <dt class="col-6 text-muted fw-normal">Catégorie</dt>
+          <dd class="col-6 mb-1">{{ submission.problem.get_category_display }}</dd>
+          <dt class="col-6 text-muted fw-normal">Difficulté</dt>
+          <dd class="col-6 mb-1">{{ submission.problem.get_difficulty_display }}</dd>
+          <dt class="col-6 text-muted fw-normal">Soumise le</dt>
+          <dd class="col-6 mb-0">{{ submission.submitted_at|date:"d/m/Y H:i" }}</dd>
+        </dl>
+      </div>
+    </div>
 
-            <div class="discussion">
-              <div class="list-group list-group-flush mb-3">
-                <div class="list-group-item py-3">
-                  <div class="d-flex w-100 justify-content-between">
-                    <strong class="mb-0">{{ submission.user.username }}</strong>
-                    <small class="text-muted">{{ submission.submitted_at }}</small>
-                  </div>
-                  <div class="mt-2 math-render-pending">{{ submission.answer|linebreaks_preserve_latex }}</div>
-                </div>
-                {% for c in submission.comments.all %}
-                  <div class="list-group-item py-3">
-                    <div class="d-flex w-100 justify-content-between">
-                      <strong class="mb-0">{{ c.author.username }}</strong>
-                      <small class="text-muted">{{ c.created_at }}</small>
-                    </div>
-                    <div class="mt-2 math-render-pending">{{ c.text|linebreaks_preserve_latex }}</div>
-                  </div>
-                {% empty %}
-                {% endfor %}
-              </div>
+    <a href="{% url 'staff:pending_submissions' %}" class="btn btn-outline-secondary">
+      <i class="bi bi-list me-1"></i> Retour aux corrections
+    </a>
+  </aside>
 
-              {# Unified composer + decision buttons in one form for reviewers #}
-              <form method="post">
-                {% csrf_token %}
-                <div class="mb-2">
-                  <textarea name="content" rows="3" class="form-control" placeholder="Ajouter un message à la conversation..."></textarea>
-                </div>
-                  <div class="d-flex flex-wrap gap-2">
-                    {# Removed free 'add message' button to force reviewers to pick an action #}
-                    <button name="decision" value="clarify" class="btn btn-warning text-dark" title="Demander des précisions" aria-label="Demander des précisions">
-                      <i class="bi bi-question-circle"></i>
-                    </button>
-                    <button name="decision" value="correct" class="btn btn-success" title="Marquer correcte" aria-label="Marquer correcte">
-                      <i class="bi bi-check-lg"></i>
-                    </button>
-                    <button name="decision" value="incorrect" class="btn btn-danger" title="Marquer incorrecte" aria-label="Marquer incorrecte">
-                      <i class="bi bi-x-lg"></i>
-                    </button>
-                    <a href="{% url 'staff:pending_submissions' %}" class="btn btn-outline-secondary" title="Retour" aria-label="Retour">
-                      <i class="bi bi-list"></i>
-                    </a>
-                  </div>
-              </form>
-            </div>
+  <div class="col-12 col-lg-9 order-1 order-lg-1">
+    <div class="card border-0 shadow-sm border-start border-4 border-primary">
+      <div class="card-header bg-primary-subtle border-bottom py-3 px-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h6 class="text-uppercase text-muted fw-semibold small mb-0 d-flex align-items-center gap-2">
+          <i class="bi bi-chat-left-text-fill"></i> Réponse et échanges
+        </h6>
+        {% if submission.status == 'accepted' %}
+          <span class="badge text-bg-success">Validée</span>
+        {% elif submission.status == 'rejected' %}
+          <span class="badge text-bg-danger">Incorrecte</span>
+        {% elif submission.status == 'clarification' %}
+          <span class="badge text-bg-warning text-dark">Précisions demandées</span>
+        {% else %}
+          <span class="badge text-bg-secondary">En attente</span>
+        {% endif %}
+      </div>
+
+      <div class="card-body p-0">
+        <div class="px-4 py-3 border-bottom bg-light">
+          <div class="d-flex justify-content-between align-items-baseline mb-2">
+            <strong class="small"><i class="bi bi-person-circle me-1"></i>{{ submission.user.username }}</strong>
+            <small class="text-muted">{{ submission.submitted_at|date:"d/m H:i" }}</small>
           </div>
+          <div class="math-render-pending submission-answer">{{ submission.answer|linebreaks_preserve_latex }}</div>
+        </div>
+
+        {% for c in submission.comments.all %}
+          <div class="px-4 py-3 border-bottom">
+            <div class="d-flex justify-content-between align-items-baseline mb-2">
+              <strong class="small">{{ c.author.username }}</strong>
+              <small class="text-muted">{{ c.created_at|date:"d/m H:i" }}</small>
+            </div>
+            <div class="math-render-pending">{{ c.text|linebreaks_preserve_latex }}</div>
+          </div>
+        {% endfor %}
+
+        <div class="p-4">
+          <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+              <textarea name="content" rows="5" class="form-control font-monospace" placeholder="Ajouter un message à la conversation..." data-live-math-preview="review-preview"></textarea>
+            </div>
+            <div class="d-flex flex-wrap gap-2 justify-content-end">
+              <button name="decision" value="clarify" class="btn btn-warning text-dark" title="Demander des précisions" aria-label="Demander des précisions">
+                <i class="bi bi-question-circle me-1"></i> Demander des précisions
+              </button>
+              <button name="decision" value="correct" class="btn btn-success" title="Marquer correcte" aria-label="Marquer correcte">
+                <i class="bi bi-check-lg me-1"></i> Marquer correcte
+              </button>
+              <button name="decision" value="incorrect" class="btn btn-danger" title="Marquer incorrecte" aria-label="Marquer incorrecte">
+                <i class="bi bi-x-lg me-1"></i> Marquer incorrecte
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>

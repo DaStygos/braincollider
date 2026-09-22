@@ -12,8 +12,16 @@ def pending_submissions(request):
     if not can_access_pending_submissions(request.user):
         raise PermissionDenied
     rows = get_pending_review_rows(request.user)
+    search = request.GET.get("q", "").strip()
+    if search:
+        search_casefolded = search.casefold()
+        rows = [
+            row for row in rows
+            if search_casefolded in row["submission"].user.username.casefold()
+            or search_casefolded in row["submission"].problem.title.casefold()
+        ]
 
-    return render(request, "staff/pending_submissions.html", {"rows": rows})
+    return render(request, "staff/pending_submissions.html", {"rows": rows, "selected_search": search})
 
 
 @login_required
