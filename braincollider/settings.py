@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 import logging
+import dj_database_url
 
 """
 Django settings for braincollider project.
@@ -42,7 +43,7 @@ def env_list(name, default):
     return [item.strip() for item in value.split(',') if item.strip()]
 
 
-DEBUG = env_bool('DEBUG')
+DEBUG = env_bool('DEBUG', default=False)
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 if not SECRET_KEY:
     if DEBUG:
@@ -93,6 +94,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'braincollider.urls'
@@ -112,6 +114,12 @@ TEMPLATES = [
     },
 ]
 
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+
 WSGI_APPLICATION = 'braincollider.wsgi.application'
 
 
@@ -119,10 +127,10 @@ WSGI_APPLICATION = 'braincollider.wsgi.application'
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=os.environ.get('DATABASE_URL'),
+        conn_max_age=600,
+    )
 }
 
 
