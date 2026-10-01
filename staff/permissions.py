@@ -17,6 +17,14 @@ def can_review_problem(user, problem):
     return Submission.objects.filter(user=user, problem=problem, is_correct=True).exists()
 
 
+def can_modify_submission(user, submission):
+    if not user.is_authenticated or submission.user_id == user.id:
+        return False
+    if submission.status in {"accepted", "rejected"} or submission.is_correct is not None:
+        return False
+    return can_review_problem(user, submission.problem)
+
+
 def get_accessible_pending_submissions(user):
     submissions = Submission.objects.filter(status__in=["pending", "clarification"]).select_related("user", "problem")
     if not user.is_authenticated or user.is_staff:

@@ -72,6 +72,9 @@
                     </div>
 
                     <input type="file" name="avatar" id="id_avatar" accept="image/*" class="form-control">
+                    {% if profile_form.avatar.errors %}
+                        <div class="invalid-feedback d-block">{{ profile_form.avatar.errors }}</div>
+                    {% endif %}
                     <div class="form-text">Formats acceptés : JPG, PNG, GIF. Taille max : 2 Mo.</div>
                 </div>
             </div>

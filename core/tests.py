@@ -3,9 +3,18 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 
 from problems.models import Problem, Submission
+from core.templatetags.custom_tags import linebreaks_preserve_latex
 
 
 class CoreViewsTests(TestCase):
+	def test_linebreaks_preserve_latex_escapes_html(self):
+		result = linebreaks_preserve_latex('<script>alert(1)</script>\n$<img src=x onerror=alert(1)>$')
+
+		self.assertEqual(
+			str(result),
+			'&lt;script&gt;alert(1)&lt;/script&gt;<br>$&lt;img src=x onerror=alert(1)&gt;$',
+		)
+
 	def test_home_page_loads(self):
 		response = self.client.get(reverse("core:home"))
 

@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from PIL import Image
 from .models import Profile
 
 
@@ -65,6 +67,9 @@ class PasswordChangeFormCustom(PasswordChangeForm):
     )
 
 class ProfileUpdateForm(forms.ModelForm):
+    MAX_AVATAR_SIZE = 2 * 1024 * 1024
+    MAX_AVATAR_DIMENSION = 4096
+
     allow_leaderboard_display = forms.BooleanField(
         label="Afficher mon pseudo et mon profil dans les classements",
         required=False,
@@ -85,6 +90,19 @@ class ProfileUpdateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["allow_leaderboard_display"].initial = self.instance.allow_leaderboard_display
+
+    def clean_avatar(self):
+        avatar = self.cleaned_data.get("avatar")
+        if not avatar:
+            return avatar
+        if avatar.size > self.MAX_AVATAR_SIZE:
+            raise ValidationError("L'image ne doit pas dépasser 2 Mo.")
+        with Image.open(avatar) as image:
+            width, height = image.size
+        avatar.seek(0)
+        if width > self.MAX_AVATAR_DIMENSION or height > self.MAX_AVATAR_DIMENSION:
+            raise ValidationError("Les dimensions de l'image ne doivent pas dépasser 4096 x 4096 pixels.")
+        return avatar
 
 
 class UserUpdateForm(forms.ModelForm):

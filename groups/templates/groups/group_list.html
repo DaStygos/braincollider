@@ -76,12 +76,18 @@
           {% endif %}
         </div>
         <div class="card-footer bg-transparent border-0 pt-0 pb-3 px-3">
-          <a href="{% url 'groups:accept_invitation' invitation.id %}" class="btn btn-sm btn-success w-100">
-            <i class="bi bi-check-circle"></i> Accepter
-          </a>
-          <a href="{% url 'groups:decline_invitation' invitation.id %}" class="btn btn-sm btn-danger w-100 mt-2">
-            <i class="bi bi-x-circle"></i> Refuser
-          </a>
+          <form method="post" action="{% url 'groups:accept_invitation' invitation.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-success w-100">
+              <i class="bi bi-check-circle"></i> Accepter
+            </button>
+          </form>
+          <form method="post" action="{% url 'groups:decline_invitation' invitation.id %}" class="mt-2">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-danger w-100">
+              <i class="bi bi-x-circle"></i> Refuser
+            </button>
+          </form>
         </div>
       </div>
     </div>

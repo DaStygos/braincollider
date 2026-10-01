@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.db.models import Prefetch
 from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 
 from problems.models import Submission
 from .models import Group, GroupMembership, GroupInvitation
@@ -146,6 +147,7 @@ def invite_user(request, group_id):
 
 
 @login_required
+@require_POST
 def accept_invitation(request, invitation_id):
     """Accept a group invitation"""
     invitation = get_object_or_404(GroupInvitation, id=invitation_id)
@@ -166,6 +168,7 @@ def accept_invitation(request, invitation_id):
 
 
 @login_required
+@require_POST
 def decline_invitation(request, invitation_id):
     """Decline a group invitation"""
     invitation = get_object_or_404(GroupInvitation, id=invitation_id)
@@ -182,6 +185,7 @@ def decline_invitation(request, invitation_id):
 
 
 @login_required
+@require_POST
 def leave_group(request, group_id):
     """Leave a group"""
     group = get_object_or_404(Group, id=group_id)

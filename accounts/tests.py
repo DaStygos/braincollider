@@ -1,11 +1,47 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
+from io import BytesIO
+from PIL import Image
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 from problems.models import Problem, Submission
 
 
 class AccountsViewsTests(TestCase):
+	def test_edit_profile_rejects_oversized_avatar(self):
+		user = User.objects.create_user(username="player", password="password123")
+		self.client.force_login(user)
+		oversized_avatar = BytesIO()
+		Image.effect_noise((3000, 3000), 100).save(oversized_avatar, format="JPEG", quality=100)
+		oversized_avatar = SimpleUploadedFile(
+			"avatar.jpg", oversized_avatar.getvalue(), content_type="image/jpeg"
+		)
+
+		response = self.client.post(
+			reverse("accounts:edit_profile"),
+			{"username": "player", "email": "", "avatar": oversized_avatar},
+		)
+
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, "ne doit pas dépasser 2 Mo")
+
+	def test_edit_profile_rejects_oversized_avatar_dimensions(self):
+		user = User.objects.create_user(username="player", password="password123")
+		self.client.force_login(user)
+		large_image = BytesIO()
+		Image.new("RGB", (4097, 1)).save(large_image, format="JPEG")
+		large_image = SimpleUploadedFile(
+			"avatar.jpg", large_image.getvalue(), content_type="image/jpeg"
+		)
+
+		response = self.client.post(
+			reverse("accounts:edit_profile"),
+			{"username": "player", "email": "", "avatar": large_image},
+		)
+
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, "4096 x 4096")
 	def test_signup_creates_user_and_profile(self):
 		response = self.client.post(
 			reverse("accounts:signup"),

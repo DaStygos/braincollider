@@ -72,6 +72,36 @@ class PendingSubmissionsAccessTests(TestCase):
 
 		self.assertEqual(response.status_code, 403)
 
+	def test_reviewer_cannot_modify_own_submission(self):
+		own_submission = Submission.objects.filter(user=self.reviewer).first()
+		self.client.force_login(self.reviewer)
+
+		response = self.client.post(
+			reverse("staff:submission_detail", args=[own_submission.pk]),
+			{"decision": "correct"},
+		)
+
+		self.assertEqual(response.status_code, 403)
+
+	def test_reviewer_cannot_modify_processed_submission(self):
+		processed = Submission.objects.create(
+			user=self.other_user,
+			problem=self.problem_a,
+			answer="processed",
+			is_correct=True,
+			status="accepted",
+		)
+		self.client.force_login(self.reviewer)
+
+		response = self.client.post(
+			reverse("staff:submission_detail", args=[processed.pk]),
+			{"decision": "incorrect"},
+		)
+
+		self.assertEqual(response.status_code, 403)
+		processed.refresh_from_db()
+		self.assertEqual(processed.status, "accepted")
+
 	def test_staff_sees_everything(self):
 		self.client.force_login(self.staff_user)
 

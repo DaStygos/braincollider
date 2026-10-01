@@ -54,7 +54,7 @@ def linebreaks_preserve_latex(value):
     if not value:
         return value
     
-    value = str(value)
+    value = escape(str(value))
     
     # Protect display math ($$...$$) - must be done first
     display_math_blocks = []

@@ -46,7 +46,7 @@ class NotificationsViewsTests(TestCase):
 		Notification.objects.create(user=self.other_user, message="Other note")
 
 		self.client.force_login(self.user)
-		response = self.client.get(reverse("notifications:mark_as_read", args=[notification.pk]))
+		response = self.client.post(reverse("notifications:mark_as_read", args=[notification.pk]))
 
 		self.assertRedirects(response, reverse("notifications:notifications_list"))
 		notification.refresh_from_db()

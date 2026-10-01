@@ -32,8 +32,22 @@ class GroupsTests(TestCase):
 		self.client.logout()
 		self.client.login(username='bob', password='pass')
 		accept_url = reverse('groups:accept_invitation', args=[invitation.id])
-		resp = self.client.get(accept_url, follow=True)
+		resp = self.client.post(accept_url, follow=True)
 		self.assertTrue(GroupMembership.objects.filter(group=group, user=self.user2).exists())
+
+	def test_invitation_actions_reject_get(self):
+		self.client.login(username='alice', password='pass')
+		self.client.post(reverse('groups:create_group'), {'name': 'Team C'})
+		group = Group.objects.get(name='Team C')
+		self.client.post(reverse('groups:invite_user', args=[group.id]), {'username': 'bob'})
+		invitation = GroupInvitation.objects.get(group=group, invited_user=self.user2)
+
+		self.client.logout()
+		self.client.login(username='bob', password='pass')
+		response = self.client.get(reverse('groups:accept_invitation', args=[invitation.id]))
+
+		self.assertEqual(response.status_code, 405)
+		self.assertFalse(GroupMembership.objects.filter(group=group, user=self.user2).exists())
 
 	def test_only_admin_can_invite(self):
 		# Create group with alice

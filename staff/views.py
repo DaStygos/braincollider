@@ -5,7 +5,7 @@ from notifications.utils import create_notification
 from problems.models import Submission, SubmissionComment
 from .forms import ProblemSuggestionForm
 from django.contrib.auth.decorators import login_required
-from .permissions import can_access_pending_submissions, can_review_problem, get_accessible_pending_submissions, get_pending_review_rows
+from .permissions import can_access_pending_submissions, can_modify_submission, can_review_problem, get_accessible_pending_submissions, get_pending_review_rows
 
 @login_required
 def pending_submissions(request):
@@ -31,6 +31,9 @@ def submission_detail(request, pk):
         raise PermissionDenied
 
     if request.method == "POST":
+        if not can_modify_submission(request.user, submission):
+            raise PermissionDenied
+
         # Unified composer: handle reviewer comment (content) and optional decision
         content = request.POST.get("content", "").strip()
         decision = request.POST.get("decision")
