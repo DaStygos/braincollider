@@ -80,8 +80,8 @@ def contact(request):
         [
             {
                 "title": "Adresse email",
-                "content": "contact@braincollider.fr",
-                "link": "mailto:contact@braincollider.fr",
+                "content": "contact@braincollider.com",
+                "link": "mailto:contact@braincollider.com",
             },
             {
                 "title": "Objet du message",
@@ -100,7 +100,7 @@ def legal_notice(request):
             {
                 "title": "Éditeur du site",
                 "content": (
-                    "Le site braincollider.fr est édité à titre personnel, à des fins non commerciales, par Ulysse Larger. "
+                    "Le site braincollider.com est édité à titre personnel, à des fins non commerciales, par Ulysse Larger. "
                     "Éditeur non professionnel — particulier."
                 ),
             },
@@ -126,7 +126,7 @@ def legal_notice(request):
                     "Braincollider collecte un pseudo, une adresse e-mail et des scores dans le cadre des comptes utilisateurs. "
                     "Seuls le pseudo et le score sont publics. L'e-mail n'est jamais visible. "
                     "Les données sont conservées tant que le compte est actif et supprimées sous 30 jours sur demande. "
-                    "Droits d'accès, rectification et suppression à exercer via contact@braincollider.fr. "
+                    "Droits d'accès, rectification et suppression à exercer via contact@braincollider.com. "
                     "Les utilisateurs de moins de 15 ans doivent disposer de l'accord d'un parent ou tuteur légal."
                 )
             },
@@ -165,8 +165,8 @@ def privacy(request):
             {
                 "title": "Responsable du traitement",
                 "content": (
-                    "Le responsable du traitement des données est Ulysse Larger, éditeur du site braincollider.fr. "
-                    "Pour toute question relative à vos données, contactez-nous à contact@braincollider.fr."
+                    "Le responsable du traitement des données est Ulysse Larger, éditeur du site braincollider.com. "
+                    "Pour toute question relative à vos données, contactez-nous à contact@braincollider.com."
                 ),
             },
             {
@@ -222,9 +222,10 @@ def privacy(request):
             },
             {
                 "title": "Hébergement et transfert de données",
-                "content": (
-                    "Le site est hébergé par OVH, dont les serveurs sont situés dans l'Union européenne. "
-                    "Aucune donnée personnelle n'est transférée hors de l'UE."
+                    "content": (
+                    "Le site est hébergé par DigitalOcean LLC (Société à responsabilité limitée de droit américain). "
+                    "Siege social : 101 Avenue of the Americas, 10th Floor, New York, NY 10013, États-Unis. Contact : digitalocean.com. "
+                    "Les serveurs sont situés dans l'Union européenne. Aucune donnée personnelle n'est transférée hors de l'UE. "
                 ),
             },
             {
@@ -232,7 +233,7 @@ def privacy(request):
                 "content": (
                     "Conformément au RGPD (articles 15 à 22), vous disposez des droits suivants sur vos données : "
                     "accès, rectification, effacement (droit à l'oubli), portabilité, limitation du traitement, et opposition. "
-                    "Pour exercer ces droits, envoyez une demande à contact@braincollider.fr. "
+                    "Pour exercer ces droits, envoyez une demande à contact@braincollider.com. "
                     "En cas de réclamation non résolue, vous pouvez saisir la CNIL sur cnil.fr."
                 ),
             },
@@ -256,7 +257,7 @@ def terms(request):
             {
                 "title": "Objet",
                 "content": (
-                    "Les présentes conditions générales d'utilisation (CGU) régissent l'accès et l'utilisation du site braincollider.fr, "
+                    "Les présentes conditions générales d'utilisation (CGU) régissent l'accès et l'utilisation du site braincollider.com, "
                     "plateforme éducative gratuite de préparation aux olympiades de physique, éditée par Ulysse Larger. "
                     "L'utilisation du site vaut acceptation sans réserve des présentes CGU."
                 ),
@@ -275,7 +276,7 @@ def terms(request):
                 "content": (
                     "Chaque utilisateur ne peut disposer que d'un seul compte. "
                     "Vous êtes responsable de la confidentialité de vos identifiants et de toute activité réalisée depuis votre compte. "
-                    "En cas de compromission de votre compte, vous vous engagez à en informer l'équipe sans délai à contact@braincollider.fr. "
+                    "En cas de compromission de votre compte, vous vous engagez à en informer l'équipe sans délai à contact@braincollider.com. "
                     "Le pseudo choisi doit être décent et ne pas usurper l'identité d'une autre personne."
                 ),
             },
@@ -314,7 +315,7 @@ def terms(request):
                 "content": (
                     "Les problèmes, énoncés et solutions rédigés par l'équipe éditoriale sont mis à disposition "
                     "sous licence Creative Commons CC BY-NC-SA 4.0. "
-                    "Vous pouvez les utiliser et les partager à condition de citer braincollider.fr comme source, "
+                    "Vous pouvez les utiliser et les partager à condition de citer braincollider.com comme source, "
                     "de ne pas en faire un usage commercial, et de redistribuer sous la même licence. "
                     "Toute reproduction à des fins commerciales est interdite sans autorisation écrite préalable."
                 ),
@@ -340,7 +341,7 @@ def terms(request):
                 "title": "Droit applicable",
                 "content": (
                     "Les présentes CGU sont soumises au droit français. "
-                    "En cas de litige, une solution amiable sera recherchée en priorité via contact@braincollider.fr. "
+                    "En cas de litige, une solution amiable sera recherchée en priorité via contact@braincollider.com. "
                     "À défaut, les tribunaux compétents seront saisis."
                 ),
             },
