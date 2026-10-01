@@ -5,15 +5,15 @@
   width: 100%;
   margin: 0;
   padding: clamp(1.5rem, 3vw, 2.5rem);
-  color: #263746;
+  color: #1f2937;
   font-family: "STIX Two Text", "Cambria Math", "STIX Two Math", "DejaVu Serif", serif;
   font-size: 1.16rem;
   line-height: 1.85;
-  border: 1px solid #bfd9dc;
-  border-left: 0.45rem solid #146c75;
+  border: 1px solid #cbd3f5;
+  border-left: 0.45rem solid #4b5bdc;
   border-radius: 0.5rem;
-  background: #f5fbfa;
-  box-shadow: 0 0.65rem 1.75rem rgba(13, 76, 87, 0.12);
+  background: #f7f8ff;
+  box-shadow: 0 0.65rem 1.75rem rgba(75, 91, 220, 0.12);
 }
 
 .problem-statement-panel {
@@ -21,13 +21,13 @@
 }
 
 .problem-secondary-sidebar {
-  color: #52616b;
+  color: #526071;
 }
 
 .problem-secondary-card {
-  border: 1px solid #dce4e7 !important;
-  border-left: 0.25rem solid #9db5bd !important;
-  background: #fbfcfc;
+  border: 1px solid #dce1f2 !important;
+  border-left: 0.25rem solid #9aa6df !important;
+  background: #fbfbff;
   box-shadow: 0 0.25rem 0.75rem rgba(38, 55, 70, 0.06) !important;
 }
 
@@ -36,7 +36,7 @@
 }
 
 .problem-secondary-card h6 {
-  color: #52616b !important;
+  color: #526071 !important;
   font-size: 0.72rem;
   letter-spacing: 0.06em;
 }

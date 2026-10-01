@@ -116,7 +116,7 @@
 <script>
   const ctx = document.getElementById('scoreChart');
   const primaryColor = getComputedStyle(document.documentElement)
-    .getPropertyValue('--bs-primary').trim() || '#0d6efd';
+    .getPropertyValue('--bs-primary').trim() || '#4b5bdc';
 
   const rawLabels = {{ chart_labels|safe }};
   const rawData   = {{ chart_data|safe }};

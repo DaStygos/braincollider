@@ -60,12 +60,12 @@
 
   .nav-tabs .nav-link.active {
     color: #1b2430;
-    border-bottom-color: #5d6cff;
-    background: rgba(93, 108, 255, 0.04);
+    border-bottom-color: var(--bs-primary);
+    background: rgba(75, 91, 220, 0.04);
   }
 
   .table thead th {
-    background: #eef2ff;
+    background: var(--bc-surface-tint);
     color: #1b2430;
     font-size: 0.74rem;
     letter-spacing: 0.06em;
@@ -78,7 +78,7 @@
   }
 
   .table tbody tr:hover {
-    background-color: rgba(93, 108, 255, 0.03);
+    background-color: rgba(75, 91, 220, 0.03);
   }
 
   .tooltip-inner {
@@ -483,7 +483,7 @@
   const activityCanvas = document.getElementById('activityChart');
 
   const primaryColor = getComputedStyle(document.documentElement)
-    .getPropertyValue('--bs-primary').trim() || '#0d6efd';
+    .getPropertyValue('--bs-primary').trim() || '#4b5bdc';
 
   new Chart(activityCanvas, {
 
