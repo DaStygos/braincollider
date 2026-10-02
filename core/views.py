@@ -160,7 +160,7 @@ def privacy(request):
     return _render_static_page(
         request,
         "Politique de confidentialité",
-        "Cette politique décrit quelles données Braincollider collecte, pourquoi, et quels sont vos droits. Dernière mise à jour : juin 2025.",
+        "Cette politique décrit quelles données Braincollider collecte, pourquoi, et quels sont vos droits. Dernière mise à jour : octobre 2026.",
         [
             {
                 "title": "Responsable du traitement",

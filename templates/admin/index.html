@@ -1,0 +1,202 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <style>
+    .admin-dashboard {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(18rem, 0.8fr);
+      gap: 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .admin-dashboard__panel {
+      background: var(--body-bg, #fff);
+      border: 1px solid var(--hairline-color, #d9d9d9);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .admin-dashboard__panel-header {
+      padding: 1.1rem 1.25rem;
+      border-bottom: 1px solid var(--hairline-color, #d9d9d9);
+    }
+
+    .admin-dashboard__panel-header h2 {
+      margin: 0;
+      font-size: 1rem;
+      color: var(--body-quiet-color, #666);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .admin-dashboard__panel-header p {
+      margin: 0.35rem 0 0;
+      color: var(--body-quiet-color, #666);
+      font-size: 0.85rem;
+    }
+
+    .admin-data-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+      gap: 0.75rem;
+      padding: 1rem;
+    }
+
+    .admin-data-card {
+      display: block;
+      padding: 1rem;
+      color: var(--body-fg, #333);
+      border: 1px solid var(--hairline-color, #d9d9d9);
+      border-radius: 6px;
+      text-decoration: none;
+    }
+
+    .admin-data-card:hover,
+    .admin-data-card:focus-visible {
+      border-color: var(--link-fg, #447e9b);
+      color: var(--link-fg, #447e9b);
+    }
+
+    .admin-data-card__title {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+    }
+
+    .admin-data-card__models {
+      color: var(--body-quiet-color, #666);
+      font-size: 0.85rem;
+    }
+
+    .admin-quick-actions {
+      display: grid;
+      gap: 0.65rem;
+      padding: 1rem;
+    }
+
+    .admin-quick-action {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      min-height: 3.25rem;
+      padding: 0.75rem 0.9rem;
+      color: var(--body-fg, #333);
+      background: var(--darkened-bg, #f8f8f8);
+      border: 1px solid var(--hairline-color, #d9d9d9);
+      border-radius: 6px;
+      text-decoration: none;
+    }
+
+    .admin-quick-action:hover,
+    .admin-quick-action:focus-visible {
+      color: var(--link-fg, #447e9b);
+      border-color: var(--link-fg, #447e9b);
+    }
+
+    .admin-quick-action__icon {
+      width: 1.5rem;
+      text-align: center;
+      font-size: 1.15rem;
+    }
+
+    .admin-quick-action__text {
+      flex: 1;
+    }
+
+    .admin-quick-action__title,
+    .admin-quick-action__description {
+      display: block;
+    }
+
+    .admin-quick-action__title {
+      font-weight: 700;
+    }
+
+    .admin-quick-action__description {
+      color: var(--body-quiet-color, #666);
+      font-size: 0.8rem;
+      margin-top: 0.15rem;
+    }
+
+    @media (max-width: 900px) {
+      .admin-dashboard {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="admin-dashboard">
+    <section class="admin-dashboard__panel" aria-labelledby="database-title">
+      <header class="admin-dashboard__panel-header">
+        <h2 id="database-title">Base de données</h2>
+        <p>Accédez à l’ensemble des tables et des objets administrables.</p>
+      </header>
+      <div class="admin-data-grid">
+        {% for app in app_list %}
+          {% if app.has_module_perms %}
+            <a class="admin-data-card" href="{% url 'admin:app_list' app.app_label %}">
+              <span class="admin-data-card__title">{{ app.name }}</span>
+              <span class="admin-data-card__models">
+                {% for model in app.models %}{{ model.name }}{% if not forloop.last %} · {% endif %}{% endfor %}
+              </span>
+            </a>
+          {% endif %}
+        {% empty %}
+          <p>{% translate "You don't have permission to edit anything." %}</p>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="admin-dashboard__panel" aria-labelledby="quick-actions-title">
+      <header class="admin-dashboard__panel-header">
+        <h2 id="quick-actions-title">Actions rapides</h2>
+        <p>Les opérations les plus fréquentes en un clic.</p>
+      </header>
+      <div class="admin-quick-actions">
+        {% if perms.staff.view_problemsuggestion %}
+          <a class="admin-quick-action" href="{% url 'admin:staff_problemsuggestion_changelist' %}?status__exact=pending">
+            <span class="admin-quick-action__icon" aria-hidden="true">✓</span>
+            <span class="admin-quick-action__text">
+              <span class="admin-quick-action__title">Valider une suggestion</span>
+              <span class="admin-quick-action__description">Afficher les suggestions en attente</span>
+            </span>
+          </a>
+        {% endif %}
+
+        {% if perms.problems.add_problem %}
+          <a class="admin-quick-action" href="{% url 'admin:problems_problem_add' %}">
+            <span class="admin-quick-action__icon" aria-hidden="true">+</span>
+            <span class="admin-quick-action__text">
+              <span class="admin-quick-action__title">Créer un problème</span>
+              <span class="admin-quick-action__description">Ajouter directement un nouveau problème</span>
+            </span>
+          </a>
+        {% endif %}
+
+        {% if perms.auth.add_user %}
+          <a class="admin-quick-action" href="{% url 'admin:auth_user_add' %}">
+            <span class="admin-quick-action__icon" aria-hidden="true">+</span>
+            <span class="admin-quick-action__text">
+              <span class="admin-quick-action__title">Créer un utilisateur</span>
+              <span class="admin-quick-action__description">Ajouter un compte manuellement</span>
+            </span>
+          </a>
+        {% endif %}
+
+        {% if perms.notifications.add_notification %}
+          <a class="admin-quick-action" href="{% url 'admin:notifications_notification_send_to_all' %}">
+            <span class="admin-quick-action__icon" aria-hidden="true">@</span>
+            <span class="admin-quick-action__text">
+              <span class="admin-quick-action__title">Notifier tous les membres</span>
+              <span class="admin-quick-action__description">Envoyer un message à tous les utilisateurs</span>
+            </span>
+          </a>
+        {% endif %}
+      </div>
+    </section>
+  </div>
+{% endblock %}

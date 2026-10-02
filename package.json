@@ -1,6 +1,9 @@
 {
   "scripts": {
     "build:css": "sass static/css/main.scss static/css/main.css --load-path=node_modules",
+    "build:auth-css": "sass static/css/auth.scss static/css/auth.css --load-path=node_modules",
+    "build:admin-css": "sass static/css/admin.scss static/css/admin.css --load-path=node_modules",
+    "build:all-css": "npm run build:css && npm run build:auth-css && npm run build:admin-css",
     "watch:css": "sass --watch static/css/main.scss:static/css/main.css --load-path=node_modules"
   },
   "dependencies": {

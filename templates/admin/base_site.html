@@ -1,0 +1,21 @@
+{% extends "admin/base.html" %}
+{% load custom_tags %}
+
+{% block title %}{{ title }} | BrainCollider{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static_versioned 'css/admin.css' %}">
+{% endblock %}
+
+{% block branding %}
+  <div id="site-name">
+    <a href="{% url 'admin:index' %}">BrainCollider <span>Administration</span></a>
+  </div>
+{% endblock %}
+
+{% block nav-global %}
+  <nav class="admin-global-nav" aria-label="Navigation principale">
+    <a href="{% url 'core:home' %}">Retour au site</a>
+  </nav>
+{% endblock %}

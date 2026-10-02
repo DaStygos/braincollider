@@ -1,0 +1,10 @@
+body {
+  background: linear-gradient(180deg, #eef2f8 0%, #f5f7fa 100%);
+  margin: 0;
+}
+
+#auth-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+}

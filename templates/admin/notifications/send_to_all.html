@@ -1,0 +1,18 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+  <div id="content-main">
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <fieldset class="module aligned">
+        <h2>Message collectif</h2>
+        {{ form.as_p }}
+      </fieldset>
+      <div class="submit-row">
+        <input type="submit" value="Envoyer à tous les membres" class="default">
+        <a href="{% url 'admin:index' %}" class="closelink">Annuler</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}

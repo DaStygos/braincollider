@@ -1,0 +1,221 @@
+/* BrainCollider admin theme */
+html[data-theme=light],
+html[data-theme=dark],
+:root {
+  --admin-primary: #4b5bdc;
+  --admin-primary-dark: #3948b8;
+  --admin-ink: #1f2937;
+  --admin-muted: #667085;
+  --admin-surface: #ffffff;
+  --admin-background: #f3f5f9;
+  --admin-border: rgba(31, 41, 55, 0.12);
+  --admin-shadow: 0 12px 30px rgba(31, 41, 55, 0.07);
+  --primary: var(--admin-primary);
+  --secondary: var(--admin-primary-dark);
+  --accent: #aeb7ff;
+  --primary-fg: #fff;
+  --body-fg: var(--admin-ink);
+  --body-bg: var(--admin-background);
+  --body-quiet-color: var(--admin-muted);
+  --body-medium-color: #475467;
+  --body-loud-color: #111827;
+  --header-color: #fff;
+  --header-branding-color: #fff;
+  --header-bg: var(--admin-ink);
+  --header-link-color: #dfe4ff;
+  --breadcrumbs-fg: var(--admin-muted);
+  --breadcrumbs-link-fg: var(--admin-primary);
+  --breadcrumbs-bg: transparent;
+  --link-fg: var(--admin-primary);
+  --link-hover-color: var(--admin-primary-dark);
+  --link-selected-fg: var(--admin-primary-dark);
+  --hairline-color: var(--admin-border);
+  --darkened-bg: #eef0f5;
+  --selected-bg: #eef0ff;
+  --selected-row: #f5f6ff;
+  --button-fg: #fff;
+  --button-bg: var(--admin-primary);
+  --button-hover-bg: var(--admin-primary-dark);
+  --default-button-bg: var(--admin-primary);
+  --default-button-hover-bg: var(--admin-primary-dark);
+}
+
+html,
+body {
+  background: var(--admin-background);
+}
+
+body,
+button,
+input,
+textarea,
+select {
+  font-family: "Inter", "Segoe UI", Arial, sans-serif;
+}
+
+#header {
+  background: var(--admin-ink);
+  color: #fff;
+  box-shadow: 0 3px 14px rgba(31, 41, 55, 0.16);
+}
+
+#container,
+#main,
+.main {
+  background: var(--admin-background);
+}
+
+#content {
+  max-width: 1440px;
+  margin: 0 auto;
+  color: var(--admin-ink);
+}
+
+#content-main {
+  color: var(--admin-ink);
+}
+
+#branding h1,
+#branding h1 a,
+#site-name,
+#site-name a {
+  color: #fff;
+}
+
+#site-name a {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  font-size: 1.05rem;
+  letter-spacing: 0.01em;
+}
+
+#site-name a span {
+  color: #aeb7ff;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+#user-tools a,
+.admin-global-nav a {
+  color: #dfe4ff;
+}
+
+#user-tools a:hover,
+.admin-global-nav a:hover {
+  color: #fff;
+}
+
+.admin-global-nav {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 1.5rem;
+  font-size: 0.85rem;
+}
+
+.breadcrumbs {
+  background: transparent;
+  color: var(--admin-muted);
+  padding: 1rem 2rem;
+}
+
+.breadcrumbs a {
+  color: var(--admin-primary);
+}
+
+.module,
+#changelist,
+.submit-row,
+.form-row,
+.inline-group,
+#content-related .module {
+  border-color: var(--admin-border);
+  border-radius: 8px;
+  box-shadow: var(--admin-shadow);
+  overflow: hidden;
+}
+
+.module h2,
+.module caption,
+.inline-group h2 {
+  background: #eef0ff;
+  color: var(--admin-ink);
+}
+
+a:link,
+a:visited {
+  color: var(--admin-primary);
+}
+
+a:hover,
+a:focus {
+  color: var(--admin-primary-dark);
+}
+
+.button,
+input[type=submit],
+input[type=button],
+.submit-row input,
+button {
+  border-radius: 5px;
+}
+
+.button.default,
+input[type=submit].default,
+.submit-row input.default {
+  background: var(--admin-primary);
+}
+
+.button.default:hover,
+input[type=submit].default:hover,
+.submit-row input.default:hover {
+  background: var(--admin-primary-dark);
+}
+
+select:focus,
+textarea:focus,
+input[type=text]:focus,
+input[type=password]:focus,
+input[type=email]:focus,
+input[type=url]:focus,
+input[type=number]:focus,
+input[type=search]:focus {
+  border-color: var(--admin-primary);
+  box-shadow: 0 0 0 2px rgba(75, 91, 220, 0.16);
+}
+
+#changelist-filter {
+  background: var(--admin-surface);
+  border-left-color: var(--admin-border);
+}
+
+#changelist-filter h2,
+#changelist-filter h3 {
+  color: var(--admin-ink);
+}
+
+#changelist table thead th {
+  background: #f8f9fc;
+}
+
+#changelist table tbody tr:hover,
+#result_list tr:hover {
+  background: #f5f6ff;
+}
+
+.messagelist li {
+  border-radius: 6px;
+  box-shadow: var(--admin-shadow);
+}
+
+@media (max-width: 767px) {
+  #content,
+  .breadcrumbs {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/*# sourceMappingURL=admin.css.map */

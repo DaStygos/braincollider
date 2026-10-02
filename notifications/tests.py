@@ -51,3 +51,35 @@ class NotificationsViewsTests(TestCase):
 		self.assertRedirects(response, reverse("notifications:notifications_list"))
 		notification.refresh_from_db()
 		self.assertTrue(notification.read)
+
+
+class BroadcastNotificationAdminTests(TestCase):
+	def setUp(self):
+		self.admin_user = User.objects.create_superuser(
+			username="admin",
+			email="admin@example.com",
+			password="password123",
+		)
+		self.member = User.objects.create_user(username="member", password="password123")
+
+	def test_broadcast_form_is_available_in_admin(self):
+		self.client.force_login(self.admin_user)
+
+		response = self.client.get(reverse("admin:notifications_notification_send_to_all"))
+
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, "Envoyer une notification à tous les membres")
+
+	def test_broadcast_creates_one_notification_per_user(self):
+		self.client.force_login(self.admin_user)
+
+		response = self.client.post(
+			reverse("admin:notifications_notification_send_to_all"),
+			{"message": "Maintenance prévue ce soir."},
+		)
+
+		self.assertRedirects(response, reverse("admin:index"))
+		self.assertEqual(
+			Notification.objects.filter(message="Maintenance prévue ce soir.").count(),
+			2,
+		)
