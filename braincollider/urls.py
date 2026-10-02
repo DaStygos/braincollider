@@ -2,6 +2,14 @@ from django.contrib import admin
 from django.urls import include, path
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.sitemaps.views import sitemap
+from braincollider.sitemaps import StaticViewSitemap, ProblemSitemap
+from django.views.generic import TemplateView
+
+sitemaps = {
+    'static': StaticViewSitemap,
+    'problems': ProblemSitemap,
+}
 
 urlpatterns = [
     path('', include("core.urls",namespace="core")),
@@ -13,6 +21,8 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("notifications/", include("notifications.urls",namespace="notifications")),
     path("staff/", include("staff.urls", namespace="staff")),
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
+    path("robots.txt", TemplateView.as_view(template_name="robots.txt", content_type="text/plain"),name="robots_file",),
 ]
 
 if settings.DEBUG:
