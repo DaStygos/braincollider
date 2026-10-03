@@ -1,11 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from notifications.utils import create_notification
 from problems.models import Submission, SubmissionComment
 from .forms import ProblemSuggestionForm
 from django.contrib.auth.decorators import login_required
-from .permissions import can_access_pending_submissions, can_modify_submission, can_review_problem, get_accessible_pending_submissions, get_pending_review_rows
+from .permissions import can_access_pending_submissions, can_modify_submission, can_view_submission, get_accessible_pending_submissions, get_pending_review_rows, get_review_history_rows
 
 @login_required
 def pending_submissions(request):
@@ -21,13 +22,25 @@ def pending_submissions(request):
             or search_casefolded in row["submission"].problem.title.casefold()
         ]
 
-    return render(request, "staff/pending_submissions.html", {"rows": rows, "selected_search": search})
+    history_rows = get_review_history_rows(request.user)
+    if search:
+        history_rows = [
+            row for row in history_rows
+            if search_casefolded in row["submission"].user.username.casefold()
+            or search_casefolded in row["submission"].problem.title.casefold()
+        ]
+
+    return render(request, "staff/pending_submissions.html", {
+        "rows": rows,
+        "history_rows": history_rows,
+        "selected_search": search,
+    })
 
 
 @login_required
 def submission_detail(request, pk):
     submission = get_object_or_404(Submission, pk=pk)
-    if not can_review_problem(request.user, submission.problem):
+    if not can_view_submission(request.user, submission):
         raise PermissionDenied
 
     if request.method == "POST":
@@ -56,6 +69,7 @@ def submission_detail(request, pk):
             create_notification(
                 user=submission.user,
                 message=(f"Le correcteur a ajouté un commentaire à votre soumission pour '{submission.problem.title}'."),
+                redirect_url=reverse("problems:problem_detail", kwargs={"pk": submission.problem.pk}),
             )
 
         # If a decision was made, process it
@@ -74,6 +88,7 @@ def submission_detail(request, pk):
                 submission.is_correct = False
                 submission.status = "rejected"
 
+            submission.reviewed_by = request.user
             submission.save()
 
             # Notify user with optional comment included
@@ -91,7 +106,11 @@ def submission_detail(request, pk):
                 if comment_obj:
                     notif_msg += f" Commentaire du correcteur: {comment_obj.text}"
 
-            create_notification(user=submission.user, message=notif_msg)
+            create_notification(
+                user=submission.user,
+                message=notif_msg,
+                redirect_url=reverse("problems:problem_detail", kwargs={"pk": submission.problem.pk}),
+            )
 
             # After making a decision, navigate the reviewer to the next
             # accessible pending submission in chronological order. If none,
@@ -109,7 +128,10 @@ def submission_detail(request, pk):
         # If no decision, return to the submission detail so the reviewer can continue the discussion
         return redirect("staff:submission_detail", pk=submission.pk)
 
-    return render(request, "staff/submission_detail.html", {"submission": submission})
+    return render(request, "staff/submission_detail.html", {
+        "submission": submission,
+        "can_modify_submission": can_modify_submission(request.user, submission),
+    })
 
 @login_required
 def suggest_problem(request):

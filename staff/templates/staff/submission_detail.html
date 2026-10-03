@@ -113,6 +113,15 @@
         {% endfor %}
 
         <div class="p-4">
+          {% if not can_modify_submission %}
+          <div class="alert alert-light border mb-0">
+            {% if submission.user == user %}
+              Vous pouvez consulter votre soumission, mais vous ne pouvez pas la corriger vous-même.
+            {% else %}
+              Cette soumission a déjà été traitée. La consultation est en lecture seule.
+            {% endif %}
+          </div>
+          {% else %}
           <form method="post">
             {% csrf_token %}
             <div class="mb-3">
@@ -130,6 +139,7 @@
               </button>
             </div>
           </form>
+          {% endif %}
         </div>
       </div>
     </div>

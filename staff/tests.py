@@ -50,13 +50,13 @@ class PendingSubmissionsAccessTests(TestCase):
 			is_correct=None,
 		)
 
-	def test_reviewer_only_sees_submissions_for_completed_problem(self):
+	def test_reviewer_sees_all_open_submissions(self):
 		self.client.force_login(self.reviewer)
 
 		response = self.client.get(reverse("staff:pending_submissions"))
 
 		self.assertContains(response, self.accessible_submission.problem.title)
-		self.assertNotContains(response, self.hidden_submission.problem.title)
+		self.assertContains(response, self.hidden_submission.problem.title)
 
 	def test_reviewer_can_open_matching_submission_detail(self):
 		self.client.force_login(self.reviewer)
@@ -65,12 +65,27 @@ class PendingSubmissionsAccessTests(TestCase):
 
 		self.assertEqual(response.status_code, 200)
 
-	def test_reviewer_cannot_open_unrelated_submission_detail(self):
+	def test_reviewer_can_open_unrelated_open_submission_detail(self):
 		self.client.force_login(self.reviewer)
 
 		response = self.client.get(reverse("staff:submission_detail", args=[self.hidden_submission.pk]))
 
-		self.assertEqual(response.status_code, 403)
+		self.assertEqual(response.status_code, 200)
+
+	def test_pending_submission_with_reviewer_comment_stays_in_queue(self):
+		from problems.models import SubmissionComment
+
+		SubmissionComment.objects.create(
+			submission=self.hidden_submission,
+			author=self.reviewer,
+			text="Question sur cette soumission",
+			is_reviewer=True,
+		)
+		self.client.force_login(self.reviewer)
+
+		response = self.client.get(reverse("staff:pending_submissions"))
+
+		self.assertContains(response, self.hidden_submission.problem.title)
 
 	def test_reviewer_cannot_modify_own_submission(self):
 		own_submission = Submission.objects.filter(user=self.reviewer).first()
@@ -82,6 +97,17 @@ class PendingSubmissionsAccessTests(TestCase):
 		)
 
 		self.assertEqual(response.status_code, 403)
+
+	def test_submission_owner_can_view_own_uncorrected_submission(self):
+		own_submission = Submission.objects.filter(user=self.reviewer).first()
+		self.client.force_login(self.reviewer)
+
+		response = self.client.get(
+			reverse("staff:submission_detail", args=[own_submission.pk]),
+		)
+
+		self.assertEqual(response.status_code, 200)
+		self.assertNotContains(response, 'name="decision"')
 
 	def test_reviewer_cannot_modify_processed_submission(self):
 		processed = Submission.objects.create(
@@ -101,6 +127,59 @@ class PendingSubmissionsAccessTests(TestCase):
 		self.assertEqual(response.status_code, 403)
 		processed.refresh_from_db()
 		self.assertEqual(processed.status, "accepted")
+
+	def test_reviewer_can_view_processed_submission_in_own_history(self):
+		processed = Submission.objects.create(
+			user=self.other_user,
+			problem=self.problem_a,
+			answer="processed",
+			is_correct=True,
+			status="accepted",
+			reviewed_by=self.reviewer,
+		)
+		self.client.force_login(self.reviewer)
+
+		response = self.client.get(reverse("staff:submission_detail", args=[processed.pk]))
+
+		self.assertEqual(response.status_code, 200)
+		self.assertNotContains(response, 'name="decision"')
+
+	def test_reviewer_history_only_contains_own_processed_submissions(self):
+		Submission.objects.create(
+			user=self.other_user,
+			problem=self.problem_a,
+			answer="mine",
+			is_correct=True,
+			status="accepted",
+			reviewed_by=self.reviewer,
+		)
+		Submission.objects.create(
+			user=self.other_user,
+			problem=self.problem_a,
+			answer="other",
+			is_correct=False,
+			status="rejected",
+			reviewed_by=self.staff_user,
+		)
+		self.client.force_login(self.reviewer)
+
+		response = self.client.get(reverse("staff:pending_submissions"))
+
+		self.assertContains(response, "Historique de vos corrections")
+		self.assertEqual(len(response.context["history_rows"]), 1)
+		self.assertEqual(response.context["history_rows"][0]["submission"].answer, "mine")
+
+	def test_decision_records_reviewer(self):
+		self.client.force_login(self.reviewer)
+
+		response = self.client.post(
+			reverse("staff:submission_detail", args=[self.accessible_submission.pk]),
+			{"decision": "correct"},
+		)
+
+		self.assertEqual(response.status_code, 302)
+		self.accessible_submission.refresh_from_db()
+		self.assertEqual(self.accessible_submission.reviewed_by, self.reviewer)
 
 	def test_staff_sees_everything(self):
 		self.client.force_login(self.staff_user)
@@ -217,7 +296,11 @@ class PendingSubmissionsAccessTests(TestCase):
 
 		accepted_problem = Problem.objects.get(title="Accepted problem")
 		self.assertEqual(accepted_problem.author, self.reviewer)
-		self.assertTrue(self.reviewer.notification_set.filter(message__contains="acceptée").exists())
+		notification = self.reviewer.notification_set.get(message__contains="acceptée")
+		self.assertEqual(
+			notification.redirect_url,
+			reverse("problems:problem_detail", kwargs={"pk": accepted_problem.pk}),
+		)
 
 	def test_rejecting_problem_suggestion_creates_notification(self):
 		suggestion = ProblemSuggestion.objects.create(

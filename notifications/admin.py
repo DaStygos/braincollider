@@ -36,7 +36,11 @@ class NotificationAdmin(admin.ModelAdmin):
             if form.is_valid():
                 users = get_user_model().objects.all().only('pk')
                 notifications = [
-                    Notification(user_id=user.pk, message=form.cleaned_data['message'])
+                    Notification(
+                        user_id=user.pk,
+                        message=form.cleaned_data['message'],
+                        redirect_url=form.cleaned_data['redirect_url'],
+                    )
                     for user in users
                 ]
                 with transaction.atomic():

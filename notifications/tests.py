@@ -52,6 +52,18 @@ class NotificationsViewsTests(TestCase):
 		notification.refresh_from_db()
 		self.assertTrue(notification.read)
 
+	def test_notifications_list_links_notifications_with_redirect_url(self):
+		Notification.objects.create(
+			user=self.user,
+			message="Problem solved",
+			redirect_url="/problems/42/",
+		)
+
+		self.client.force_login(self.user)
+		response = self.client.get(reverse("notifications:notifications_list"))
+
+		self.assertContains(response, '<a href="/problems/42/">Problem solved</a>', html=True)
+
 
 class BroadcastNotificationAdminTests(TestCase):
 	def setUp(self):
@@ -75,11 +87,21 @@ class BroadcastNotificationAdminTests(TestCase):
 
 		response = self.client.post(
 			reverse("admin:notifications_notification_send_to_all"),
-			{"message": "Maintenance prévue ce soir."},
+			{
+				"message": "Maintenance prévue ce soir.",
+				"redirect_url": "/groups/",
+			},
 		)
 
 		self.assertRedirects(response, reverse("admin:index"))
 		self.assertEqual(
 			Notification.objects.filter(message="Maintenance prévue ce soir.").count(),
+			2,
+		)
+		self.assertEqual(
+			Notification.objects.filter(
+				message="Maintenance prévue ce soir.",
+				redirect_url="/groups/",
+			).count(),
 			2,
 		)

@@ -5,6 +5,7 @@ from django.db import models
 class Notification(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     message = models.TextField()
+    redirect_url = models.CharField(max_length=500, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     read = models.BooleanField(default=False)
 

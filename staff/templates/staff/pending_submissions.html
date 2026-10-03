@@ -46,8 +46,52 @@
     </div>
     {% else %}
     <div class="py-4 text-muted">
-      Aucune soumission ne correspond à cette recherche.
+      Aucune soumission en attente ne correspond à cette recherche.
     </div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card border-0 shadow-sm review-panel mt-4">
+  <div class="card-header bg-light fw-semibold">Historique de vos corrections</div>
+  <div class="card-body">
+    {% if history_rows %}
+    <div class="table-responsive">
+      <table class="table table-striped table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Utilisateur</th>
+            <th>Problème</th>
+            <th class="text-center">Statut</th>
+            <th class="text-center">Soumise le</th>
+            <th class="text-center" style="width: 170px;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in history_rows %}
+          <tr>
+            <td class="fw-semibold">{{ row.submission.user.username }}</td>
+            <td>{{ row.submission.problem.title }}</td>
+            <td class="text-center">
+              {% if row.submission.status == 'accepted' %}
+                <span class="badge text-bg-success">Validée</span>
+              {% else %}
+                <span class="badge text-bg-danger">Incorrecte</span>
+              {% endif %}
+            </td>
+            <td class="text-center text-secondary">{{ row.submission.submitted_at|date:"d/m/Y H:i" }}</td>
+            <td class="text-center">
+              <a href="{% url 'staff:submission_detail' row.submission.id %}" class="btn btn-sm btn-outline-primary">
+                Voir l'historique
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="py-2 text-muted">Aucune soumission traitée par vous.</div>
     {% endif %}
   </div>
 </div>

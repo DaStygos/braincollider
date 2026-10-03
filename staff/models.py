@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.dispatch import receiver
+from django.urls import reverse
 from notifications.models import Notification
 from problems.models import CATEGORY_CHOICES, DIFFICULTY_CHOICES
 from django.db.models.signals import post_save
@@ -31,7 +32,7 @@ class ProblemSuggestion(models.Model):
 def create_problem_on_acceptance(sender, instance, created, **kwargs):
     if not created and instance.status == "accepted":
         from problems.models import Problem
-        Problem.objects.create(
+        problem = Problem.objects.create(
             title=instance.title,
             statement=instance.statement,
             author=instance.author,
@@ -42,6 +43,7 @@ def create_problem_on_acceptance(sender, instance, created, **kwargs):
         Notification.objects.create(
             user=instance.author,
             message=f"Votre suggestion de problème '{instance.title}' a été acceptée et ajoutée à la base de problèmes. Merci de votre contribution !",
+            redirect_url=reverse("problems:problem_detail", kwargs={"pk": problem.pk}),
         )
     elif instance.status == "rejected":
         Notification.objects.create(

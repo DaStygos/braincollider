@@ -19,7 +19,9 @@
     <div class="list-group-item list-group-item-info">
       <div class="d-flex justify-content-between align-items-center gap-3">
         <div>
-          <div>{{ notification.message }}</div>
+          <div>
+            {% if notification.redirect_url %}<a href="{{ notification.redirect_url }}">{{ notification.message }}</a>{% else %}{{ notification.message }}{% endif %}
+          </div>
           <small class="text-muted">{{ notification.created_at|date:"d M Y H:i" }}</small>
         </div>
         <form action="{% url 'notifications:mark_as_read' notification.pk %}" method="post" class="m-0">
@@ -39,7 +41,7 @@
     {% for notification in read_notifications %}
     <div class="list-group-item">
       <div class="d-flex justify-content-between align-items-center gap-3">
-        <span>{{ notification.message }}</span>
+        <span>{% if notification.redirect_url %}<a href="{{ notification.redirect_url }}">{{ notification.message }}</a>{% else %}{{ notification.message }}{% endif %}</span>
         <small class="text-muted">{{ notification.created_at|date:"d M Y H:i" }}</small>
       </div>
     </div>
