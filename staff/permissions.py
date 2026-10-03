@@ -55,10 +55,10 @@ def get_accessible_pending_submissions(user):
     return submissions.filter(problem_id__in=solved_problem_ids)
 
 
-def get_pending_review_rows(user):
-    """Return all submissions that have not received a correctness decision."""
+def _get_pending_rows(user):
     submissions = get_accessible_pending_submissions(user).prefetch_related("comments")
-    rows = []
+    review_rows = []
+    owner_response_rows = []
 
     for submission in submissions:
         last_comment = submission.comments.last()
@@ -67,10 +67,27 @@ def get_pending_review_rows(user):
         else:
             last_at = submission.submitted_at
 
-        rows.append({"submission": submission, "last_at": last_at})
+        row = {"submission": submission, "last_at": last_at}
+        if submission.status == "clarification" and (
+            last_comment is None or last_comment.is_reviewer
+        ):
+            owner_response_rows.append(row)
+        else:
+            review_rows.append(row)
 
-    rows.sort(key=lambda row: row["last_at"])
-    return rows
+    review_rows.sort(key=lambda row: row["last_at"])
+    owner_response_rows.sort(key=lambda row: row["last_at"])
+    return review_rows, owner_response_rows
+
+
+def get_pending_review_rows(user):
+    """Return submissions where the reviewer is expected to act."""
+    return _get_pending_rows(user)[0]
+
+
+def get_pending_owner_response_rows(user):
+    """Return clarification requests waiting for the submission owner."""
+    return _get_pending_rows(user)[1]
 
 
 def get_review_history_rows(user):

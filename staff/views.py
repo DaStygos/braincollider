@@ -6,18 +6,24 @@ from notifications.utils import create_notification
 from problems.models import Submission, SubmissionComment
 from .forms import ProblemSuggestionForm
 from django.contrib.auth.decorators import login_required
-from .permissions import can_access_pending_submissions, can_modify_submission, can_view_submission, get_accessible_pending_submissions, get_pending_review_rows, get_review_history_rows
+from .permissions import can_access_pending_submissions, can_modify_submission, can_view_submission, get_accessible_pending_submissions, get_pending_owner_response_rows, get_pending_review_rows, get_review_history_rows
 
 @login_required
 def pending_submissions(request):
     if not can_access_pending_submissions(request.user):
         raise PermissionDenied
     rows = get_pending_review_rows(request.user)
+    owner_response_rows = get_pending_owner_response_rows(request.user)
     search = request.GET.get("q", "").strip()
     if search:
         search_casefolded = search.casefold()
         rows = [
             row for row in rows
+            if search_casefolded in row["submission"].user.username.casefold()
+            or search_casefolded in row["submission"].problem.title.casefold()
+        ]
+        owner_response_rows = [
+            row for row in owner_response_rows
             if search_casefolded in row["submission"].user.username.casefold()
             or search_casefolded in row["submission"].problem.title.casefold()
         ]
@@ -32,6 +38,7 @@ def pending_submissions(request):
 
     return render(request, "staff/pending_submissions.html", {
         "rows": rows,
+        "owner_response_rows": owner_response_rows,
         "history_rows": history_rows,
         "selected_search": search,
     })

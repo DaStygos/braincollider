@@ -87,6 +87,28 @@ class PendingSubmissionsAccessTests(TestCase):
 
 		self.assertNotContains(response, self.hidden_submission.problem.title)
 
+	def test_clarification_waiting_for_owner_is_informational_only(self):
+		from problems.models import SubmissionComment
+
+		self.accessible_submission.status = "clarification"
+		self.accessible_submission.save(update_fields=["status"])
+		SubmissionComment.objects.create(
+			submission=self.accessible_submission,
+			author=self.reviewer,
+			text="Pouvez-vous préciser votre raisonnement ?",
+			is_reviewer=True,
+		)
+		self.client.force_login(self.reviewer)
+
+		response = self.client.get(reverse("staff:pending_submissions"))
+
+		self.assertEqual(response.context["rows"], [])
+		self.assertEqual(
+			response.context["owner_response_rows"][0]["submission"],
+			self.accessible_submission,
+		)
+		self.assertEqual(response.context["pending_submissions_count"], 0)
+
 	def test_reviewer_cannot_modify_own_submission(self):
 		own_submission = Submission.objects.filter(user=self.reviewer).first()
 		self.client.force_login(self.reviewer)
