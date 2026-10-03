@@ -6,7 +6,7 @@ from django.utils import timezone
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    avatar = models.ImageField(upload_to='avatars/', default='avatars/default_avatar.png', blank=True)
+    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
     previous_scores = models.JSONField(default=list, blank=True)
     accepted_terms = models.BooleanField(default=False)
     allow_leaderboard_display = models.BooleanField(default=False)
