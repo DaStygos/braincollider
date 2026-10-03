@@ -15,6 +15,11 @@ https://docs.djangoproject.com/en/dev/ref/settings/
 """
 
 from pathlib import Path
+from staff.config import (
+    PROBLEM_SUGGESTION_AUTHOR_NAMES,
+    PROBLEM_SUGGESTION_AUTHOR_USERNAMES,
+    PROBLEM_SUGGESTION_AUTHOR_YEARS,
+)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -55,7 +60,6 @@ CSRF_TRUSTED_ORIGINS = env_list(
     'CSRF_TRUSTED_ORIGINS',
     ['http://localhost', 'http://127.0.0.1'],
 )
-
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_SSL_REDIRECT = env_bool('SECURE_SSL_REDIRECT', not DEBUG)
 SESSION_COOKIE_SECURE = env_bool('SESSION_COOKIE_SECURE', not DEBUG)

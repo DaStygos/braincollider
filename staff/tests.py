@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from problems.models import Problem, Submission
@@ -138,6 +138,69 @@ class PendingSubmissionsAccessTests(TestCase):
 		self.assertRedirects(response, reverse("problems:index"))
 		suggestion = ProblemSuggestion.objects.get(title="Suggested problem")
 		self.assertEqual(suggestion.author, self.reviewer)
+
+	@override_settings(
+		PROBLEM_SUGGESTION_AUTHOR_NAMES=["QCM français"],
+		PROBLEM_SUGGESTION_AUTHOR_YEARS=[2024, 2025],
+	)
+	def test_suggest_problem_builds_configured_author_from_type_and_year(self):
+		self.client.force_login(self.reviewer)
+
+		response = self.client.post(
+			reverse("staff:suggest_problem"),
+			{
+				"title": "Suggested with year",
+				"statement": "Statement",
+				"solution": "Solution",
+				"category": "autre",
+				"difficulty": 2,
+				"author_type": "QCM français",
+				"author_year": "2025",
+			},
+		)
+
+		self.assertRedirects(response, reverse("problems:index"))
+		suggestion = ProblemSuggestion.objects.get(title="Suggested with year")
+		self.assertEqual(suggestion.author.username, "QCM français - 2025")
+
+	@override_settings(PROBLEM_SUGGESTION_AUTHOR_USERNAMES=["other"])
+	def test_suggest_problem_can_choose_an_allowed_author(self):
+		self.client.force_login(self.reviewer)
+
+		response = self.client.post(
+			reverse("staff:suggest_problem"),
+			{
+				"title": "Suggested for other",
+				"statement": "Statement",
+				"solution": "Solution",
+				"category": "autre",
+				"difficulty": 2,
+				"author": self.other_user.pk,
+			},
+		)
+
+		self.assertRedirects(response, reverse("problems:index"))
+		suggestion = ProblemSuggestion.objects.get(title="Suggested for other")
+		self.assertEqual(suggestion.author, self.other_user)
+
+	@override_settings(PROBLEM_SUGGESTION_AUTHOR_USERNAMES=["other"])
+	def test_suggest_problem_rejects_an_unlisted_author(self):
+		self.client.force_login(self.reviewer)
+
+		response = self.client.post(
+			reverse("staff:suggest_problem"),
+			{
+				"title": "Invalid author",
+				"statement": "Statement",
+				"solution": "Solution",
+				"category": "autre",
+				"difficulty": 2,
+				"author": self.staff_user.pk,
+			},
+		)
+
+		self.assertEqual(response.status_code, 200)
+		self.assertFalse(ProblemSuggestion.objects.filter(title="Invalid author").exists())
 
 	def test_accepting_problem_suggestion_creates_problem_and_notification(self):
 		suggestion = ProblemSuggestion.objects.create(

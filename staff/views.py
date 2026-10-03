@@ -114,13 +114,11 @@ def submission_detail(request, pk):
 @login_required
 def suggest_problem(request):
     if request.method == "POST":
-        form = ProblemSuggestionForm(request.POST)
+        form = ProblemSuggestionForm(request.POST, user=request.user)
         if form.is_valid():
-            suggestion = form.save(commit=False)
-            suggestion.author = request.user
-            suggestion.save()
+            suggestion = form.save()
             create_notification(
-                user=request.user,
+                user=suggestion.author,
                 message=(
                     f"Merci pour votre suggestion de problème '{suggestion.title}'. "
                     "Elle sera examinée par notre équipe."
@@ -128,6 +126,6 @@ def suggest_problem(request):
             )
             return redirect("problems:index")
     else:
-        form = ProblemSuggestionForm()
+        form = ProblemSuggestionForm(user=request.user)
 
     return render(request, "staff/suggest_problem.html", {"form": form})
