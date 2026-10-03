@@ -4,7 +4,11 @@ from problems.models import Submission
 
 
 def can_access_pending_submissions(user):
-    return user.is_authenticated
+    if not user.is_authenticated:
+        return False
+    if user.is_staff:
+        return True
+    return Submission.objects.filter(user=user, is_correct=True).exists()
 
 
 def can_review_problem(user, problem):
@@ -18,10 +22,8 @@ def can_review_problem(user, problem):
 def can_view_submission(user, submission):
     if not user.is_authenticated:
         return False
-    if submission.user_id == user.id:
-        return submission.status in {"pending", "clarification"}
     if submission.status in {"pending", "clarification"}:
-        return True
+        return can_review_problem(user, submission.problem)
     if user.is_staff or submission.reviewed_by_id == user.id:
         return True
     if submission.comments.filter(author=user, is_reviewer=True).exists():
@@ -41,7 +43,16 @@ def get_accessible_pending_submissions(user):
     submissions = Submission.objects.filter(
         is_correct__isnull=True,
     ).select_related("user", "problem")
-    return submissions if user.is_authenticated else submissions.none()
+    if not user.is_authenticated:
+        return submissions.none()
+    if user.is_staff:
+        return submissions
+
+    solved_problem_ids = Submission.objects.filter(
+        user=user,
+        is_correct=True,
+    ).values_list("problem_id", flat=True).distinct()
+    return submissions.filter(problem_id__in=solved_problem_ids)
 
 
 def get_pending_review_rows(user):

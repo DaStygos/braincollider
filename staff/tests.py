@@ -50,13 +50,13 @@ class PendingSubmissionsAccessTests(TestCase):
 			is_correct=None,
 		)
 
-	def test_reviewer_sees_all_open_submissions(self):
+	def test_reviewer_only_sees_open_submissions_for_solved_problems(self):
 		self.client.force_login(self.reviewer)
 
 		response = self.client.get(reverse("staff:pending_submissions"))
 
 		self.assertContains(response, self.accessible_submission.problem.title)
-		self.assertContains(response, self.hidden_submission.problem.title)
+		self.assertNotContains(response, self.hidden_submission.problem.title)
 
 	def test_reviewer_can_open_matching_submission_detail(self):
 		self.client.force_login(self.reviewer)
@@ -65,12 +65,12 @@ class PendingSubmissionsAccessTests(TestCase):
 
 		self.assertEqual(response.status_code, 200)
 
-	def test_reviewer_can_open_unrelated_open_submission_detail(self):
+	def test_reviewer_cannot_open_unrelated_open_submission_detail(self):
 		self.client.force_login(self.reviewer)
 
 		response = self.client.get(reverse("staff:submission_detail", args=[self.hidden_submission.pk]))
 
-		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.status_code, 403)
 
 	def test_pending_submission_with_reviewer_comment_stays_in_queue(self):
 		from problems.models import SubmissionComment
@@ -85,7 +85,7 @@ class PendingSubmissionsAccessTests(TestCase):
 
 		response = self.client.get(reverse("staff:pending_submissions"))
 
-		self.assertContains(response, self.hidden_submission.problem.title)
+		self.assertNotContains(response, self.hidden_submission.problem.title)
 
 	def test_reviewer_cannot_modify_own_submission(self):
 		own_submission = Submission.objects.filter(user=self.reviewer).first()
@@ -98,16 +98,20 @@ class PendingSubmissionsAccessTests(TestCase):
 
 		self.assertEqual(response.status_code, 403)
 
-	def test_submission_owner_can_view_own_uncorrected_submission(self):
-		own_submission = Submission.objects.filter(user=self.reviewer).first()
+	def test_submission_owner_cannot_view_own_uncorrected_submission(self):
+		own_submission = Submission.objects.create(
+			user=self.reviewer,
+			problem=self.problem_b,
+			answer="my answer",
+			is_correct=None,
+		)
 		self.client.force_login(self.reviewer)
 
 		response = self.client.get(
 			reverse("staff:submission_detail", args=[own_submission.pk]),
 		)
 
-		self.assertEqual(response.status_code, 200)
-		self.assertNotContains(response, 'name="decision"')
+		self.assertEqual(response.status_code, 403)
 
 	def test_reviewer_cannot_modify_processed_submission(self):
 		processed = Submission.objects.create(
