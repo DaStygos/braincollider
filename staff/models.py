@@ -34,6 +34,7 @@ def create_problem_on_acceptance(sender, instance, created, **kwargs):
         Problem.objects.create(
             title=instance.title,
             statement=instance.statement,
+            author=instance.author,
             solution=instance.solution,
             category=instance.category,
             difficulty=instance.difficulty,

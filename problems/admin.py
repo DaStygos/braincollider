@@ -5,8 +5,9 @@ from .models import Submission, Problem
 
 @admin.register(Problem)
 class ProblemAdmin(admin.ModelAdmin):
-    list_display = ('title', 'category', 'difficulty')
-    search_fields = ('title',)
+    list_display = ('title', 'author', 'category', 'difficulty')
+    search_fields = ('title', 'author__username')
+    list_filter = ('author', 'category', 'difficulty')
 
 @admin.register(Submission)
 class SubmissionAdmin(admin.ModelAdmin):

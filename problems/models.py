@@ -29,6 +29,7 @@ BAREME = {
 class Problem(models.Model):
     title = models.CharField(max_length=200)
     statement = models.TextField()
+    author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="authored_problems")
     category = models.CharField(max_length=10, choices=CATEGORY_CHOICES, default='autre')
     solution = models.TextField()
     difficulty = models.PositiveSmallIntegerField(choices=DIFFICULTY_CHOICES, default=1)

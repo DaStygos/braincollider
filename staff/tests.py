@@ -215,7 +215,8 @@ class PendingSubmissionsAccessTests(TestCase):
 		suggestion.status = "accepted"
 		suggestion.save()
 
-		self.assertTrue(Problem.objects.filter(title="Accepted problem").exists())
+		accepted_problem = Problem.objects.get(title="Accepted problem")
+		self.assertEqual(accepted_problem.author, self.reviewer)
 		self.assertTrue(self.reviewer.notification_set.filter(message__contains="acceptée").exists())
 
 	def test_rejecting_problem_suggestion_creates_notification(self):

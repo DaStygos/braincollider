@@ -72,6 +72,8 @@
         <dl class="row small mb-0">
           <dt class="col-6 text-muted fw-normal">Catégorie</dt>
           <dd class="col-6 mb-1">{{ problem.get_category_display }}</dd>
+          <dt class="col-6 text-muted fw-normal">Auteur</dt>
+          <dd class="col-6 mb-1">{{ problem.author.username|default:"Non renseigné" }}</dd>
           <dt class="col-6 text-muted fw-normal">Difficulté</dt>
           <dd class="col-6 mb-1">{{ problem.get_difficulty_display }}</dd>
           <dt class="col-6 text-muted fw-normal">Score</dt>

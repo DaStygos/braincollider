@@ -33,6 +33,15 @@
                 </select>
             </div>
             <div class="col-12 col-md-4 col-lg-2">
+                <label for="problem-author" class="form-label">Auteur</label>
+                <select class="form-select" id="problem-author" name="author">
+                    <option value="">Tous</option>
+                    {% for author in author_choices %}
+                        <option value="{{ author.pk }}" {% if selected_author == author.pk|stringformat:'s' %}selected{% endif %}>{{ author.username }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-md-4 col-lg-2">
                 <label for="problem-status" class="form-label">Statut</label>
                 <select class="form-select" id="problem-status" name="status">
                     <option value="" {% if not selected_status %}selected{% endif %}>Tous</option>

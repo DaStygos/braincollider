@@ -27,6 +27,7 @@ def index(request):
     search = request.GET.get("q", "").strip()
     category = request.GET.get("category", "")
     difficulty = request.GET.get("difficulty", "")
+    author = request.GET.get("author", "")
     status = request.GET.get("status", "")
 
     valid_categories = {value for value, _ in CATEGORY_CHOICES}
@@ -38,6 +39,8 @@ def index(request):
         problems = problems.filter(category=category)
     if difficulty in valid_difficulties:
         problems = problems.filter(difficulty=int(difficulty))
+    if author.isdigit():
+        problems = problems.filter(author_id=int(author))
     if status == "correct":
         problems = problems.filter(id__in=correct_problems)
     elif status == "wrong":
@@ -54,9 +57,13 @@ def index(request):
         "problems": problems,
         "category_choices": CATEGORY_CHOICES,
         "difficulty_choices": DIFFICULTY_CHOICES,
+        "author_choices": User.objects.filter(
+            authored_problems__isnull=False,
+        ).distinct().order_by("username"),
         "selected_search": search,
         "selected_category": category,
         "selected_difficulty": difficulty,
+        "selected_author": author,
         "selected_status": status,
         "correct_problems": correct_problems,
         "wrong_problems": wrong_problems,

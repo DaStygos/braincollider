@@ -12,6 +12,7 @@ class ProblemsViewsTests(TestCase):
 			title="Problem A",
 			statement="Statement A",
 			solution="Solution A",
+			author=self.user,
 			category="meca",
 			difficulty=1,
 		)
@@ -82,6 +83,26 @@ class ProblemsViewsTests(TestCase):
 		)
 
 		self.assertQuerySetEqual(response.context["problems"], [pending_problem], ordered=False)
+
+	def test_index_filters_problems_by_author(self):
+		other_author = User.objects.create_user(username="problem-author", password="password123")
+		self.problem_b.author = other_author
+		self.problem_b.save(update_fields=["author"])
+
+		self.client.force_login(self.user)
+		response = self.client.get(
+			reverse("problems:index"),
+			{"author": str(other_author.pk)},
+		)
+
+		self.assertQuerySetEqual(response.context["problems"], [self.problem_b], ordered=False)
+
+	def test_problem_detail_displays_author(self):
+		self.client.force_login(self.user)
+
+		response = self.client.get(reverse("problems:problem_detail", args=[self.problem_a.pk]))
+
+		self.assertContains(response, self.user.username)
 
 	def test_problem_detail_requires_login(self):
 		response = self.client.get(reverse("problems:problem_detail", args=[self.problem_a.pk]))
