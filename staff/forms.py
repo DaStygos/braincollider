@@ -1,6 +1,7 @@
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.urls import reverse_lazy
 from .models import ProblemSuggestion
 
 
@@ -75,6 +76,7 @@ class ProblemSuggestionForm(forms.ModelForm):
         model = ProblemSuggestion
         fields = [
             "title",
+            "short_description",
             "statement",
             "solution",
             "category",
@@ -87,11 +89,21 @@ class ProblemSuggestionForm(forms.ModelForm):
             "title": forms.TextInput(
                 attrs={"class": "form-control", "placeholder": "Titre du problème"}
             ),
+            "short_description": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 3,
+                    "placeholder": "Résumé affiché dans la liste des problèmes",
+                }
+            ),
             "statement": forms.Textarea(
                 attrs={
                     "class": "form-control",
                     "rows": 8,
                     "data-live-math-preview": "statement-preview",
+                    "data-image-upload-url": reverse_lazy(
+                        "staff:upload_statement_image"
+                    ),
                 }
             ),
             "solution": forms.Textarea(

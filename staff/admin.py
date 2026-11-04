@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.conf import settings
+from django.urls import reverse_lazy
 from .models import ProblemSuggestion
 
 
@@ -28,6 +30,7 @@ def reject_suggestions(modeladmin, request, queryset):
 class ProblemSuggestionAdmin(admin.ModelAdmin):
     list_display = (
         "title",
+        "short_description",
         "author",
         "category",
         "difficulty",
@@ -35,14 +38,45 @@ class ProblemSuggestionAdmin(admin.ModelAdmin):
         "status",
     )
     list_filter = ("status", "suggested_at")
-    search_fields = ("title", "statement")
+    search_fields = ("title", "short_description", "statement")
     readonly_fields = ("author", "suggested_at")
     actions = (accept_suggestions, reject_suggestions)
+
+    class Media:
+        css = {
+            "all": (
+                "https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css",
+            )
+        }
+        js = (
+            "https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js",
+            "https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js",
+            "js/statement-image-upload.js",
+            "js/admin-problem-preview.js",
+        )
+
+    def formfield_for_dbfield(self, db_field, request, **kwargs):
+        formfield = super().formfield_for_dbfield(db_field, request, **kwargs)
+        if db_field.name == "statement" and formfield:
+            formfield.widget.attrs["data-image-upload-url"] = reverse_lazy(
+                "staff:upload_statement_image"
+            )
+            formfield.widget.attrs["data-admin-statement-preview"] = "true"
+            formfield.widget.attrs["data-media-prefix"] = settings.MEDIA_URL
+        return formfield
+
     fieldsets = (
         (
             "Suggestion",
             {
-                "fields": ("title", "statement", "solution", "category", "difficulty"),
+                "fields": (
+                    "title",
+                    "short_description",
+                    "statement",
+                    "solution",
+                    "category",
+                    "difficulty",
+                ),
             },
         ),
         (

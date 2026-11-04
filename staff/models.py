@@ -15,6 +15,7 @@ STATUS_CHOICES = [
 
 class ProblemSuggestion(models.Model):
     title = models.CharField(max_length=200)
+    short_description = models.CharField(max_length=300, blank=True)
     statement = models.TextField()
     solution = models.TextField(blank=True)
     category = models.CharField(
@@ -38,6 +39,7 @@ def create_problem_on_acceptance(sender, instance, created, **kwargs):
 
         problem = Problem.objects.create(
             title=instance.title,
+            short_description=instance.short_description,
             statement=instance.statement,
             author=instance.author,
             solution=instance.solution,

@@ -1,10 +1,15 @@
-from django import template
-from django.contrib.staticfiles import finders
-from django.templatetags.static import static
-from django.utils.html import escape
-from django.utils.safestring import mark_safe
 import os
 import re
+from urllib.parse import urlsplit
+from uuid import uuid4
+
+from django import template
+from django.conf import settings
+from django.contrib.staticfiles import finders
+from django.templatetags.static import static
+from django.utils.html import escape, format_html
+from django.utils.safestring import mark_safe
+from django.utils.text import Truncator
 
 register = template.Library()
 
@@ -49,6 +54,12 @@ def stars(number):
 
 
 @register.filter
+def statement_excerpt(value, word_count=25):
+    text = re.sub(r"!\[[^\]\r\n]*\]\([^)\s]+\)", "Illustration", str(value))
+    return Truncator(text).words(word_count)
+
+
+@register.filter
 def linebreaks_preserve_latex(value):
     """
     Convert newlines to <br> tags while preserving LaTeX math expressions.
@@ -58,7 +69,34 @@ def linebreaks_preserve_latex(value):
     if not value:
         return value
 
-    value = escape(str(value))
+    images = {}
+    media_prefix = (
+        f"{urlsplit(settings.MEDIA_URL).path.rstrip('/')}/problem_statement_images/"
+    )
+
+    def save_image(match):
+        image_url = urlsplit(match.group(2))
+        filename = image_url.path.rsplit("/", 1)[-1]
+        if (
+            image_url.scheme
+            or image_url.netloc
+            or image_url.query
+            or image_url.fragment
+            or image_url.path != f"{media_prefix}{filename}"
+            or not re.fullmatch(r"[0-9a-f]{32}\.webp", filename)
+        ):
+            return match.group(0)
+
+        placeholder = f"__BC_IMAGE_{uuid4().hex}__"
+        images[placeholder] = format_html(
+            '<img class="problem-statement-image" src="{}" alt="{}" loading="lazy">',
+            image_url.path,
+            match.group(1),
+        )
+        return placeholder
+
+    value = re.sub(r"!\[([^\]\r\n]*)\]\(([^)\s]+)\)", save_image, str(value))
+    value = escape(value)
 
     # Protect display math ($$...$$) - must be done first
     display_math_blocks = []
@@ -94,5 +132,8 @@ def linebreaks_preserve_latex(value):
     # Restore inline math
     for i, block in enumerate(inline_math_blocks):
         value = value.replace(f"__INLINE_MATH_{i}__", block)
+
+    for placeholder, image in images.items():
+        value = value.replace(placeholder, str(image))
 
     return mark_safe(value)

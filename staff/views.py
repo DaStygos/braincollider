@@ -1,11 +1,19 @@
+from io import BytesIO
+from uuid import uuid4
+
+from PIL import Image, ImageOps, UnidentifiedImageError
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.core.exceptions import PermissionDenied
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
+from django.http import JsonResponse
 from django.db.models import Q
 from notifications.utils import create_notification
 from problems.models import Submission, SubmissionComment
 from .forms import ProblemSuggestionForm
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from .permissions import (
     can_access_pending_submissions,
     can_modify_submission,
@@ -16,6 +24,51 @@ from .permissions import (
     get_review_history_rows,
 )
 from core.rate_limits import rate_limit
+
+MAX_STATEMENT_IMAGE_SIZE = 5 * 1024 * 1024
+MAX_STATEMENT_IMAGE_PIXELS = 4096 * 4096
+ALLOWED_STATEMENT_IMAGE_FORMATS = {"JPEG", "PNG", "WEBP"}
+
+
+@login_required
+@require_POST
+@rate_limit("problem-image-upload", limit=20, period=60 * 60)
+def upload_statement_image(request):
+    image_file = request.FILES.get("image")
+    if image_file is None:
+        return JsonResponse({"error": "Sélectionnez une image."}, status=400)
+    if image_file.size > MAX_STATEMENT_IMAGE_SIZE:
+        return JsonResponse({"error": "L’image ne doit pas dépasser 5 Mo."}, status=413)
+
+    try:
+        with Image.open(image_file) as uploaded_image:
+            if uploaded_image.format not in ALLOWED_STATEMENT_IMAGE_FORMATS:
+                return JsonResponse(
+                    {"error": "Utilisez une image PNG, JPEG ou WebP."}, status=400
+                )
+            if (
+                uploaded_image.width * uploaded_image.height
+                > MAX_STATEMENT_IMAGE_PIXELS
+            ):
+                return JsonResponse(
+                    {"error": "L’image ne doit pas dépasser 4096 × 4096 pixels."},
+                    status=400,
+                )
+
+            image = ImageOps.exif_transpose(uploaded_image)
+            image = image.convert("RGBA" if "A" in image.getbands() else "RGB")
+            output = BytesIO()
+            image.save(output, format="WEBP", quality=88, method=6)
+    except (UnidentifiedImageError, OSError, Image.DecompressionBombError, ValueError):
+        return JsonResponse(
+            {"error": "Le fichier sélectionné n’est pas valide."}, status=400
+        )
+
+    image_path = default_storage.save(
+        f"problem_statement_images/{uuid4().hex}.webp",
+        ContentFile(output.getvalue()),
+    )
+    return JsonResponse({"url": default_storage.url(image_path)})
 
 
 @login_required

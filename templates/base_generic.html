@@ -385,7 +385,43 @@
       return;
     }
 
-    previewElement.textContent = value;
+    const mediaPath = new URL("{% get_media_prefix %}", window.location.origin).pathname;
+    const imagePattern = /!\[([^\]\r\n]*)\]\(([^)\s]+)\)/g;
+    const fragment = document.createDocumentFragment();
+    let cursor = 0;
+    let match;
+
+    while ((match = imagePattern.exec(value)) !== null) {
+      let imageUrl;
+      try {
+        imageUrl = new URL(match[2], window.location.origin);
+      } catch (error) {
+        continue;
+      }
+
+      const imagePrefix = `${mediaPath.replace(/\/$/, '')}/problem_statement_images/`;
+      const filename = imageUrl.pathname.slice(imagePrefix.length);
+      if (
+        imageUrl.origin !== window.location.origin
+        || !imageUrl.pathname.startsWith(imagePrefix)
+        || !/^[a-f0-9]{32}\.webp$/.test(filename)
+        || imageUrl.search
+        || imageUrl.hash
+      ) {
+        continue;
+      }
+
+      fragment.appendChild(document.createTextNode(value.slice(cursor, match.index)));
+      const image = document.createElement('img');
+      image.className = 'problem-statement-image';
+      image.src = imageUrl.href;
+      image.alt = match[1];
+      fragment.appendChild(image);
+      cursor = imagePattern.lastIndex;
+    }
+
+    fragment.appendChild(document.createTextNode(value.slice(cursor)));
+    previewElement.replaceChildren(fragment);
 
     if (window.renderMathInElement) {
       renderMathInElement(previewElement, {

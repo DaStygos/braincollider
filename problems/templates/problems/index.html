@@ -70,7 +70,7 @@
         </div>
         <h2>{{ problem.title }}</h2>
         {% if problem.author %}<p class="problem-card-author"><i class="bi bi-person" aria-hidden="true"></i> {{ problem.author.username }}</p>{% endif %}
-        <p class="problem-card-excerpt">{{ problem.statement|truncatewords:25 }}</p>
+        <p class="problem-card-excerpt">{% if problem.short_description %}{{ problem.short_description }}{% else %}{{ problem.statement|statement_excerpt:25 }}{% endif %}</p>
         <div class="problem-card-footer">
             <span class="problem-card-status">
                 {% if user.is_authenticated %}
