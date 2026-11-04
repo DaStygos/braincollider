@@ -1,15 +1,15 @@
-// Modern contrast-rich palette with darker bars and softer page surfaces
-$body-bg: #fbf7ef;
-$body-color: #3b352d;
+// Shared base palette; the theme layer switches these values at runtime.
+$body-bg: #f6f4fb;
+$body-color: #262435;
 
-$primary: #c56b4e;
-$secondary: #786f63;
-$success: #4e7c60;
-$info: #67867c;
-$warning: #b97b38;
-$danger: #b95f54;
-$light: #fffaf2;
-$dark: #343a32;
+$primary: #6854a6;
+$secondary: #6f6b7f;
+$success: #3f806b;
+$info: #417e91;
+$warning: #a86c24;
+$danger: #b54e62;
+$light: #fbfaff;
+$dark: #252333;
 $locked: #dfe4ea;
 
 $theme-colors: (
@@ -24,11 +24,11 @@ $theme-colors: (
   "locked": $locked
 );
 
-$border-color: #ece2d4;
-$card-border-color: #ece2d4;
-$input-border-color: #e5dbcf;
-$box-shadow-sm: 0 8px 20px rgba(72, 52, 34, 0.045);
-$box-shadow: 0 18px 44px rgba(72, 52, 34, 0.07);
+$border-color: #e5e1ef;
+$card-border-color: #e5e1ef;
+$input-border-color: #d9d5e5;
+$box-shadow-sm: 0 8px 20px rgba(42, 35, 72, 0.045);
+$box-shadow: 0 18px 44px rgba(42, 35, 72, 0.07);
 
 $font-family-sans-serif: "Inter", "Segoe UI", Arial, sans-serif;
 

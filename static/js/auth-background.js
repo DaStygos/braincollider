@@ -12,7 +12,7 @@
   resize();
   window.addEventListener('resize', resize);
 
-  const primary = '#4b5bdc';
+  const primary = '#6854a6';
 
   function hexAlpha(hex, alpha) {
     const red = parseInt(hex.slice(1, 3), 16);

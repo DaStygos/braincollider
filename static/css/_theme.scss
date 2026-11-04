@@ -1,0 +1,466 @@
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bc-page: #f6f4fb;
+  --bc-surface: #ffffff;
+  --bc-surface-raised: #fbfaff;
+  --bc-surface-tint: #f0edf8;
+  --bc-text: #262435;
+  --bc-muted: #716d80;
+  --bc-border: #e5e1ef;
+  --bc-primary: #6854a6;
+  --bc-primary-hover: #55428f;
+  --bc-primary-dark: #55428f;
+  --bc-primary-contrast: #ffffff;
+  --bc-navy: #262435;
+  --bc-accent: #287d78;
+  --bc-status-solved: #2e745e;
+  --bc-status-solved-bg: #e9f5ef;
+  --bc-status-solved-border: #c9e6d8;
+  --bc-status-pending: #94611e;
+  --bc-status-pending-bg: #fff4df;
+  --bc-status-pending-border: #f0ddb6;
+  --bc-status-retry: #a94455;
+  --bc-status-retry-bg: #fbecef;
+  --bc-status-retry-border: #efcbd2;
+  --bc-status-neutral: #626a7c;
+  --bc-status-neutral-bg: #eff0f5;
+  --bc-status-neutral-border: #dfe1ea;
+  --bc-shadow: 0 12px 30px rgba(42, 35, 72, 0.08);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bc-page: #171721;
+  --bc-surface: #20202c;
+  --bc-surface-raised: #272735;
+  --bc-surface-tint: #302e40;
+  --bc-text: #eeedf5;
+  --bc-muted: #b0adbf;
+  --bc-border: #3b394d;
+  --bc-primary: #b7a4f4;
+  --bc-primary-hover: #c9baff;
+  --bc-primary-dark: #c9baff;
+  --bc-primary-contrast: #211b32;
+  --bc-navy: #eeedf5;
+  --bc-accent: #72d2c5;
+  --bc-status-solved: #9ee1c6;
+  --bc-status-solved-bg: #20392f;
+  --bc-status-solved-border: #38644f;
+  --bc-status-pending: #f2ce8a;
+  --bc-status-pending-bg: #3b3121;
+  --bc-status-pending-border: #6b542f;
+  --bc-status-retry: #f2aab5;
+  --bc-status-retry-bg: #40252d;
+  --bc-status-retry-border: #70404a;
+  --bc-status-neutral: #c0bccd;
+  --bc-status-neutral-bg: #2d2b3a;
+  --bc-status-neutral-border: #454356;
+  --bc-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+}
+
+:root[data-theme] {
+  --bs-body-bg: var(--bc-page);
+  --bs-body-color: var(--bc-text);
+  --bs-emphasis-color: var(--bc-text);
+  --bs-secondary-color: var(--bc-muted);
+  --bs-secondary-color-rgb: 113, 109, 128;
+  --bs-tertiary-bg: var(--bc-surface-tint);
+  --bs-secondary-bg: var(--bc-surface-raised);
+  --bs-border-color: var(--bc-border);
+  --bs-primary: var(--bc-primary);
+  --bs-link-color: var(--bc-primary);
+  --bs-link-hover-color: var(--bc-primary-hover);
+}
+
+:root[data-theme="dark"] {
+  --bs-secondary-color-rgb: 176, 173, 191;
+  --bs-primary-rgb: 183, 164, 244;
+  --bs-link-color-rgb: 183, 164, 244;
+  --bs-primary-text-emphasis: #d3c6ff;
+  --bs-primary-bg-subtle: #32294e;
+  --bs-primary-border-subtle: #514475;
+}
+
+body {
+  background: var(--bc-page);
+  color: var(--bc-text);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+a {
+  color: var(--bc-primary);
+}
+
+a:hover {
+  color: var(--bc-primary-hover);
+}
+
+.site-navbar,
+.site-navbar.navbar {
+  background: var(--bc-surface);
+  border-color: var(--bc-border);
+  box-shadow: var(--bc-shadow);
+}
+
+.site-navbar .navbar-brand,
+.site-navbar .nav-link {
+  color: var(--bc-text);
+}
+
+.site-navbar .nav-link:hover,
+.site-navbar .nav-link:focus,
+.site-navbar .nav-link.active {
+  color: var(--bc-primary);
+  background: var(--bc-surface-tint);
+}
+
+.site-navbar .form-control {
+  background: var(--bc-surface-raised);
+  border-color: var(--bc-border);
+  color: var(--bc-text);
+}
+
+.site-navbar .navbar-toggler {
+  border-color: var(--bc-border);
+}
+
+.site-navbar .navbar-toggler-icon {
+  filter: none;
+}
+
+.card,
+.problem-filter-panel,
+.problem-list-panel,
+.profile-panel,
+.leaderboard-panel,
+.group-panel,
+.notifications-panel,
+.auth-panel,
+.auth-panel .card-body,
+.review-panel,
+.problem-statement-panel,
+.problem-card,
+.home-category,
+.home-step,
+.home-metric,
+.dropdown-menu,
+.modal-content,
+.list-group-item {
+  background-color: var(--bc-surface);
+  border-color: var(--bc-border);
+  color: var(--bc-text);
+  box-shadow: var(--bc-shadow);
+}
+
+.card-header,
+.card-footer,
+.table thead th {
+  background-color: var(--bc-surface-tint);
+  border-color: var(--bc-border);
+  color: var(--bc-text);
+}
+
+.dropdown-item,
+.table,
+.table tbody td,
+.table tbody th,
+.home-section-heading h2,
+.home-category-name,
+.home-step h3,
+.problem-statement,
+.problem-card h2,
+.problem-card-excerpt {
+  color: var(--bc-text);
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus,
+.table tbody tr:hover > * {
+  background-color: var(--bc-surface-tint);
+  color: var(--bc-primary);
+}
+
+.form-control,
+.form-select,
+.form-check-input,
+.input-group-text {
+  background-color: var(--bc-surface-raised);
+  border-color: var(--bc-border);
+  color: var(--bc-text);
+}
+
+.form-control::placeholder,
+.form-select:disabled {
+  color: var(--bc-muted);
+}
+
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus {
+  background-color: var(--bc-surface);
+  border-color: var(--bc-primary);
+  color: var(--bc-text);
+  box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--bc-primary) 24%, transparent);
+}
+
+.btn-primary {
+  --bs-btn-bg: var(--bc-primary);
+  --bs-btn-border-color: var(--bc-primary);
+  --bs-btn-hover-bg: var(--bc-primary-hover);
+  --bs-btn-hover-border-color: var(--bc-primary-hover);
+  --bs-btn-active-bg: var(--bc-primary-hover);
+  --bs-btn-active-border-color: var(--bc-primary-hover);
+  background: var(--bc-primary);
+  border-color: var(--bc-primary);
+  box-shadow: var(--bc-shadow);
+  color: var(--bc-primary-contrast);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background: var(--bc-primary-hover);
+  border-color: var(--bc-primary-hover);
+  box-shadow: var(--bc-shadow);
+}
+
+.btn-outline-primary {
+  --bs-btn-color: var(--bc-primary);
+  --bs-btn-border-color: var(--bc-primary);
+  --bs-btn-hover-bg: var(--bc-primary);
+  --bs-btn-hover-border-color: var(--bc-primary);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-active-bg: var(--bc-primary);
+  --bs-btn-active-border-color: var(--bc-primary);
+  color: var(--bc-primary);
+  border-color: var(--bc-primary);
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus {
+  background: var(--bc-primary);
+  border-color: var(--bc-primary);
+  color: var(--bc-primary-contrast);
+}
+
+.home-hero,
+.home-overview,
+.home-categories,
+.home-steps,
+.problem-statement-panel,
+.problem-list-panel,
+.problem-filter-panel {
+  color: var(--bc-text);
+}
+
+.home-visual {
+  background: linear-gradient(145deg, var(--bc-surface-tint), var(--bc-surface));
+  border-color: var(--bc-border);
+}
+
+.home-kicker,
+.home-eyebrow,
+.home-category-symbol,
+.problem-card-score,
+.home-text-link {
+  color: var(--bc-primary);
+}
+
+.home-category:hover,
+.home-category:focus-visible,
+.home-step:hover,
+.problem-card:hover,
+.problem-card:focus-visible {
+  border-color: var(--bc-primary);
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.28rem 0.58rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.status-chip--solved {
+  background: var(--bc-status-solved-bg);
+  border-color: var(--bc-status-solved-border);
+  color: var(--bc-status-solved);
+}
+
+.status-chip--pending {
+  background: var(--bc-status-pending-bg);
+  border-color: var(--bc-status-pending-border);
+  color: var(--bc-status-pending);
+}
+
+.status-chip--retry {
+  background: var(--bc-status-retry-bg);
+  border-color: var(--bc-status-retry-border);
+  color: var(--bc-status-retry);
+}
+
+.status-chip--unsolved,
+.status-chip--discover {
+  background: var(--bc-status-neutral-bg);
+  border-color: var(--bc-status-neutral-border);
+  color: var(--bc-status-neutral);
+}
+
+.problem-card--solved {
+  border-color: var(--bc-status-solved-border);
+}
+
+.problem-card--pending {
+  border-color: var(--bc-status-pending-border);
+}
+
+.problem-card--retry {
+  border-color: var(--bc-status-retry-border);
+}
+
+.problem-card--unsolved,
+.problem-card--discover {
+  border-color: var(--bc-status-neutral-border);
+}
+
+footer {
+  background: var(--bc-surface);
+  border-top: 1px solid var(--bc-border);
+  color: var(--bc-text);
+}
+
+footer .text-muted {
+  color: var(--bc-muted) !important;
+}
+
+footer a {
+  color: var(--bc-muted);
+}
+
+footer a:hover,
+footer a:focus {
+  color: var(--bc-primary);
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  white-space: nowrap;
+}
+
+:root[data-theme="dark"] {
+  --bs-success-text-emphasis: #9ee1c6;
+  --bs-success-bg-subtle: #20392f;
+  --bs-success-border-subtle: #38644f;
+  --bs-info-text-emphasis: #a1dce8;
+  --bs-info-bg-subtle: #20343a;
+  --bs-info-border-subtle: #355c66;
+  --bs-warning-text-emphasis: #f2ce8a;
+  --bs-warning-bg-subtle: #3b3121;
+  --bs-warning-border-subtle: #6b542f;
+  --bs-danger-text-emphasis: #f2aab5;
+  --bs-danger-bg-subtle: #40252d;
+  --bs-danger-border-subtle: #70404a;
+}
+
+:root[data-theme="dark"] .text-dark,
+:root[data-theme="dark"] .text-body,
+:root[data-theme="dark"] .text-secondary,
+:root[data-theme="dark"] .text-muted,
+:root[data-theme="dark"] .page-header p,
+:root[data-theme="dark"] .home-intro-text,
+:root[data-theme="dark"] .home-overview-caption,
+:root[data-theme="dark"] .problem-card-author,
+:root[data-theme="dark"] .problem-card-footer,
+:root[data-theme="dark"] .problem-card-submissions {
+  color: var(--bc-muted) !important;
+}
+
+:root[data-theme="dark"] .bg-white,
+:root[data-theme="dark"] .bg-light,
+:root[data-theme="dark"] .bg-body,
+:root[data-theme="dark"] .home-visual-note,
+:root[data-theme="dark"] .home-metric-icon,
+:root[data-theme="dark"] .home-step-icon {
+  background-color: var(--bc-surface-raised) !important;
+  color: var(--bc-text);
+}
+
+:root[data-theme="dark"] .home-hero h1,
+:root[data-theme="dark"] .page-header h1,
+:root[data-theme="dark"] .home-section-heading h2,
+:root[data-theme="dark"] .home-visual-note strong,
+:root[data-theme="dark"] .home-metric strong,
+:root[data-theme="dark"] .home-step h3,
+:root[data-theme="dark"] .home-category-name,
+:root[data-theme="dark"] .problem-card h2,
+:root[data-theme="dark"] .problem-statement,
+:root[data-theme="dark"] .leaderboard-table {
+  color: var(--bc-text);
+}
+
+:root[data-theme="dark"] .table,
+:root[data-theme="dark"] .table > :not(caption) > * > *,
+:root[data-theme="dark"] .list-group-item {
+  --bs-table-bg: var(--bc-surface);
+  --bs-table-color: var(--bc-text);
+  --bs-table-border-color: var(--bc-border);
+  background-color: var(--bc-surface);
+  border-color: var(--bc-border);
+  color: var(--bc-text);
+}
+
+:root[data-theme="dark"] .page-link {
+  background-color: var(--bc-surface);
+  border-color: var(--bc-border);
+  color: var(--bc-primary);
+}
+
+:root[data-theme="dark"] .page-item.active .page-link {
+  background-color: var(--bc-primary);
+  border-color: var(--bc-primary);
+  color: var(--bc-primary-contrast);
+}
+
+:root[data-theme="dark"] .page-item.disabled .page-link {
+  background-color: var(--bc-surface-raised);
+  color: var(--bc-muted);
+}
+
+:root[data-theme="dark"] .table thead th {
+  background-color: var(--bc-surface-tint);
+}
+
+:root[data-theme="dark"] .alert {
+  background-color: var(--bc-surface-raised);
+  border-color: var(--bc-border);
+  color: var(--bc-text);
+}
+
+:root[data-theme="dark"] .alert-success {
+  color: var(--bs-success-text-emphasis);
+}
+
+:root[data-theme="dark"] .alert-warning {
+  color: var(--bs-warning-text-emphasis);
+}
+
+:root[data-theme="dark"] .alert-danger {
+  color: var(--bs-danger-text-emphasis);
+}
+
+:root[data-theme="dark"] .alert-info {
+  color: var(--bs-info-text-emphasis);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body {
+    transition: none;
+  }
+}

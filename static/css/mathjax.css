@@ -5,15 +5,15 @@
   width: 100%;
   margin: 0;
   padding: clamp(1.5rem, 3vw, 2.5rem);
-  color: #1f2937;
+  color: var(--bc-text, #262435);
   font-family: "STIX Two Text", "Cambria Math", "STIX Two Math", "DejaVu Serif", serif;
   font-size: 1.16rem;
   line-height: 1.85;
-  border: 1px solid #cbd3f5;
-  border-left: 0.45rem solid #4b5bdc;
+  border: 1px solid var(--bc-border, #e5e1ef);
+  border-left: 0.45rem solid var(--bc-primary, #6854a6);
   border-radius: 0.5rem;
-  background: #f7f8ff;
-  box-shadow: 0 0.65rem 1.75rem rgba(75, 91, 220, 0.12);
+  background: var(--bc-surface-raised, #fbfaff);
+  box-shadow: var(--bc-shadow, 0 0.65rem 1.75rem rgba(42, 35, 72, 0.12));
 }
 
 .problem-statement-panel {
@@ -21,14 +21,15 @@
 }
 
 .problem-secondary-sidebar {
-  color: #526071;
+  color: var(--bc-muted, #716d80);
 }
 
 .problem-secondary-card {
-  border: 1px solid #dce1f2 !important;
-  border-left: 0.25rem solid #9aa6df !important;
-  background: #fbfbff;
-  box-shadow: 0 0.25rem 0.75rem rgba(38, 55, 70, 0.06) !important;
+  border: 1px solid var(--bc-border, #e5e1ef) !important;
+  border-left: 0.25rem solid var(--bc-primary, #6854a6) !important;
+  background: var(--bc-surface, #fff);
+  color: var(--bc-text, #262435);
+  box-shadow: var(--bc-shadow, 0 0.25rem 0.75rem rgba(42, 35, 72, 0.06)) !important;
 }
 
 .problem-secondary-card .card-body {
@@ -36,7 +37,7 @@
 }
 
 .problem-secondary-card h6 {
-  color: #526071 !important;
+  color: var(--bc-muted, #716d80) !important;
   font-size: 0.72rem;
   letter-spacing: 0.06em;
 }
@@ -72,9 +73,10 @@
 .math-live-preview {
   min-height: 3rem;
   padding: 0.75rem 1rem;
-  border: 1px dashed rgba(25, 28, 31, 0.2);
+  border: 1px dashed var(--bc-border, #e5e1ef);
   border-radius: 0.5rem;
-  background: #fff;
+  background: var(--bc-surface, #fff);
+  color: var(--bc-text, #262435);
   line-height: 1.7;
   white-space: pre-wrap;
   overflow-x: auto;

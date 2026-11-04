@@ -63,7 +63,7 @@
 <p class="text-muted small mb-2" role="status">{{ problem_count }} problème{{ problem_count|pluralize }} trouvé{{ problem_count|pluralize }}.</p>
 <div class="problem-card-grid">
     {% for problem in problems %}
-    <a href="{% url 'problems:problem_detail' problem.id %}" class="problem-card">
+    <a href="{% url 'problems:problem_detail' problem.id %}" class="problem-card{% if user.is_authenticated %}{% if problem.id in correct_problems %} problem-card--solved{% elif problem.id in wrong_problems %} problem-card--retry{% elif problem.id in pending_problems %} problem-card--pending{% else %} problem-card--unsolved{% endif %}{% else %} problem-card--discover{% endif %}">
         <div class="problem-card-topline">
             <span class="problem-category-tag">{{ problem.get_category_display }}</span>
             <span class="problem-difficulty" aria-label="Difficulté {{ problem.difficulty }} sur 5">{{ problem.difficulty|stars }}</span>
@@ -75,16 +75,16 @@
             <span class="problem-card-status">
                 {% if user.is_authenticated %}
                     {% if problem.id in correct_problems %}
-                        <i class="bi bi-check-circle-fill text-success" aria-hidden="true"></i> Réussi
+                        <span class="status-chip status-chip--solved"><i class="bi bi-check-circle-fill" aria-hidden="true"></i> Réussi</span>
                     {% elif problem.id in wrong_problems %}
-                        <i class="bi bi-arrow-repeat text-warning" aria-hidden="true"></i> À retenter
+                        <span class="status-chip status-chip--retry"><i class="bi bi-arrow-repeat" aria-hidden="true"></i> À retenter</span>
                     {% elif problem.id in pending_problems %}
-                        <i class="bi bi-hourglass-split text-secondary" aria-hidden="true"></i> En attente
+                        <span class="status-chip status-chip--pending"><i class="bi bi-hourglass-split" aria-hidden="true"></i> En attente</span>
                     {% else %}
-                        <i class="bi bi-circle text-secondary" aria-hidden="true"></i> À commencer
+                        <span class="status-chip status-chip--unsolved"><i class="bi bi-circle" aria-hidden="true"></i> À commencer</span>
                     {% endif %}
                 {% else %}
-                    <i class="bi bi-lightbulb text-secondary" aria-hidden="true"></i> À découvrir
+                    <span class="status-chip status-chip--discover"><i class="bi bi-lightbulb" aria-hidden="true"></i> À découvrir</span>
                 {% endif %}
             </span>
             <span class="problem-card-submissions">{{ problem.correct_submissions }}/{{ problem.total_submissions }} validées</span>
