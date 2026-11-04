@@ -50,7 +50,7 @@
             autocomplete="off"
             value="{{ request.GET.q|default:'' }}"
           >
-          <button class="btn btn-outline-light btn-sm ms-2" type="submit" aria-label="Rechercher">
+          <button class="btn btn-outline-primary btn-sm ms-2" type="submit" aria-label="Rechercher">
             <i class="bi bi-search" aria-hidden="true"></i>
           </button>
         </form>
@@ -58,13 +58,13 @@
       </div>
       <ul class="navbar-nav ms-auto">
         <li class="nav-item">
-          <a class="nav-link" href="{% url 'problems:index' %}">Problèmes</a>
+          <a class="nav-link{% if request.resolver_match.namespace == 'problems' %} active{% endif %}" href="{% url 'problems:index' %}"{% if request.resolver_match.namespace == 'problems' %} aria-current="page"{% endif %}>Problèmes</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{% url 'leaderboard:leaderboard' %}">Leaderboard</a>
+          <a class="nav-link{% if request.resolver_match.namespace == 'leaderboard' %} active{% endif %}" href="{% url 'leaderboard:leaderboard' %}"{% if request.resolver_match.namespace == 'leaderboard' %} aria-current="page"{% endif %}>Classement</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{% url 'stats:dashboard' %}">Statistiques</a>
+          <a class="nav-link{% if request.resolver_match.namespace == 'stats' %} active{% endif %}" href="{% url 'stats:dashboard' %}"{% if request.resolver_match.namespace == 'stats' %} aria-current="page"{% endif %}>Statistiques</a>
         </li>
 
         {% if can_access_pending_submissions %}
@@ -82,7 +82,7 @@
         <li class="nav-item dropdown">
           {% if user.is_authenticated %}
             {% with unread_count=request.user.profile.get_unread_notifications_count %}
-          <a class="nav-link dropdown-toggle text-light" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             {{ user.username }}
             {% if unread_count > 0 %}
               <span class="badge bg-danger">{{ unread_count }}</span>
@@ -100,7 +100,7 @@
           </ul>
             {% endwith %}
           {% else %}
-          <a class="nav-link dropdown-toggle text-light" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             Compte
           </a>
           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">

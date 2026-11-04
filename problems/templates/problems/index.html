@@ -61,47 +61,37 @@
 
 {% if problems %}
 <p class="text-muted small mb-2" role="status">{{ problem_count }} problème{{ problem_count|pluralize }} trouvé{{ problem_count|pluralize }}.</p>
-<div class="card border-0 shadow-sm problem-list-panel">
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-striped table-hover align-middle mb-0 problem-table">
-                <thead>
-                    <tr>
-                        <th scope="col">Titre</th>
-                        <th scope="col">Catégorie</th>
-                        <th scope="col" class="text-center" style="width: 180px;">Difficulté</th>
-                        <th scope="col" class="text-center" style="width: 100px;">Statut</th>
-                        <th scope="col" class="text-center" style="width: 170px;">Validées / envoyées</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for problem in problems %}
-                    <tr>
-                        <td><a href="{% url 'problems:problem_detail' problem.id %}">{{ problem.title }}</a></td>
-                        <td>{{ problem.get_category_display }}</td>
-                        <td class="text-center" aria-label="Difficulté {{ problem.difficulty }} sur 5">{{ problem.difficulty|stars }}</td>
-                        <td class="text-center">
-                            {% if user.is_authenticated %}
-                                {% if problem.id in correct_problems %}
-                                    <span class="text-success"><i class="bi bi-check-circle-fill" aria-hidden="true"></i><span class="visually-hidden">Réussi</span></span>
-                                {% elif problem.id in wrong_problems %}
-                                    <span class="text-danger"><i class="bi bi-x-circle-fill" aria-hidden="true"></i><span class="visually-hidden">À retenter</span></span>
-                                {% elif problem.id in pending_problems %}
-                                    <span class="text-warning"><i class="bi bi-hourglass-split" aria-hidden="true"></i><span class="visually-hidden">En attente de correction</span></span>
-                                {% else %}
-                                    <span class="text-secondary"><i class="bi bi-dash-circle" aria-hidden="true"></i><span class="visually-hidden">Non soumis</span></span>
-                                {% endif %}
-                            {% else %}
-                                <span class="text-secondary"><i class="bi bi-dash-circle" aria-hidden="true"></i><span class="visually-hidden">Connectez-vous pour suivre votre statut</span></span>
-                            {% endif %}
-                        </td>
-                        <td class="text-center">{{ problem.correct_submissions }} / {{ problem.total_submissions }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+<div class="problem-card-grid">
+    {% for problem in problems %}
+    <a href="{% url 'problems:problem_detail' problem.id %}" class="problem-card">
+        <div class="problem-card-topline">
+            <span class="problem-category-tag">{{ problem.get_category_display }}</span>
+            <span class="problem-difficulty" aria-label="Difficulté {{ problem.difficulty }} sur 5">{{ problem.difficulty|stars }}</span>
         </div>
-    </div>
+        <h2>{{ problem.title }}</h2>
+        {% if problem.author %}<p class="problem-card-author"><i class="bi bi-person" aria-hidden="true"></i> {{ problem.author.username }}</p>{% endif %}
+        <p class="problem-card-excerpt">{{ problem.statement|truncatewords:25 }}</p>
+        <div class="problem-card-footer">
+            <span class="problem-card-status">
+                {% if user.is_authenticated %}
+                    {% if problem.id in correct_problems %}
+                        <i class="bi bi-check-circle-fill text-success" aria-hidden="true"></i> Réussi
+                    {% elif problem.id in wrong_problems %}
+                        <i class="bi bi-arrow-repeat text-warning" aria-hidden="true"></i> À retenter
+                    {% elif problem.id in pending_problems %}
+                        <i class="bi bi-hourglass-split text-secondary" aria-hidden="true"></i> En attente
+                    {% else %}
+                        <i class="bi bi-circle text-secondary" aria-hidden="true"></i> À commencer
+                    {% endif %}
+                {% else %}
+                    <i class="bi bi-lightbulb text-secondary" aria-hidden="true"></i> À découvrir
+                {% endif %}
+            </span>
+            <span class="problem-card-submissions">{{ problem.correct_submissions }}/{{ problem.total_submissions }} validées</span>
+            <span class="problem-card-score">{{ problem.get_score }} pts <i class="bi bi-arrow-up-right" aria-hidden="true"></i></span>
+        </div>
+    </a>
+    {% endfor %}
 </div>
 {% else %}
 <div class="card border-0 shadow-sm problem-list-panel">

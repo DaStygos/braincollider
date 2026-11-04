@@ -32,6 +32,16 @@ class CoreViewsTests(TestCase):
 		response = self.client.get(reverse("core:home"))
 
 		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, "La physique commence par")
+		self.assertContains(response, 'class="home-visual"')
+
+	def test_home_page_links_to_each_problem_category(self):
+		response = self.client.get(reverse("core:home"))
+
+		self.assertEqual(len(response.context["problem_categories"]), 6)
+		self.assertContains(response, "?category=meca")
+		self.assertContains(response, "Mécanique")
+		self.assertContains(response, "Électromagnétisme")
 
 	def test_home_page_exposes_live_platform_metrics(self):
 		problem = Problem.objects.create(

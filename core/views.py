@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 from django.shortcuts import render
 
-from problems.models import Problem, Submission
+from problems.models import CATEGORY_CHOICES, Problem, Submission
 
 
 def home(request):
@@ -10,6 +10,7 @@ def home(request):
         Q(status="accepted") | Q(is_correct=True),
     )
     context = {
+        "problem_categories": CATEGORY_CHOICES,
         "home_metrics": {
             "problem_count": Problem.objects.count(),
             "accepted_submission_count": accepted_submissions.count(),

@@ -1,15 +1,15 @@
 // Modern contrast-rich palette with darker bars and softer page surfaces
-$body-bg: #f3f5f9;
-$body-color: #1f2937;
+$body-bg: #fbf7ef;
+$body-color: #3b352d;
 
-$primary: #4b5bdc;
-$secondary: #6b7280;
-$success: #12835b;
-$info: #1679ad;
-$warning: #9f6500;
-$danger: #c03939;
-$light: #f8fafc;
-$dark: #1b2430;
+$primary: #c56b4e;
+$secondary: #786f63;
+$success: #4e7c60;
+$info: #67867c;
+$warning: #b97b38;
+$danger: #b95f54;
+$light: #fffaf2;
+$dark: #343a32;
 $locked: #dfe4ea;
 
 $theme-colors: (
@@ -24,11 +24,11 @@ $theme-colors: (
   "locked": $locked
 );
 
-$border-color: rgba(148, 163, 184, 0.22);
-$card-border-color: rgba(148, 163, 184, 0.22);
-$input-border-color: #dfe7f3;
-$box-shadow-sm: 0 10px 24px rgba(15, 23, 42, 0.06);
-$box-shadow: 0 18px 42px rgba(15, 23, 42, 0.08);
+$border-color: #ece2d4;
+$card-border-color: #ece2d4;
+$input-border-color: #e5dbcf;
+$box-shadow-sm: 0 8px 20px rgba(72, 52, 34, 0.045);
+$box-shadow: 0 18px 44px rgba(72, 52, 34, 0.07);
 
 $font-family-sans-serif: "Inter", "Segoe UI", Arial, sans-serif;
 
