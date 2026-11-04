@@ -1,21 +1,22 @@
 from django.db import models
+from django.db.models import Case, IntegerField, Value, When
 from django.contrib.auth.models import User
 
 CATEGORY_CHOICES = [
-    ('meca', 'Mécanique'),
-    ('opt', 'Optique'),
-    ('ond', 'Ondes'),
-    ('thermo', 'Thermodynamique'),
-    ('elec', 'Électromagnétisme'),
-    ('autre', 'Autre'),
+    ("meca", "Mécanique"),
+    ("opt", "Optique"),
+    ("ond", "Ondes"),
+    ("thermo", "Thermodynamique"),
+    ("elec", "Électromagnétisme"),
+    ("autre", "Autre"),
 ]
 
 DIFFICULTY_CHOICES = [
-    (1, '★☆☆☆☆'),
-    (2, '★★☆☆☆'),
-    (3, '★★★☆☆'),
-    (4, '★★★★☆'),
-    (5, '★★★★★'),
+    (1, "★☆☆☆☆"),
+    (2, "★★☆☆☆"),
+    (3, "★★★☆☆"),
+    (4, "★★★★☆"),
+    (5, "★★★★★"),
 ]
 
 BAREME = {
@@ -26,11 +27,33 @@ BAREME = {
     5: 1000,
 }
 
+
+def submission_score_expression(prefix=""):
+    """Build the ORM expression used to score a correct submission."""
+    difficulty_lookup = f"{prefix}problem__difficulty"
+    return Case(
+        *[
+            When(**{difficulty_lookup: difficulty}, then=Value(points))
+            for difficulty, points in BAREME.items()
+        ],
+        default=Value(0),
+        output_field=IntegerField(),
+    )
+
+
 class Problem(models.Model):
     title = models.CharField(max_length=200)
     statement = models.TextField()
-    author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="authored_problems")
-    category = models.CharField(max_length=10, choices=CATEGORY_CHOICES, default='autre')
+    author = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="authored_problems",
+    )
+    category = models.CharField(
+        max_length=10, choices=CATEGORY_CHOICES, default="autre"
+    )
     solution = models.TextField()
     difficulty = models.PositiveSmallIntegerField(choices=DIFFICULTY_CHOICES, default=1)
     total_submissions = models.PositiveIntegerField(default=0)
@@ -69,7 +92,9 @@ class Submission(models.Model):
 
 
 class SubmissionComment(models.Model):
-    submission = models.ForeignKey(Submission, on_delete=models.CASCADE, related_name="comments")
+    submission = models.ForeignKey(
+        Submission, on_delete=models.CASCADE, related_name="comments"
+    )
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     text = models.TextField()
     is_reviewer = models.BooleanField(default=False)

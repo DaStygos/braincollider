@@ -23,11 +23,11 @@ from staff.config import (
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+STATIC_URL = "/static/"
+STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/dev/howto/deployment/checklist/
@@ -37,99 +37,101 @@ load_dotenv()  # take environment variables from .env.
 
 
 def env_bool(name, default=False):
-    return os.getenv(name, str(default)).strip().lower() in {'1', 'true', 'yes', 'on'}
+    return os.getenv(name, str(default)).strip().lower() in {"1", "true", "yes", "on"}
 
 
 def env_list(name, default):
     value = os.getenv(name)
     if value is None:
         return default
-    return [item.strip() for item in value.split(',') if item.strip()]
+    return [item.strip() for item in value.split(",") if item.strip()]
 
 
-DEBUG = env_bool('DEBUG')
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+DEBUG = env_bool("DEBUG")
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 if not SECRET_KEY:
     if DEBUG:
-        SECRET_KEY = 'local-development-only-change-me'
+        SECRET_KEY = "local-development-only-change-me"
     else:
-        raise RuntimeError('DJANGO_SECRET_KEY must be set when DEBUG is disabled.')
+        raise RuntimeError("DJANGO_SECRET_KEY must be set when DEBUG is disabled.")
 
-ALLOWED_HOSTS = env_list('ALLOWED_HOSTS', ['localhost', '127.0.0.1', '::1'])
+ALLOWED_HOSTS = env_list("ALLOWED_HOSTS", ["localhost", "127.0.0.1", "::1"])
 CSRF_TRUSTED_ORIGINS = env_list(
-    'CSRF_TRUSTED_ORIGINS',
-    ['http://localhost', 'http://127.0.0.1'],
+    "CSRF_TRUSTED_ORIGINS",
+    ["http://localhost", "http://127.0.0.1"],
 )
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SECURE_SSL_REDIRECT = env_bool('SECURE_SSL_REDIRECT', not DEBUG)
-SESSION_COOKIE_SECURE = env_bool('SESSION_COOKIE_SECURE', not DEBUG)
-CSRF_COOKIE_SECURE = env_bool('CSRF_COOKIE_SECURE', not DEBUG)
-SECURE_HSTS_SECONDS = int(os.getenv('SECURE_HSTS_SECONDS', '31536000' if not DEBUG else '0'))
-SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool('SECURE_HSTS_INCLUDE_SUBDOMAINS')
-SECURE_HSTS_PRELOAD = env_bool('SECURE_HSTS_PRELOAD')
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+SECURE_SSL_REDIRECT = env_bool("SECURE_SSL_REDIRECT", not DEBUG)
+SESSION_COOKIE_SECURE = env_bool("SESSION_COOKIE_SECURE", not DEBUG)
+CSRF_COOKIE_SECURE = env_bool("CSRF_COOKIE_SECURE", not DEBUG)
+SECURE_HSTS_SECONDS = int(
+    os.getenv("SECURE_HSTS_SECONDS", "31536000" if not DEBUG else "0")
+)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool("SECURE_HSTS_INCLUDE_SUBDOMAINS")
+SECURE_HSTS_PRELOAD = env_bool("SECURE_HSTS_PRELOAD")
 SECURE_CONTENT_TYPE_NOSNIFF = True
-SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 
 
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django.contrib.sitemaps',
-    'widget_tweaks',
-    'problems',
-    'accounts',
-    'core',
-    'leaderboard',
-    'notifications',
-    'staff',
-    'stats',
-    'groups',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "django.contrib.sitemaps",
+    "widget_tweaks",
+    "problems",
+    "accounts",
+    "core",
+    "leaderboard",
+    "notifications",
+    "staff",
+    "stats",
+    "groups",
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'core.middleware.ContentSecurityPolicyMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "core.middleware.ContentSecurityPolicyMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = 'braincollider.urls'
+ROOT_URLCONF = "braincollider.urls"
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-                'staff.context_processors.pending_submissions_count',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [BASE_DIR / "templates"],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+                "staff.context_processors.pending_submissions_count",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'braincollider.wsgi.application'
+WSGI_APPLICATION = "braincollider.wsgi.application"
 
 
 # Database
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
 
@@ -139,28 +141,28 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
-LOGIN_REDIRECT_URL = 'accounts:profile'
+LOGIN_REDIRECT_URL = "accounts:profile"
 
 
 # Internationalization
 # https://docs.djangoproject.com/en/dev/topics/i18n/
 
-LANGUAGE_CODE = 'fr-fr'
+LANGUAGE_CODE = "fr-fr"
 
-TIME_ZONE = 'CET'
+TIME_ZONE = "CET"
 
 USE_I18N = True
 
@@ -170,71 +172,71 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/dev/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = "static/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/dev/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Rate limits use Django's cache. Use a shared backend (such as Redis) when
 # running multiple application workers so every worker sees the same counters.
 CACHES = {
-    'default': {
-        'BACKEND': os.getenv(
-            'DJANGO_CACHE_BACKEND',
-            'django.core.cache.backends.locmem.LocMemCache',
+    "default": {
+        "BACKEND": os.getenv(
+            "DJANGO_CACHE_BACKEND",
+            "django.core.cache.backends.locmem.LocMemCache",
         ),
-        'LOCATION': os.getenv('DJANGO_CACHE_LOCATION', 'braincollider-rate-limits'),
+        "LOCATION": os.getenv("DJANGO_CACHE_LOCATION", "braincollider-rate-limits"),
     },
 }
 
 # Logging settings
 
-LOGS_DIR = BASE_DIR / 'logs'
+LOGS_DIR = BASE_DIR / "logs"
 LOGS_DIR.mkdir(exist_ok=True)  # Crée le dossier s'il n'existe pas
 
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
-            'style': '{',
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {process:d} {thread:d} {message}",
+            "style": "{",
         },
-        'simple': {
-            'format': '{levelname} {message}',
-            'style': '{',
-        },
-    },
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-            'formatter': 'simple',
-        },
-        'file': {
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': BASE_DIR / 'logs/django.log',
-            'maxBytes': 1024 * 1024 * 5,  # 5 MB
-            'backupCount': 5,
-            'formatter': 'verbose',
+        "simple": {
+            "format": "{levelname} {message}",
+            "style": "{",
         },
     },
-    'loggers': {
-        'django': {
-            'handlers': ['console', 'file'],
-            'level': 'INFO',
-            'propagate': True,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
         },
-        'django.request': {
-            'handlers': ['file'],
-            'level': 'WARNING',  # Loggue les 4xx et 5xx
-            'propagate': False,
+        "file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": BASE_DIR / "logs/django.log",
+            "maxBytes": 1024 * 1024 * 5,  # 5 MB
+            "backupCount": 5,
+            "formatter": "verbose",
         },
-        'braincollider': {  # Ton app
-            'handlers': ['console', 'file'],
-            'level': 'DEBUG',
-            'propagate': False,
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console", "file"],
+            "level": "INFO",
+            "propagate": True,
+        },
+        "django.request": {
+            "handlers": ["file"],
+            "level": "WARNING",  # Loggue les 4xx et 5xx
+            "propagate": False,
+        },
+        "braincollider": {  # Ton app
+            "handlers": ["console", "file"],
+            "level": "DEBUG",
+            "propagate": False,
         },
     },
 }

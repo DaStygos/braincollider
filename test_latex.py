@@ -30,7 +30,7 @@ $$x = \\\frac{5 \\\pm \\\sqrt{25 - 24}}{2} = \\\frac{5 \\\pm 1}{2}$$
 
 So $x_1 = 3$ and $x_2 = 2$.
         """.strip(),
-        category='autre',
+        category="autre",
         solution="The solutions are x₁ = 3 and x₂ = 2, as shown by the quadratic formula: $x = \\\frac{5 \\\pm 1}{2}$",
         difficulty=2,
     )
@@ -38,11 +38,15 @@ So $x_1 = 3$ and $x_2 = 2$.
     print(f"✓ Created test problem: {test_problem.title}")
     print(f"  Problem ID: {test_problem.id}")
     print(f"  URL: /problems/{test_problem.id}/")
-    print("\nVisit http://localhost:8000/problems/{0}/ to see LaTeX rendering".format(test_problem.id))
+    print(
+        "\nVisit http://localhost:8000/problems/{0}/ to see LaTeX rendering".format(
+            test_problem.id
+        )
+    )
     print("\nThe problem statement contains:")
     print("  - Inline math: $a$, $b$, $c$, $x$")
     print("  - Display math: quadratic equation and quadratic formula")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     create_demo_problem()

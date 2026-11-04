@@ -11,14 +11,20 @@ from . import views
 app_name = "accounts"
 
 
-@method_decorator(rate_limit("login", limit=30, period=15 * 60, methods={"POST"}), name="dispatch")
+@method_decorator(
+    rate_limit("login", limit=30, period=15 * 60, methods={"POST"}), name="dispatch"
+)
 class RateLimitedLoginView(LoginView):
     template_name = "accounts/login.html"
 
 
-@method_decorator(rate_limit("password-reset", limit=5, period=60 * 60, methods={"POST"}), name="dispatch")
+@method_decorator(
+    rate_limit("password-reset", limit=5, period=60 * 60, methods={"POST"}),
+    name="dispatch",
+)
 class RateLimitedPasswordResetView(auth_views.PasswordResetView):
     template_name = "accounts/password_reset.html"
+
 
 urlpatterns = [
     path("signup/", views.signup, name="signup"),
@@ -39,7 +45,9 @@ urlpatterns = [
     ),
     path(
         "password/change/done/",
-        auth_views.PasswordChangeDoneView.as_view(template_name="accounts/password_change_done.html"),
+        auth_views.PasswordChangeDoneView.as_view(
+            template_name="accounts/password_change_done.html"
+        ),
         name="password_change_done",
     ),
     path(
@@ -48,5 +56,9 @@ urlpatterns = [
         name="password_reset",
     ),
     path("login/", RateLimitedLoginView.as_view(), name="login"),
-    path("logout/", auth_views.LogoutView.as_view(template_name="accounts/logged_out.html"), name="logout"),
+    path(
+        "logout/",
+        auth_views.LogoutView.as_view(template_name="accounts/logged_out.html"),
+        name="logout",
+    ),
 ]

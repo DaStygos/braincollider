@@ -16,8 +16,12 @@ class StatsViewsTests(TestCase):
             category="meca",
             difficulty=3,
         )
-        Submission.objects.create(user=self.alice, problem=self.problem, answer="ok", is_correct=True)
-        Submission.objects.create(user=self.bob, problem=self.problem, answer="review", is_correct=False)
+        Submission.objects.create(
+            user=self.alice, problem=self.problem, answer="ok", is_correct=True
+        )
+        Submission.objects.create(
+            user=self.bob, problem=self.problem, answer="review", is_correct=False
+        )
 
     def test_dashboard_is_accessible_and_exposes_key_metrics(self):
         response = self.client.get(reverse("stats:dashboard"))
@@ -28,7 +32,10 @@ class StatsViewsTests(TestCase):
         self.assertEqual(response.context["total_submissions"], 2)
         self.assertEqual(response.context["correct_submissions"], 1)
         self.assertEqual(response.context["pending_submissions"], 0)
-        self.assertEqual(len(response.context["activity_labels"]), len(response.context["activity_points"]))
+        self.assertEqual(
+            len(response.context["activity_labels"]),
+            len(response.context["activity_points"]),
+        )
 
     def test_dashboard_counts_comments_with_a_single_total(self):
         from problems.models import SubmissionComment

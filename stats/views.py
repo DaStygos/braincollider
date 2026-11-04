@@ -1,31 +1,27 @@
 from datetime import timedelta
 
 from django.contrib.auth.models import User
-from django.db.models import Case, Count, IntegerField, Q, Sum, Value, When
+from django.db.models import Count, Q, Sum
 from django.db.models.functions import Coalesce, TruncDate
 from django.shortcuts import render
 from django.utils import timezone
 
 from core.rate_limits import rate_limit
-from problems.models import CATEGORY_CHOICES, Problem, Submission, SubmissionComment
-
-
-def _submission_score_case(prefix=""):
-    lookup = f"{prefix}problem__difficulty"
-    return Case(
-        When(**{lookup: 1}, then=Value(100)),
-        When(**{lookup: 2}, then=Value(300)),
-        When(**{lookup: 3}, then=Value(500)),
-        When(**{lookup: 4}, then=Value(750)),
-        When(**{lookup: 5}, then=Value(1000)),
-        default=Value(0),
-        output_field=IntegerField(),
-    )
+from problems.models import (
+    CATEGORY_CHOICES,
+    Problem,
+    Submission,
+    SubmissionComment,
+    submission_score_expression,
+)
 
 
 def _daily_series(start_date, days, rows, value_key):
     values_by_day = {row["day"]: row[value_key] for row in rows}
-    return [values_by_day.get(start_date + timedelta(days=offset), 0) for offset in range(days)]
+    return [
+        values_by_day.get(start_date + timedelta(days=offset), 0)
+        for offset in range(days)
+    ]
 
 
 @rate_limit("stats", limit=30, period=60)
@@ -52,17 +48,21 @@ def dashboard(request):
     ).count()
 
     total_points = Submission.objects.filter(accepted_filter).aggregate(
-        total=Coalesce(Sum(_submission_score_case()), 0)
+        total=Coalesce(Sum(submission_score_expression()), 0)
     )["total"]
 
     top_problems = list(
         Problem.objects.annotate(
-            solved_count=Count("submission", filter=Q(submission__status="accepted") | Q(submission__is_correct=True)),
+            solved_count=Count(
+                "submission",
+                filter=Q(submission__status="accepted")
+                | Q(submission__is_correct=True),
+            ),
         )
         .filter(solved_count__gt=0)
         .order_by("-solved_count", "title")[:5]
     )
-    
+
     comments = SubmissionComment.objects.count()
 
     for problem in top_problems:
@@ -72,11 +72,13 @@ def dashboard(request):
         Submission.objects.filter(accepted_filter, submitted_at__date__gte=start_date)
         .annotate(day=TruncDate("submitted_at"))
         .values("day")
-        .annotate(points=Sum(_submission_score_case()), count=Count("id"))
+        .annotate(points=Sum(submission_score_expression()), count=Count("id"))
         .order_by("day")
     )
     corrections_rows = list(
-        Submission.objects.filter(status__in=["accepted", "rejected"], submitted_at__date__gte=start_date)
+        Submission.objects.filter(
+            status__in=["accepted", "rejected"], submitted_at__date__gte=start_date
+        )
         .annotate(day=TruncDate("submitted_at"))
         .values("day")
         .annotate(count=Count("id"))
@@ -86,7 +88,7 @@ def dashboard(request):
     category_rows = list(
         Submission.objects.filter(accepted_filter)
         .values("problem__category")
-        .annotate(count=Count("id"), points=Sum(_submission_score_case()))
+        .annotate(count=Count("id"), points=Sum(submission_score_expression()))
         .order_by("-points", "problem__category")
     )
 
@@ -96,29 +98,41 @@ def dashboard(request):
     activity_points = _daily_series(start_date, days, points_rows, "points")
     activity_corrections = _daily_series(start_date, days, corrections_rows, "count")
 
-    return render(request, "stats/dashboard.html", {
-        "total_users": total_users,
-        "active_users": active_users,
-        "new_users_30d": new_users_30d,
-        "total_problems": total_problems,
-        "total_submissions": total_submissions,
-        "correct_submissions": correct_submissions,
-        "pending_submissions": pending_submissions,
-        "reviewed_submissions": reviewed_submissions,
-        "total_points": total_points,
-        "success_rate": round((correct_submissions / reviewed_submissions) * 100, 1) if reviewed_submissions else 0,
-        "average_points_per_user": round(total_points / active_users, 1) if active_users else 0,
-        "activity_labels": activity_labels,
-        "activity_points": activity_points,
-        "activity_corrections": activity_corrections,
-        "top_problems": top_problems,
-        "category_rows": [
-            {
-                "label": category_labels.get(row["problem__category"], row["problem__category"]),
-                "count": row["count"],
-                "points": row["points"],
-            }
-            for row in category_rows
-        ],
-        "comments": comments,
-    })
+    return render(
+        request,
+        "stats/dashboard.html",
+        {
+            "total_users": total_users,
+            "active_users": active_users,
+            "new_users_30d": new_users_30d,
+            "total_problems": total_problems,
+            "total_submissions": total_submissions,
+            "correct_submissions": correct_submissions,
+            "pending_submissions": pending_submissions,
+            "reviewed_submissions": reviewed_submissions,
+            "total_points": total_points,
+            "success_rate": (
+                round((correct_submissions / reviewed_submissions) * 100, 1)
+                if reviewed_submissions
+                else 0
+            ),
+            "average_points_per_user": (
+                round(total_points / active_users, 1) if active_users else 0
+            ),
+            "activity_labels": activity_labels,
+            "activity_points": activity_points,
+            "activity_corrections": activity_corrections,
+            "top_problems": top_problems,
+            "category_rows": [
+                {
+                    "label": category_labels.get(
+                        row["problem__category"], row["problem__category"]
+                    ),
+                    "count": row["count"],
+                    "points": row["points"],
+                }
+                for row in category_rows
+            ],
+            "comments": comments,
+        },
+    )

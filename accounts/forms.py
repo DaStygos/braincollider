@@ -5,7 +5,6 @@ from django.core.exceptions import ValidationError
 from PIL import Image
 from .models import Profile
 
-
 FORM_CONTROL_CLASS = {"class": "form-control"}
 
 
@@ -13,6 +12,7 @@ def form_control_attrs(**extra_attrs):
     attrs = FORM_CONTROL_CLASS.copy()
     attrs.update(extra_attrs)
     return attrs
+
 
 class SignUpForm(UserCreationForm):
     accepted_terms = forms.BooleanField(
@@ -47,24 +47,40 @@ class SignUpForm(UserCreationForm):
         if commit:
             profile = user.profile
             profile.accepted_terms = self.cleaned_data["accepted_terms"]
-            profile.allow_leaderboard_display = self.cleaned_data["allow_leaderboard_display"]
+            profile.allow_leaderboard_display = self.cleaned_data[
+                "allow_leaderboard_display"
+            ]
             profile.age_confirmation = self.cleaned_data["age_confirmation"]
-            profile.save(update_fields=["accepted_terms", "allow_leaderboard_display", "age_confirmation"])
+            profile.save(
+                update_fields=[
+                    "accepted_terms",
+                    "allow_leaderboard_display",
+                    "age_confirmation",
+                ]
+            )
         return user
+
 
 class PasswordChangeFormCustom(PasswordChangeForm):
     old_password = forms.CharField(
         label="Ancien mot de passe",
-        widget=forms.PasswordInput(attrs=form_control_attrs(placeholder='Ancien mot de passe')),
+        widget=forms.PasswordInput(
+            attrs=form_control_attrs(placeholder="Ancien mot de passe")
+        ),
     )
     new_password1 = forms.CharField(
         label="Nouveau mot de passe",
-        widget=forms.PasswordInput(attrs=form_control_attrs(placeholder='Nouveau mot de passe')),
+        widget=forms.PasswordInput(
+            attrs=form_control_attrs(placeholder="Nouveau mot de passe")
+        ),
     )
     new_password2 = forms.CharField(
         label="Confirmer le nouveau mot de passe",
-        widget=forms.PasswordInput(attrs=form_control_attrs(placeholder='Confirmer le nouveau mot de passe')),
+        widget=forms.PasswordInput(
+            attrs=form_control_attrs(placeholder="Confirmer le nouveau mot de passe")
+        ),
     )
+
 
 class ProfileUpdateForm(forms.ModelForm):
     MAX_AVATAR_SIZE = 2 * 1024 * 1024
@@ -78,18 +94,22 @@ class ProfileUpdateForm(forms.ModelForm):
 
     class Meta:
         model = Profile
-        fields = ['avatar', 'allow_leaderboard_display']
+        fields = ["avatar", "allow_leaderboard_display"]
 
         widgets = {
-            'avatar': forms.ClearableFileInput(attrs={
-                **FORM_CONTROL_CLASS,
-            }),
-            'allow_leaderboard_display': forms.CheckboxInput(),
+            "avatar": forms.ClearableFileInput(
+                attrs={
+                    **FORM_CONTROL_CLASS,
+                }
+            ),
+            "allow_leaderboard_display": forms.CheckboxInput(),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["allow_leaderboard_display"].initial = self.instance.allow_leaderboard_display
+        self.fields["allow_leaderboard_display"].initial = (
+            self.instance.allow_leaderboard_display
+        )
 
     def clean_avatar(self):
         avatar = self.cleaned_data.get("avatar")
@@ -101,18 +121,25 @@ class ProfileUpdateForm(forms.ModelForm):
             width, height = image.size
         avatar.seek(0)
         if width > self.MAX_AVATAR_DIMENSION or height > self.MAX_AVATAR_DIMENSION:
-            raise ValidationError("Les dimensions de l'image ne doivent pas dépasser 4096 x 4096 pixels.")
+            raise ValidationError(
+                "Les dimensions de l'image ne doivent pas dépasser 4096 x 4096 pixels."
+            )
         return avatar
 
 
 class UserUpdateForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['username', 'email']
+        fields = ["username", "email"]
         widgets = {
-            'username': forms.TextInput(attrs=form_control_attrs(placeholder="Nom d'utilisateur")),
-            'email': forms.EmailInput(attrs=form_control_attrs(placeholder='Adresse email')),
+            "username": forms.TextInput(
+                attrs=form_control_attrs(placeholder="Nom d'utilisateur")
+            ),
+            "email": forms.EmailInput(
+                attrs=form_control_attrs(placeholder="Adresse email")
+            ),
         }
+
 
 class AccountDeletionForm(forms.Form):
     confirm_deletion = forms.BooleanField(

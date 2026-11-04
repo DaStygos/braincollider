@@ -12,7 +12,6 @@ from problems.models import Submission, Problem
 from dateutil import parser
 from core.rate_limits import rate_limit
 
-
 User = get_user_model()
 
 
@@ -32,7 +31,11 @@ def _generic_search(queryset, query, filters, limit=8, order_by="id"):
 
 
 def _build_profile_context(user, record_score=False):
-    submissions = Submission.objects.filter(user=user).select_related("problem").order_by("-submitted_at")[:20]
+    submissions = (
+        Submission.objects.filter(user=user)
+        .select_related("problem")
+        .order_by("-submitted_at")[:20]
+    )
     user_submissions = Submission.objects.filter(user=user)
     total_submissions = user_submissions.count()
     correct_submissions = user_submissions.filter(is_correct=True).count()
@@ -42,7 +45,9 @@ def _build_profile_context(user, record_score=False):
         else user.profile.get_total_score()
     )
     score_history = user.profile.previous_scores
-    chart_labels = [parser.parse(entry[1]).strftime("%Y-%m-%d") for entry in score_history]
+    chart_labels = [
+        parser.parse(entry[1]).strftime("%Y-%m-%d") for entry in score_history
+    ]
     chart_data = [entry[0] for entry in score_history]
 
     return {
@@ -50,7 +55,11 @@ def _build_profile_context(user, record_score=False):
         "submissions": submissions,
         "total_submissions": total_submissions,
         "correct_submissions": correct_submissions,
-        "success_rate": round((correct_submissions / total_submissions) * 100, 1) if total_submissions > 0 else 0,
+        "success_rate": (
+            round((correct_submissions / total_submissions) * 100, 1)
+            if total_submissions > 0
+            else 0
+        ),
         "total_score": total_score,
         "chart_labels": json.dumps(chart_labels, cls=DjangoJSONEncoder),
         "chart_data": json.dumps(chart_data, cls=DjangoJSONEncoder),
@@ -61,7 +70,11 @@ def _search_users(query, limit=8):
     return _generic_search(
         queryset=User.objects,
         query=query,
-        filters=["username__icontains", "first_name__icontains", "last_name__icontains"],
+        filters=[
+            "username__icontains",
+            "first_name__icontains",
+            "last_name__icontains",
+        ],
         limit=limit,
         order_by="username",
     )
@@ -76,6 +89,7 @@ def _search_problems(query, limit=8):
         order_by="title",
     )
 
+
 @rate_limit("signup", limit=5, period=60 * 60, methods={"POST"})
 def signup(request):
     if request.method == "POST":
@@ -87,6 +101,7 @@ def signup(request):
     else:
         form = SignUpForm()
     return render(request, "accounts/signup.html", {"form": form})
+
 
 @login_required
 def profile(request):
@@ -111,36 +126,44 @@ def user_search(request):
     if len(users) == 1 and users[0].username.lower() == query.lower():
         return redirect("accounts:public_profile", username=users[0].username)
 
-    exact_problem = next((problem for problem in problems if problem.title.lower() == query.lower()), None)
+    exact_problem = next(
+        (problem for problem in problems if problem.title.lower() == query.lower()),
+        None,
+    )
     if exact_problem:
         return redirect("problems:problem_detail", pk=exact_problem.pk)
 
-    return render(request, "accounts/user_search.html", {
-        "query": query,
-        "users": users,
-        "problems": problems,
-    })
-
-
+    return render(
+        request,
+        "accounts/user_search.html",
+        {
+            "query": query,
+            "users": users,
+            "problems": problems,
+        },
+    )
 
 
 @login_required
 def edit_profile(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         user_form = UserUpdateForm(request.POST, instance=request.user)
-        profile_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
+        profile_form = ProfileUpdateForm(
+            request.POST, request.FILES, instance=request.user.profile
+        )
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
             profile_form.save()
-            return redirect('accounts:profile') 
+            return redirect("accounts:profile")
     else:
         user_form = UserUpdateForm(instance=request.user)
         profile_form = ProfileUpdateForm(instance=request.user.profile)
 
-    return render(request, 'accounts/edit_profile.html', {
-        'user_form': user_form,
-        'profile_form': profile_form
-    })
+    return render(
+        request,
+        "accounts/edit_profile.html",
+        {"user_form": user_form, "profile_form": profile_form},
+    )
 
 
 @rate_limit("user-suggestions", limit=60, period=60)
@@ -171,6 +194,7 @@ def matching_users(request):
         ]
 
     return JsonResponse({"results": results})
+
 
 @login_required
 def delete_account(request):

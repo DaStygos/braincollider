@@ -10,6 +10,7 @@ from django.http import HttpResponse
 
 def rate_limit(name, limit, period, methods=None):
     """Limit requests per client IP; use a shared cache in multi-worker deploys."""
+
     def decorator(view):
         @wraps(view)
         def wrapped(request, *args, **kwargs):
@@ -30,10 +31,13 @@ def rate_limit(name, limit, period, methods=None):
                 count = 1
 
             if count > limit:
-                response = HttpResponse("Too many requests. Please try again later.", status=429)
+                response = HttpResponse(
+                    "Too many requests. Please try again later.", status=429
+                )
                 response["Retry-After"] = str(period - (int(time()) % period))
                 return response
             return view(request, *args, **kwargs)
 
         return wrapped
+
     return decorator

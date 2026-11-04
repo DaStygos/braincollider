@@ -9,161 +9,176 @@ from problems.models import Problem, Submission
 
 
 class AccountsViewsTests(TestCase):
-	def test_edit_profile_rejects_oversized_avatar(self):
-		user = User.objects.create_user(username="player", password="password123")
-		self.client.force_login(user)
-		oversized_avatar = BytesIO()
-		Image.effect_noise((3000, 3000), 100).save(oversized_avatar, format="JPEG", quality=100)
-		oversized_avatar = SimpleUploadedFile(
-			"avatar.jpg", oversized_avatar.getvalue(), content_type="image/jpeg"
-		)
+    def test_edit_profile_rejects_oversized_avatar(self):
+        user = User.objects.create_user(username="player", password="password123")
+        self.client.force_login(user)
+        oversized_avatar = BytesIO()
+        Image.effect_noise((3000, 3000), 100).save(
+            oversized_avatar, format="JPEG", quality=100
+        )
+        oversized_avatar = SimpleUploadedFile(
+            "avatar.jpg", oversized_avatar.getvalue(), content_type="image/jpeg"
+        )
 
-		response = self.client.post(
-			reverse("accounts:edit_profile"),
-			{"username": "player", "email": "", "avatar": oversized_avatar},
-		)
+        response = self.client.post(
+            reverse("accounts:edit_profile"),
+            {"username": "player", "email": "", "avatar": oversized_avatar},
+        )
 
-		self.assertEqual(response.status_code, 200)
-		self.assertContains(response, "ne doit pas dépasser 2 Mo")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "ne doit pas dépasser 2 Mo")
 
-	def test_edit_profile_rejects_oversized_avatar_dimensions(self):
-		user = User.objects.create_user(username="player", password="password123")
-		self.client.force_login(user)
-		large_image = BytesIO()
-		Image.new("RGB", (4097, 1)).save(large_image, format="JPEG")
-		large_image = SimpleUploadedFile(
-			"avatar.jpg", large_image.getvalue(), content_type="image/jpeg"
-		)
+    def test_edit_profile_rejects_oversized_avatar_dimensions(self):
+        user = User.objects.create_user(username="player", password="password123")
+        self.client.force_login(user)
+        large_image = BytesIO()
+        Image.new("RGB", (4097, 1)).save(large_image, format="JPEG")
+        large_image = SimpleUploadedFile(
+            "avatar.jpg", large_image.getvalue(), content_type="image/jpeg"
+        )
 
-		response = self.client.post(
-			reverse("accounts:edit_profile"),
-			{"username": "player", "email": "", "avatar": large_image},
-		)
+        response = self.client.post(
+            reverse("accounts:edit_profile"),
+            {"username": "player", "email": "", "avatar": large_image},
+        )
 
-		self.assertEqual(response.status_code, 200)
-		self.assertContains(response, "4096 x 4096")
-	def test_signup_creates_user_and_profile(self):
-		response = self.client.post(
-			reverse("accounts:signup"),
-			{
-				"username": "newuser",
-				"password1": "Testpass123!",
-				"password2": "Testpass123!",
-				"accepted_terms": "on",
-				"allow_leaderboard_display": "on",
-				"age_confirmation": "on",
-			},
-		)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "4096 x 4096")
 
-		self.assertRedirects(response, reverse("accounts:profile"))
-		self.assertTrue(User.objects.filter(username="newuser").exists())
-		user = User.objects.get(username="newuser")
-		self.assertTrue(hasattr(user, "profile"))
-		self.assertTrue(user.profile.accepted_terms)
-		self.assertTrue(user.profile.allow_leaderboard_display)
-		self.assertTrue(user.profile.age_confirmation)
+    def test_signup_creates_user_and_profile(self):
+        response = self.client.post(
+            reverse("accounts:signup"),
+            {
+                "username": "newuser",
+                "password1": "Testpass123!",
+                "password2": "Testpass123!",
+                "accepted_terms": "on",
+                "allow_leaderboard_display": "on",
+                "age_confirmation": "on",
+            },
+        )
 
-	def test_signup_requires_consents(self):
-		response = self.client.post(
-			reverse("accounts:signup"),
-			{
-				"username": "newuser",
-				"password1": "Testpass123!",
-				"password2": "Testpass123!",
-			},
-		)
+        self.assertRedirects(response, reverse("accounts:profile"))
+        self.assertTrue(User.objects.filter(username="newuser").exists())
+        user = User.objects.get(username="newuser")
+        self.assertTrue(hasattr(user, "profile"))
+        self.assertTrue(user.profile.accepted_terms)
+        self.assertTrue(user.profile.allow_leaderboard_display)
+        self.assertTrue(user.profile.age_confirmation)
 
-		self.assertEqual(response.status_code, 200)
-		self.assertContains(response, "Ce champ est obligatoire.")
+    def test_signup_requires_consents(self):
+        response = self.client.post(
+            reverse("accounts:signup"),
+            {
+                "username": "newuser",
+                "password1": "Testpass123!",
+                "password2": "Testpass123!",
+            },
+        )
 
-	def test_profile_requires_login(self):
-		response = self.client.get(reverse("accounts:profile"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Ce champ est obligatoire.")
 
-		self.assertEqual(response.status_code, 302)
-		self.assertIn(reverse("accounts:login"), response.url)
+    def test_profile_requires_login(self):
+        response = self.client.get(reverse("accounts:profile"))
 
-	def test_profile_shows_score_and_updates_history(self):
-		user = User.objects.create_user(username="player", password="password123")
-		problem = Problem.objects.create(
-			title="Physics problem",
-			statement="Statement",
-			solution="Solution",
-			category="autre",
-			difficulty=3,
-		)
-		Submission.objects.create(user=user, problem=problem, answer="done", is_correct=True)
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(reverse("accounts:login"), response.url)
 
-		self.client.force_login(user)
-		response = self.client.get(reverse("accounts:profile"))
+    def test_profile_shows_score_and_updates_history(self):
+        user = User.objects.create_user(username="player", password="password123")
+        problem = Problem.objects.create(
+            title="Physics problem",
+            statement="Statement",
+            solution="Solution",
+            category="autre",
+            difficulty=3,
+        )
+        Submission.objects.create(
+            user=user, problem=problem, answer="done", is_correct=True
+        )
 
-		self.assertEqual(response.status_code, 200)
-		self.assertEqual(response.context["total_score"], problem.get_score())
-		user.refresh_from_db()
-		self.assertEqual(len(user.profile.previous_scores), 1)
+        self.client.force_login(user)
+        response = self.client.get(reverse("accounts:profile"))
 
-	def test_score_calculation_does_not_write_history_by_itself(self):
-		user = User.objects.create_user(username="player", password="password123")
-		problem = Problem.objects.create(
-			title="Physics problem",
-			statement="Statement",
-			solution="Solution",
-			difficulty=3,
-		)
-		Submission.objects.create(user=user, problem=problem, answer="done", is_correct=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["total_score"], problem.get_score())
+        user.refresh_from_db()
+        self.assertEqual(len(user.profile.previous_scores), 1)
 
-		self.assertEqual(user.profile.get_total_score(), problem.get_score())
-		user.profile.refresh_from_db()
-		self.assertEqual(user.profile.previous_scores, [])
+    def test_score_calculation_does_not_write_history_by_itself(self):
+        user = User.objects.create_user(username="player", password="password123")
+        problem = Problem.objects.create(
+            title="Physics problem",
+            statement="Statement",
+            solution="Solution",
+            difficulty=3,
+        )
+        Submission.objects.create(
+            user=user, problem=problem, answer="done", is_correct=True
+        )
 
-	def test_public_profile_redirects_to_private_profile_for_current_user(self):
-		user = User.objects.create_user(username="player", password="password123")
-		self.client.force_login(user)
+        self.assertEqual(user.profile.get_total_score(), problem.get_score())
+        user.profile.refresh_from_db()
+        self.assertEqual(user.profile.previous_scores, [])
 
-		response = self.client.get(reverse("accounts:public_profile", args=[user.username]))
+    def test_public_profile_redirects_to_private_profile_for_current_user(self):
+        user = User.objects.create_user(username="player", password="password123")
+        self.client.force_login(user)
 
-		self.assertRedirects(response, reverse("accounts:profile"))
+        response = self.client.get(
+            reverse("accounts:public_profile", args=[user.username])
+        )
 
-	def test_public_profile_shows_other_users_profile(self):
-		viewer = User.objects.create_user(username="viewer", password="password123")
-		profile_user = User.objects.create_user(username="player", password="password123")
-		self.client.force_login(viewer)
+        self.assertRedirects(response, reverse("accounts:profile"))
 
-		response = self.client.get(reverse("accounts:public_profile", args=[profile_user.username]))
+    def test_public_profile_shows_other_users_profile(self):
+        viewer = User.objects.create_user(username="viewer", password="password123")
+        profile_user = User.objects.create_user(
+            username="player", password="password123"
+        )
+        self.client.force_login(viewer)
 
-		self.assertEqual(response.status_code, 200)
-		self.assertTemplateUsed(response, "accounts/public_profile.html")
-		self.assertEqual(response.context["profile_user"], profile_user)
+        response = self.client.get(
+            reverse("accounts:public_profile", args=[profile_user.username])
+        )
 
-	def test_edit_profile_updates_user_fields(self):
-		user = User.objects.create_user(username="player", password="password123", email="old@example.com")
-		self.client.force_login(user)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "accounts/public_profile.html")
+        self.assertEqual(response.context["profile_user"], profile_user)
 
-		response = self.client.post(
-			reverse("accounts:edit_profile"),
-			{
-				"username": "updated",
-				"email": "updated@example.com",
-			},
-		)
+    def test_edit_profile_updates_user_fields(self):
+        user = User.objects.create_user(
+            username="player", password="password123", email="old@example.com"
+        )
+        self.client.force_login(user)
 
-		self.assertRedirects(response, reverse("accounts:profile"))
-		user.refresh_from_db()
-		self.assertEqual(user.username, "updated")
-		self.assertEqual(user.email, "updated@example.com")
+        response = self.client.post(
+            reverse("accounts:edit_profile"),
+            {
+                "username": "updated",
+                "email": "updated@example.com",
+            },
+        )
 
-	def test_edit_profile_updates_leaderboard_visibility(self):
-		user = User.objects.create_user(username="player", password="password123")
-		self.client.force_login(user)
+        self.assertRedirects(response, reverse("accounts:profile"))
+        user.refresh_from_db()
+        self.assertEqual(user.username, "updated")
+        self.assertEqual(user.email, "updated@example.com")
 
-		response = self.client.post(
-			reverse("accounts:edit_profile"),
-			{
-				"username": "player",
-				"email": "",
-				"allow_leaderboard_display": "on",
-			},
-		)
+    def test_edit_profile_updates_leaderboard_visibility(self):
+        user = User.objects.create_user(username="player", password="password123")
+        self.client.force_login(user)
 
-		self.assertRedirects(response, reverse("accounts:profile"))
-		user.refresh_from_db()
-		self.assertTrue(user.profile.allow_leaderboard_display)
+        response = self.client.post(
+            reverse("accounts:edit_profile"),
+            {
+                "username": "player",
+                "email": "",
+                "allow_leaderboard_display": "on",
+            },
+        )
+
+        self.assertRedirects(response, reverse("accounts:profile"))
+        user.refresh_from_db()
+        self.assertTrue(user.profile.allow_leaderboard_display)

@@ -2,7 +2,7 @@
 PROBLEM_SUGGESTION_AUTHOR_NAMES = [
     "QCM du sujet de préselection française - Sciences à l'Ecole",
     "Problème du sujet de préselection française - Sciences à l'Ecole",
-    "Problème du sujet officiel des IPhO"
+    "Problème du sujet officiel des IPhO",
 ]
 PROBLEM_SUGGESTION_AUTHOR_YEARS = list(range(2015, 2027))
 PROBLEM_SUGGESTION_AUTHOR_USERNAMES = [

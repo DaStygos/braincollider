@@ -1,10 +1,28 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import CATEGORY_CHOICES, DIFFICULTY_CHOICES, Problem, Submission, SubmissionComment
+from .models import (
+    CATEGORY_CHOICES,
+    DIFFICULTY_CHOICES,
+    Problem,
+    Submission,
+    SubmissionComment,
+)
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
-from notifications.utils import create_notification
 from core.rate_limits import rate_limit
+
+
+def _create_pending_submission(user, problem, answer):
+    submission = Submission.objects.create(
+        user=user,
+        problem=problem,
+        answer=answer,
+        is_correct=None,
+        status="pending",
+    )
+    problem.total_submissions += 1
+    problem.save()
+    return submission
 
 
 def _get_submission_status_sets(user):
@@ -12,19 +30,35 @@ def _get_submission_status_sets(user):
         return set(), set(), set()
 
     latest_submissions = {}
-    user_submissions = Submission.objects.filter(user=user).order_by("problem_id", "-submitted_at", "-id")
+    user_submissions = Submission.objects.filter(user=user).order_by(
+        "problem_id", "-submitted_at", "-id"
+    )
     for submission in user_submissions:
         latest_submissions.setdefault(submission.problem_id, submission.is_correct)
 
-    correct_problems = {problem_id for problem_id, is_correct in latest_submissions.items() if is_correct is True}
-    wrong_problems = {problem_id for problem_id, is_correct in latest_submissions.items() if is_correct is False}
-    pending_problems = {problem_id for problem_id, is_correct in latest_submissions.items() if is_correct is None}
+    correct_problems = {
+        problem_id
+        for problem_id, is_correct in latest_submissions.items()
+        if is_correct is True
+    }
+    wrong_problems = {
+        problem_id
+        for problem_id, is_correct in latest_submissions.items()
+        if is_correct is False
+    }
+    pending_problems = {
+        problem_id
+        for problem_id, is_correct in latest_submissions.items()
+        if is_correct is None
+    }
     return correct_problems, wrong_problems, pending_problems
 
 
 def index(request):
     problems = Problem.objects.all()
-    correct_problems, wrong_problems, pending_problems = _get_submission_status_sets(request.user)
+    correct_problems, wrong_problems, pending_problems = _get_submission_status_sets(
+        request.user
+    )
 
     search = request.GET.get("q", "").strip()
     category = request.GET.get("category", "")
@@ -63,7 +97,9 @@ def index(request):
         "difficulty_choices": DIFFICULTY_CHOICES,
         "author_choices": User.objects.filter(
             authored_problems__isnull=False,
-        ).distinct().order_by("username"),
+        )
+        .distinct()
+        .order_by("username"),
         "selected_search": search,
         "selected_category": category,
         "selected_difficulty": difficulty,
@@ -81,7 +117,11 @@ def index(request):
 def problem_detail(request, pk):
     problem = get_object_or_404(Problem, pk=pk)
     # Récupère la soumission la plus récente de l'utilisateur pour ce problème.
-    submission = Submission.objects.filter(user=request.user, problem=problem).order_by("-submitted_at").first()
+    submission = (
+        Submission.objects.filter(user=request.user, problem=problem)
+        .order_by("-submitted_at")
+        .first()
+    )
 
     if request.method == "POST":
         # Soumission validée : l'utilisateur ne peut plus rien soumettre depuis cette vue.
@@ -101,33 +141,19 @@ def problem_detail(request, pk):
                 submission.status = "pending"
                 submission.save()
             else:
-                submission = Submission.objects.create(
-                    user=request.user,
-                    problem=problem,
-                    answer=answer,
-                    is_correct=None,
-                    status="pending",
-                )
-                problem.total_submissions += 1
-                problem.save()
+                submission = _create_pending_submission(request.user, problem, answer)
             return redirect("problems:problem_detail", pk=problem.pk)
 
         content = request.POST.get("content", "").strip()
         if not content:
-            messages.warning(request, "Écrivez votre réponse ou votre commentaire avant l’envoi.")
+            messages.warning(
+                request, "Écrivez votre réponse ou votre commentaire avant l’envoi."
+            )
             return redirect("problems:problem_detail", pk=problem.pk)
 
         # Soumission refusée → nouvelle soumission from scratch.
         if submission and submission.status == "rejected":
-            submission = Submission.objects.create(
-                user=request.user,
-                problem=problem,
-                answer=content,
-                is_correct=None,
-                status="pending",
-            )
-            problem.total_submissions += 1
-            problem.save()
+            submission = _create_pending_submission(request.user, problem, content)
             return redirect("problems:problem_detail", pk=problem.pk)
 
         if submission:
@@ -146,27 +172,22 @@ def problem_detail(request, pk):
             return redirect("problems:problem_detail", pk=problem.pk)
 
         # Aucune soumission : création initiale.
-        submission = Submission.objects.create(
-            user=request.user,
-            problem=problem,
-            answer=content,
-            is_correct=None,
-            status="pending",
-        )
-        problem.total_submissions += 1
-        problem.save()
+        submission = _create_pending_submission(request.user, problem, content)
         return redirect("problems:problem_detail", pk=problem.pk)
 
     # Toutes les soumissions sauf la plus récente, pour l'historique
     previous_submissions = (
-        Submission.objects
-        .filter(user=request.user, problem=problem)
+        Submission.objects.filter(user=request.user, problem=problem)
         .order_by("-submitted_at")
         .prefetch_related("comments")[1:]
     )
 
-    return render(request, "problems/problem_detail.html", {
-        "problem": problem,
-        "submission": submission,
-        "previous_submissions": previous_submissions,
-    })
+    return render(
+        request,
+        "problems/problem_detail.html",
+        {
+            "problem": problem,
+            "submission": submission,
+            "previous_submissions": previous_submissions,
+        },
+    )

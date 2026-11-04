@@ -30,6 +30,7 @@ def mark_as_read(request, pk):
     notification.save(update_fields=["read"])
     return redirect("notifications:notifications_list")
 
+
 @login_required
 def mark_all_as_read(request):
     if request.method == "POST":

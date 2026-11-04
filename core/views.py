@@ -16,7 +16,9 @@ def home(request):
             "accepted_submission_count": accepted_submissions.count(),
             "solving_member_count": User.objects.filter(
                 Q(submission__status="accepted") | Q(submission__is_correct=True),
-            ).distinct().count(),
+            )
+            .distinct()
+            .count(),
         },
     }
     return render(request, "core/home.html", context)
@@ -129,7 +131,7 @@ def legal_notice(request):
                     "Les données sont conservées tant que le compte est actif et supprimées sous 30 jours sur demande. "
                     "Droits d'accès, rectification et suppression à exercer via contact@braincollider.com. "
                     "Les utilisateurs de moins de 15 ans doivent disposer de l'accord d'un parent ou tuteur légal."
-                )
+                ),
             },
             {
                 "title": "Cookies",
@@ -223,7 +225,7 @@ def privacy(request):
             },
             {
                 "title": "Hébergement et transfert de données",
-                    "content": (
+                "content": (
                     "Le site est hébergé par DigitalOcean LLC (Société à responsabilité limitée de droit américain). "
                     "Siege social : 101 Avenue of the Americas, 10th Floor, New York, NY 10013, États-Unis. Contact : digitalocean.com. "
                     "Les serveurs sont situés dans l'Union européenne. Aucune donnée personnelle n'est transférée hors de l'UE. "
@@ -248,7 +250,8 @@ def privacy(request):
             },
         ],
     )
-    
+
+
 def terms(request):
     return _render_static_page(
         request,

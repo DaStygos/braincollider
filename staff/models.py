@@ -12,26 +12,30 @@ STATUS_CHOICES = [
     ("rejected", "Rejetée"),
 ]
 
+
 class ProblemSuggestion(models.Model):
     title = models.CharField(max_length=200)
     statement = models.TextField()
     solution = models.TextField(blank=True)
-    category = models.CharField(max_length=10, choices=CATEGORY_CHOICES, default="autre")
+    category = models.CharField(
+        max_length=10, choices=CATEGORY_CHOICES, default="autre"
+    )
     difficulty = models.PositiveSmallIntegerField(choices=DIFFICULTY_CHOICES, default=1)
 
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     suggested_at = models.DateTimeField(auto_now_add=True)
-
 
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="pending")
 
     def __str__(self):
         return f"[{self.get_status_display()}] {self.title}"
 
+
 @receiver(post_save, sender=ProblemSuggestion)
 def create_problem_on_acceptance(sender, instance, created, **kwargs):
     if not created and instance.status == "accepted":
         from problems.models import Problem
+
         problem = Problem.objects.create(
             title=instance.title,
             statement=instance.statement,
@@ -50,4 +54,3 @@ def create_problem_on_acceptance(sender, instance, created, **kwargs):
             user=instance.author,
             message=f"Votre suggestion de problème '{instance.title}' a été rejetée.",
         )
-    

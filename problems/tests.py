@@ -6,165 +6,193 @@ from .models import Problem, Submission
 
 
 class ProblemsViewsTests(TestCase):
-	def setUp(self):
-		self.user = User.objects.create_user(username="solver", password="password123")
-		self.problem_a = Problem.objects.create(
-			title="Problem A",
-			statement="Statement A",
-			solution="Solution A",
-			author=self.user,
-			category="meca",
-			difficulty=1,
-		)
-		self.problem_b = Problem.objects.create(
-			title="Problem B",
-			statement="Statement B",
-			solution="Solution B",
-			category="opt",
-			difficulty=2,
-		)
+    def setUp(self):
+        self.user = User.objects.create_user(username="solver", password="password123")
+        self.problem_a = Problem.objects.create(
+            title="Problem A",
+            statement="Statement A",
+            solution="Solution A",
+            author=self.user,
+            category="meca",
+            difficulty=1,
+        )
+        self.problem_b = Problem.objects.create(
+            title="Problem B",
+            statement="Statement B",
+            solution="Solution B",
+            category="opt",
+            difficulty=2,
+        )
 
-	def test_index_lists_problems_and_tracks_user_state(self):
-		Submission.objects.create(user=self.user, problem=self.problem_a, answer="ok", is_correct=True)
-		Submission.objects.create(user=self.user, problem=self.problem_b, answer="nope", is_correct=False)
-		pending_problem = Problem.objects.create(
-			title="Problem C",
-			statement="Statement C",
-			solution="Solution C",
-			category="meca",
-			difficulty=3,
-		)
-		Submission.objects.create(user=self.user, problem=pending_problem, answer="pending", is_correct=None)
+    def test_index_lists_problems_and_tracks_user_state(self):
+        Submission.objects.create(
+            user=self.user, problem=self.problem_a, answer="ok", is_correct=True
+        )
+        Submission.objects.create(
+            user=self.user, problem=self.problem_b, answer="nope", is_correct=False
+        )
+        pending_problem = Problem.objects.create(
+            title="Problem C",
+            statement="Statement C",
+            solution="Solution C",
+            category="meca",
+            difficulty=3,
+        )
+        Submission.objects.create(
+            user=self.user, problem=pending_problem, answer="pending", is_correct=None
+        )
 
-		self.client.force_login(self.user)
-		response = self.client.get(reverse("problems:index"))
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("problems:index"))
 
-		self.assertEqual(response.status_code, 200)
-		self.assertContains(response, "3 problèmes trouvés")
-		self.assertContains(response, 'class="col-12 d-flex justify-content-end gap-2"')
-		self.assertContains(response, 'class="problem-card-grid"')
-		self.assertContains(response, 'class="problem-card"')
-		self.assertContains(response, 'aria-current="page">Problèmes</a>')
-		self.assertIn(self.problem_a.id, response.context["correct_problems"])
-		self.assertIn(self.problem_b.id, response.context["wrong_problems"])
-		self.assertIn(pending_problem.id, response.context["pending_problems"])
-		self.assertQuerySetEqual(
-			response.context["problems"],
-			[self.problem_a, self.problem_b, pending_problem],
-			ordered=False,
-		)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "3 problèmes trouvés")
+        self.assertContains(response, 'class="col-12 d-flex justify-content-end gap-2"')
+        self.assertContains(response, 'class="problem-card-grid"')
+        self.assertContains(response, 'class="problem-card"')
+        self.assertContains(response, 'aria-current="page">Problèmes</a>')
+        self.assertIn(self.problem_a.id, response.context["correct_problems"])
+        self.assertIn(self.problem_b.id, response.context["wrong_problems"])
+        self.assertIn(pending_problem.id, response.context["pending_problems"])
+        self.assertQuerySetEqual(
+            response.context["problems"],
+            [self.problem_a, self.problem_b, pending_problem],
+            ordered=False,
+        )
 
-	def test_index_uses_only_latest_submission_status(self):
-		Submission.objects.create(user=self.user, problem=self.problem_a, answer="wrong", is_correct=False)
-		Submission.objects.create(user=self.user, problem=self.problem_a, answer="correct", is_correct=True)
+    def test_index_uses_only_latest_submission_status(self):
+        Submission.objects.create(
+            user=self.user, problem=self.problem_a, answer="wrong", is_correct=False
+        )
+        Submission.objects.create(
+            user=self.user, problem=self.problem_a, answer="correct", is_correct=True
+        )
 
-		self.client.force_login(self.user)
-		response = self.client.get(reverse("problems:index"))
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("problems:index"))
 
-		self.assertIn(self.problem_a.id, response.context["correct_problems"])
-		self.assertNotIn(self.problem_a.id, response.context["wrong_problems"])
+        self.assertIn(self.problem_a.id, response.context["correct_problems"])
+        self.assertNotIn(self.problem_a.id, response.context["wrong_problems"])
 
-	def test_index_filters_problems(self):
-		self.client.force_login(self.user)
+    def test_index_filters_problems(self):
+        self.client.force_login(self.user)
 
-		response = self.client.get(
-			reverse("problems:index"),
-			{"category": "meca", "difficulty": "3", "status": "unsolved"},
-		)
+        response = self.client.get(
+            reverse("problems:index"),
+            {"category": "meca", "difficulty": "3", "status": "unsolved"},
+        )
 
-		self.assertEqual(response.status_code, 200)
-		self.assertQuerySetEqual(response.context["problems"], [], ordered=False)
+        self.assertEqual(response.status_code, 200)
+        self.assertQuerySetEqual(response.context["problems"], [], ordered=False)
 
-		pending_problem = Problem.objects.create(
-			title="Problem C",
-			statement="Statement C",
-			solution="Solution C",
-			category="meca",
-			difficulty=3,
-		)
-		response = self.client.get(
-			reverse("problems:index"),
-			{"category": "meca", "difficulty": "3", "status": "unsolved"},
-		)
+        pending_problem = Problem.objects.create(
+            title="Problem C",
+            statement="Statement C",
+            solution="Solution C",
+            category="meca",
+            difficulty=3,
+        )
+        response = self.client.get(
+            reverse("problems:index"),
+            {"category": "meca", "difficulty": "3", "status": "unsolved"},
+        )
 
-		self.assertQuerySetEqual(response.context["problems"], [pending_problem], ordered=False)
+        self.assertQuerySetEqual(
+            response.context["problems"], [pending_problem], ordered=False
+        )
 
-	def test_index_filters_problems_by_author(self):
-		other_author = User.objects.create_user(username="problem-author", password="password123")
-		self.problem_b.author = other_author
-		self.problem_b.save(update_fields=["author"])
+    def test_index_filters_problems_by_author(self):
+        other_author = User.objects.create_user(
+            username="problem-author", password="password123"
+        )
+        self.problem_b.author = other_author
+        self.problem_b.save(update_fields=["author"])
 
-		self.client.force_login(self.user)
-		response = self.client.get(
-			reverse("problems:index"),
-			{"author": str(other_author.pk)},
-		)
+        self.client.force_login(self.user)
+        response = self.client.get(
+            reverse("problems:index"),
+            {"author": str(other_author.pk)},
+        )
 
-		self.assertQuerySetEqual(response.context["problems"], [self.problem_b], ordered=False)
+        self.assertQuerySetEqual(
+            response.context["problems"], [self.problem_b], ordered=False
+        )
 
-	def test_problem_detail_displays_author(self):
-		self.client.force_login(self.user)
+    def test_problem_detail_displays_author(self):
+        self.client.force_login(self.user)
 
-		response = self.client.get(reverse("problems:problem_detail", args=[self.problem_a.pk]))
+        response = self.client.get(
+            reverse("problems:problem_detail", args=[self.problem_a.pk])
+        )
 
-		self.assertContains(response, self.user.username)
+        self.assertContains(response, self.user.username)
 
-	def test_problem_detail_requires_login(self):
-		response = self.client.get(reverse("problems:problem_detail", args=[self.problem_a.pk]))
+    def test_problem_detail_requires_login(self):
+        response = self.client.get(
+            reverse("problems:problem_detail", args=[self.problem_a.pk])
+        )
 
-		self.assertEqual(response.status_code, 302)
-		self.assertIn(reverse("accounts:login"), response.url)
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(reverse("accounts:login"), response.url)
 
-	def test_problem_detail_creates_submission(self):
-		self.client.force_login(self.user)
+    def test_problem_detail_creates_submission(self):
+        self.client.force_login(self.user)
 
-		response = self.client.post(
-			reverse("problems:problem_detail", args=[self.problem_a.pk]),
-			{"answer": "My answer"},
-		)
+        response = self.client.post(
+            reverse("problems:problem_detail", args=[self.problem_a.pk]),
+            {"answer": "My answer"},
+        )
 
-		self.assertRedirects(response, reverse("problems:problem_detail", args=[self.problem_a.pk]))
-		submission = Submission.objects.get(user=self.user, problem=self.problem_a)
-		self.assertEqual(submission.answer, "My answer")
-		self.assertIsNone(submission.is_correct)
-		self.problem_a.refresh_from_db()
-		self.assertEqual(self.problem_a.total_submissions, 1)
+        self.assertRedirects(
+            response, reverse("problems:problem_detail", args=[self.problem_a.pk])
+        )
+        submission = Submission.objects.get(user=self.user, problem=self.problem_a)
+        self.assertEqual(submission.answer, "My answer")
+        self.assertIsNone(submission.is_correct)
+        self.problem_a.refresh_from_db()
+        self.assertEqual(self.problem_a.total_submissions, 1)
 
-	def test_empty_submission_explains_what_the_user_needs_to_do(self):
-		self.client.force_login(self.user)
+    def test_empty_submission_explains_what_the_user_needs_to_do(self):
+        self.client.force_login(self.user)
 
-		response = self.client.post(
-			reverse("problems:problem_detail", args=[self.problem_a.pk]),
-			{"content": "   "},
-			follow=True,
-		)
+        response = self.client.post(
+            reverse("problems:problem_detail", args=[self.problem_a.pk]),
+            {"content": "   "},
+            follow=True,
+        )
 
-		self.assertContains(response, "Écrivez votre réponse ou votre commentaire avant l’envoi.")
-		self.assertFalse(Submission.objects.filter(user=self.user, problem=self.problem_a).exists())
+        self.assertContains(
+            response, "Écrivez votre réponse ou votre commentaire avant l’envoi."
+        )
+        self.assertFalse(
+            Submission.objects.filter(user=self.user, problem=self.problem_a).exists()
+        )
 
-	def test_problem_detail_updates_existing_submission(self):
-		submission = Submission.objects.create(
-			user=self.user,
-			problem=self.problem_a,
-			answer="Old answer",
-			is_correct=True,
-		)
-		self.problem_a.total_submissions = 1
-		self.problem_a.save()
+    def test_problem_detail_updates_existing_submission(self):
+        submission = Submission.objects.create(
+            user=self.user,
+            problem=self.problem_a,
+            answer="Old answer",
+            is_correct=True,
+        )
+        self.problem_a.total_submissions = 1
+        self.problem_a.save()
 
-		self.client.force_login(self.user)
-		response = self.client.post(
-			reverse("problems:problem_detail", args=[self.problem_a.pk]),
-			{"answer": "Updated answer"},
-		)
+        self.client.force_login(self.user)
+        response = self.client.post(
+            reverse("problems:problem_detail", args=[self.problem_a.pk]),
+            {"answer": "Updated answer"},
+        )
 
-		self.assertRedirects(response, reverse("problems:problem_detail", args=[self.problem_a.pk]))
-		submission.refresh_from_db()
-		self.assertEqual(submission.answer, "Updated answer")
-		self.assertIsNone(submission.is_correct)
-		self.problem_a.refresh_from_db()
-		self.assertEqual(self.problem_a.total_submissions, 1)
+        self.assertRedirects(
+            response, reverse("problems:problem_detail", args=[self.problem_a.pk])
+        )
+        submission.refresh_from_db()
+        self.assertEqual(submission.answer, "Updated answer")
+        self.assertIsNone(submission.is_correct)
+        self.problem_a.refresh_from_db()
+        self.assertEqual(self.problem_a.total_submissions, 1)
 
-	def test_problem_get_score_matches_difficulty(self):
-		self.assertEqual(self.problem_a.get_score(), 100)
-		self.assertEqual(self.problem_b.get_score(), 300)
+    def test_problem_get_score_matches_difficulty(self):
+        self.assertEqual(self.problem_a.get_score(), 100)
+        self.assertEqual(self.problem_b.get_score(), 300)

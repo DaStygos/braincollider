@@ -34,14 +34,10 @@ class ProblemSuggestionForm(forms.ModelForm):
         current_user_value = "__current_user__"
         self.fields["author_type"].choices = [
             (current_user_value, f"Moi ({user.username})"),
-            *[
-                (name, name)
-                for name in settings.PROBLEM_SUGGESTION_AUTHOR_NAMES
-            ],
+            *[(name, name) for name in settings.PROBLEM_SUGGESTION_AUTHOR_NAMES],
         ]
         self.fields["author_year"].choices = [
-            (str(year), str(year))
-            for year in settings.PROBLEM_SUGGESTION_AUTHOR_YEARS
+            (str(year), str(year)) for year in settings.PROBLEM_SUGGESTION_AUTHOR_YEARS
         ]
         self.fields["author_type"].initial = current_user_value
 
@@ -78,21 +74,33 @@ class ProblemSuggestionForm(forms.ModelForm):
     class Meta:
         model = ProblemSuggestion
         fields = [
-            "title", "statement", "solution", "category", "difficulty",
-            "author_type", "author_year", "author",
+            "title",
+            "statement",
+            "solution",
+            "category",
+            "difficulty",
+            "author_type",
+            "author_year",
+            "author",
         ]
         widgets = {
-            "title": forms.TextInput(attrs={"class": "form-control", "placeholder": "Titre du problème"}),
-            "statement": forms.Textarea(attrs={
-                "class": "form-control",
-                "rows": 8,
-                "data-live-math-preview": "statement-preview",
-            }),
-            "solution": forms.Textarea(attrs={
-                "class": "form-control",
-                "rows": 8,
-                "data-live-math-preview": "solution-preview",
-            }),
+            "title": forms.TextInput(
+                attrs={"class": "form-control", "placeholder": "Titre du problème"}
+            ),
+            "statement": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 8,
+                    "data-live-math-preview": "statement-preview",
+                }
+            ),
+            "solution": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 8,
+                    "data-live-math-preview": "solution-preview",
+                }
+            ),
             "category": forms.Select(attrs={"class": "form-select"}),
             "difficulty": forms.Select(attrs={"class": "form-select"}),
         }

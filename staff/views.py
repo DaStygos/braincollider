@@ -6,8 +6,17 @@ from notifications.utils import create_notification
 from problems.models import Submission, SubmissionComment
 from .forms import ProblemSuggestionForm
 from django.contrib.auth.decorators import login_required
-from .permissions import can_access_pending_submissions, can_modify_submission, can_view_submission, get_accessible_pending_submissions, get_pending_owner_response_rows, get_pending_review_rows, get_review_history_rows
+from .permissions import (
+    can_access_pending_submissions,
+    can_modify_submission,
+    can_view_submission,
+    get_accessible_pending_submissions,
+    get_pending_owner_response_rows,
+    get_pending_review_rows,
+    get_review_history_rows,
+)
 from core.rate_limits import rate_limit
+
 
 @login_required
 def pending_submissions(request):
@@ -19,12 +28,14 @@ def pending_submissions(request):
     if search:
         search_casefolded = search.casefold()
         rows = [
-            row for row in rows
+            row
+            for row in rows
             if search_casefolded in row["submission"].user.username.casefold()
             or search_casefolded in row["submission"].problem.title.casefold()
         ]
         owner_response_rows = [
-            row for row in owner_response_rows
+            row
+            for row in owner_response_rows
             if search_casefolded in row["submission"].user.username.casefold()
             or search_casefolded in row["submission"].problem.title.casefold()
         ]
@@ -32,17 +43,22 @@ def pending_submissions(request):
     history_rows = get_review_history_rows(request.user)
     if search:
         history_rows = [
-            row for row in history_rows
+            row
+            for row in history_rows
             if search_casefolded in row["submission"].user.username.casefold()
             or search_casefolded in row["submission"].problem.title.casefold()
         ]
 
-    return render(request, "staff/pending_submissions.html", {
-        "rows": rows,
-        "owner_response_rows": owner_response_rows,
-        "history_rows": history_rows,
-        "selected_search": search,
-    })
+    return render(
+        request,
+        "staff/pending_submissions.html",
+        {
+            "rows": rows,
+            "owner_response_rows": owner_response_rows,
+            "history_rows": history_rows,
+            "selected_search": search,
+        },
+    )
 
 
 @login_required
@@ -76,8 +92,12 @@ def submission_detail(request, pk):
             # notify the submission owner about the new comment
             create_notification(
                 user=submission.user,
-                message=(f"Le correcteur a ajouté un commentaire à votre soumission pour '{submission.problem.title}'."),
-                redirect_url=reverse("problems:problem_detail", kwargs={"pk": submission.problem.pk}),
+                message=(
+                    f"Le correcteur a ajouté un commentaire à votre soumission pour '{submission.problem.title}'."
+                ),
+                redirect_url=reverse(
+                    "problems:problem_detail", kwargs={"pk": submission.problem.pk}
+                ),
             )
 
         # If a decision was made, process it
@@ -119,16 +139,20 @@ def submission_detail(request, pk):
             create_notification(
                 user=submission.user,
                 message=notif_msg,
-                redirect_url=reverse("problems:problem_detail", kwargs={"pk": submission.problem.pk}),
+                redirect_url=reverse(
+                    "problems:problem_detail", kwargs={"pk": submission.problem.pk}
+                ),
             )
 
             # After making a decision, navigate the reviewer to the next
             # accessible pending submission in chronological order. If none,
             # return to the pending submissions list.
-            accessible = get_accessible_pending_submissions(request.user).order_by('submitted_at', 'pk')
+            accessible = get_accessible_pending_submissions(request.user).order_by(
+                "submitted_at", "pk"
+            )
             next_submission = accessible.filter(
-                Q(submitted_at__gt=submission.submitted_at) |
-                Q(submitted_at=submission.submitted_at, pk__gt=submission.pk)
+                Q(submitted_at__gt=submission.submitted_at)
+                | Q(submitted_at=submission.submitted_at, pk__gt=submission.pk)
             ).first()
 
             if next_submission:
@@ -138,10 +162,15 @@ def submission_detail(request, pk):
         # If no decision, return to the submission detail so the reviewer can continue the discussion
         return redirect("staff:submission_detail", pk=submission.pk)
 
-    return render(request, "staff/submission_detail.html", {
-        "submission": submission,
-        "can_modify_submission": can_modify_submission(request.user, submission),
-    })
+    return render(
+        request,
+        "staff/submission_detail.html",
+        {
+            "submission": submission,
+            "can_modify_submission": can_modify_submission(request.user, submission),
+        },
+    )
+
 
 @login_required
 @rate_limit("problem-suggestion", limit=5, period=60 * 60, methods={"POST"})

@@ -16,7 +16,9 @@ def can_review_problem(user, problem):
         return False
     if user.is_staff:
         return True
-    return Submission.objects.filter(user=user, problem=problem, is_correct=True).exists()
+    return Submission.objects.filter(
+        user=user, problem=problem, is_correct=True
+    ).exists()
 
 
 def can_view_submission(user, submission):
@@ -34,7 +36,10 @@ def can_view_submission(user, submission):
 def can_modify_submission(user, submission):
     if not user.is_authenticated or submission.user_id == user.id:
         return False
-    if submission.status in {"accepted", "rejected"} or submission.is_correct is not None:
+    if (
+        submission.status in {"accepted", "rejected"}
+        or submission.is_correct is not None
+    ):
         return False
     return can_view_submission(user, submission)
 
@@ -48,10 +53,14 @@ def get_accessible_pending_submissions(user):
     if user.is_staff:
         return submissions
 
-    solved_problem_ids = Submission.objects.filter(
-        user=user,
-        is_correct=True,
-    ).values_list("problem_id", flat=True).distinct()
+    solved_problem_ids = (
+        Submission.objects.filter(
+            user=user,
+            is_correct=True,
+        )
+        .values_list("problem_id", flat=True)
+        .distinct()
+    )
     return submissions.filter(problem_id__in=solved_problem_ids)
 
 
@@ -94,12 +103,15 @@ def get_review_history_rows(user):
     if not user.is_authenticated:
         return []
 
-    submissions = Submission.objects.filter(
-        status__in=["accepted", "rejected"],
-    ).select_related("user", "problem").prefetch_related("comments")
+    submissions = (
+        Submission.objects.filter(
+            status__in=["accepted", "rejected"],
+        )
+        .select_related("user", "problem")
+        .prefetch_related("comments")
+    )
     submissions = submissions.filter(
-        Q(reviewed_by=user) |
-        Q(comments__author=user, comments__is_reviewer=True),
+        Q(reviewed_by=user) | Q(comments__author=user, comments__is_reviewer=True),
     ).distinct()
 
     return [

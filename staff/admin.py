@@ -26,20 +26,36 @@ def reject_suggestions(modeladmin, request, queryset):
 
 @admin.register(ProblemSuggestion)
 class ProblemSuggestionAdmin(admin.ModelAdmin):
-    list_display = ("title", "author", "category", "difficulty", "suggested_at", "status")
+    list_display = (
+        "title",
+        "author",
+        "category",
+        "difficulty",
+        "suggested_at",
+        "status",
+    )
     list_filter = ("status", "suggested_at")
     search_fields = ("title", "statement")
     readonly_fields = ("author", "suggested_at")
     actions = (accept_suggestions, reject_suggestions)
     fieldsets = (
-        ("Suggestion", {
-            "fields": ("title", "statement", "solution", "category", "difficulty"),
-        }),
-        ("Validation", {
-            "fields": ("status",),
-            "description": "Relisez le contenu puis choisissez une décision. Les actions de validation sont aussi disponibles dans la liste.",
-        }),
-        ("Informations", {
-            "fields": ("author", "suggested_at"),
-        }),
+        (
+            "Suggestion",
+            {
+                "fields": ("title", "statement", "solution", "category", "difficulty"),
+            },
+        ),
+        (
+            "Validation",
+            {
+                "fields": ("status",),
+                "description": "Relisez le contenu puis choisissez une décision. Les actions de validation sont aussi disponibles dans la liste.",
+            },
+        ),
+        (
+            "Informations",
+            {
+                "fields": ("author", "suggested_at"),
+            },
+        ),
     )

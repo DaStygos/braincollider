@@ -1,14 +1,15 @@
 # accounts/models.py
 from django.db import models
-from django.db.models import Case, IntegerField, Sum, Value, When
+from django.db.models import Sum, Value
 from django.db.models.functions import Coalesce
 from django.contrib.auth.models import User
 from django.templatetags.static import static
 from django.utils import timezone
 
+
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
+    avatar = models.ImageField(upload_to="avatars/", blank=True, null=True)
     previous_scores = models.JSONField(default=list, blank=True)
     accepted_terms = models.BooleanField(default=False)
     allow_leaderboard_display = models.BooleanField(default=False)
@@ -17,21 +18,16 @@ class Profile(models.Model):
     def get_avatar_url(self):
         if self.avatar:
             return self.avatar.url
-        return static('/images/default_avatar.png')
-    
+        return static("/images/default_avatar.png")
+
     def get_submissions(self):
         return self.user.submission_set.all()
 
     def get_total_score(self):
-        from problems.models import BAREME, Submission
+        from problems.models import Submission, submission_score_expression
 
-        score_case = Case(
-            *[When(problem__difficulty=difficulty, then=Value(points)) for difficulty, points in BAREME.items()],
-            default=Value(0),
-            output_field=IntegerField(),
-        )
         return Submission.objects.filter(user=self.user, is_correct=True).aggregate(
-            score=Coalesce(Sum(score_case), Value(0))
+            score=Coalesce(Sum(submission_score_expression()), Value(0))
         )["score"]
 
     def record_score_if_changed(self):
