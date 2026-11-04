@@ -6,7 +6,8 @@ from django.db.models.functions import Coalesce, TruncDate
 from django.shortcuts import render
 from django.utils import timezone
 
-from problems.models import CATEGORY_CHOICES, Problem, Submission
+from core.rate_limits import rate_limit
+from problems.models import CATEGORY_CHOICES, Problem, Submission, SubmissionComment
 
 
 def _submission_score_case(prefix=""):
@@ -27,6 +28,7 @@ def _daily_series(start_date, days, rows, value_key):
     return [values_by_day.get(start_date + timedelta(days=offset), 0) for offset in range(days)]
 
 
+@rate_limit("stats", limit=30, period=60)
 def dashboard(request):
     today = timezone.localdate()
     days = 30
@@ -53,16 +55,6 @@ def dashboard(request):
         total=Coalesce(Sum(_submission_score_case()), 0)
     )["total"]
 
-    top_users = list(
-        User.objects.select_related("profile")
-        .annotate(
-            total_score=Coalesce(Sum(_submission_score_case("submission__")), 0),
-            correct_count=Count("submission", filter=Q(submission__status="accepted") | Q(submission__is_correct=True)),
-        )
-        .filter(total_score__gt=0)
-        .order_by("-total_score", "username")[:5]
-    )
-
     top_problems = list(
         Problem.objects.annotate(
             solved_count=Count("submission", filter=Q(submission__status="accepted") | Q(submission__is_correct=True)),
@@ -71,9 +63,7 @@ def dashboard(request):
         .order_by("-solved_count", "title")[:5]
     )
     
-    comments = 0
-    for sub in Submission.objects.filter():
-        comments += sub.comments.count()
+    comments = SubmissionComment.objects.count()
 
     for problem in top_problems:
         problem.total_points = problem.solved_count * problem.get_score()
@@ -121,7 +111,6 @@ def dashboard(request):
         "activity_labels": activity_labels,
         "activity_points": activity_points,
         "activity_corrections": activity_corrections,
-        "top_users": top_users,
         "top_problems": top_problems,
         "category_rows": [
             {

@@ -51,53 +51,52 @@
                     <option value="wrong" {% if selected_status == 'wrong' %}selected{% endif %}>À retenter</option>
                 </select>
             </div>
-            <div class="col-12 col-lg-2 d-flex gap-2">
-                <button type="submit" class="btn btn-primary flex-grow-1">Filtrer</button>
-                <a href="{% url 'problems:index' %}" class="btn btn-outline-secondary" aria-label="Réinitialiser les filtres" title="Réinitialiser les filtres"><i class="bi bi-arrow-counterclockwise"></i></a>
+            <div class="col-12 d-flex justify-content-end gap-2">
+                <a href="{% url 'problems:index' %}" class="btn btn-outline-secondary">Effacer les filtres</a>
+                <button type="submit" class="btn btn-primary">Afficher les problèmes</button>
             </div>
         </form>
     </div>
 </div>
 
 {% if problems %}
+<p class="text-muted small mb-2" role="status">{{ problem_count }} problème{{ problem_count|pluralize }} trouvé{{ problem_count|pluralize }}.</p>
 <div class="card border-0 shadow-sm problem-list-panel">
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-striped table-hover align-middle mb-0 problem-table">
                 <thead>
                     <tr>
-                        <th>Titre</th>
-                        <th>Catégorie</th>
-                        <th class="text-center" style="width: 180px;">Difficulté</th>
-                        <th class="text-center" style="width: 100px;">Statut</th>
-                        <th class="text-center" style="width: 170px;">Taux de réussite</th>
+                        <th scope="col">Titre</th>
+                        <th scope="col">Catégorie</th>
+                        <th scope="col" class="text-center" style="width: 180px;">Difficulté</th>
+                        <th scope="col" class="text-center" style="width: 100px;">Statut</th>
+                        <th scope="col" class="text-center" style="width: 170px;">Validées / envoyées</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for problem in problems %}
-                                            <tr>
-                                                <td>
-                                                    <a href="{% url 'problems:problem_detail' problem.id %}">{{ problem.title }}</a>
-                                                </td>
-                                                <td>{{ problem.get_category_display }}</td>
-                                                <td class="text-center">{{ problem.difficulty|stars }}</td>
-                                                <td class="text-center">
-                                                    {% if user.is_authenticated %}
-                                                        {% if problem.id in correct_problems %}
-                                                            <i class="bi bi-check-circle-fill text-success" title="Soumission correcte"></i>
-                                                        {% elif problem.id in wrong_problems %}
-                                                            <i class="bi bi-x-circle-fill text-danger" title="Soumission incorrecte"></i>
-                                                        {% elif problem.id in pending_problems %}
-                                                            <i class="bi bi-hourglass-split text-warning" title="Soumission en attente de correction"></i>
-                                                        {% else %}
-                                                            <i class="bi bi-dash-circle text-secondary" title="Non soumis"></i>
-                                                        {% endif %}
-                                                    {% else %}
-                                                        <i class="bi bi-dash-circle text-secondary" title="Non connecté"></i>
-                                                    {% endif %}
-                                                </td>
-                                                <td class="text-center">{{ problem.correct_submissions }} / {{ problem.total_submissions }}</td>
-                                            </tr>
+                    <tr>
+                        <td><a href="{% url 'problems:problem_detail' problem.id %}">{{ problem.title }}</a></td>
+                        <td>{{ problem.get_category_display }}</td>
+                        <td class="text-center" aria-label="Difficulté {{ problem.difficulty }} sur 5">{{ problem.difficulty|stars }}</td>
+                        <td class="text-center">
+                            {% if user.is_authenticated %}
+                                {% if problem.id in correct_problems %}
+                                    <span class="text-success"><i class="bi bi-check-circle-fill" aria-hidden="true"></i><span class="visually-hidden">Réussi</span></span>
+                                {% elif problem.id in wrong_problems %}
+                                    <span class="text-danger"><i class="bi bi-x-circle-fill" aria-hidden="true"></i><span class="visually-hidden">À retenter</span></span>
+                                {% elif problem.id in pending_problems %}
+                                    <span class="text-warning"><i class="bi bi-hourglass-split" aria-hidden="true"></i><span class="visually-hidden">En attente de correction</span></span>
+                                {% else %}
+                                    <span class="text-secondary"><i class="bi bi-dash-circle" aria-hidden="true"></i><span class="visually-hidden">Non soumis</span></span>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-secondary"><i class="bi bi-dash-circle" aria-hidden="true"></i><span class="visually-hidden">Connectez-vous pour suivre votre statut</span></span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">{{ problem.correct_submissions }} / {{ problem.total_submissions }}</td>
+                    </tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -106,7 +105,10 @@
 </div>
 {% else %}
 <div class="card border-0 shadow-sm problem-list-panel">
-    <div class="card-body text-muted">Aucun problème ne correspond à ces filtres.</div>
+    <div class="card-body">
+        <p class="mb-3">Aucun problème ne correspond à ces filtres. Essayez d’en retirer un ou plusieurs.</p>
+        <a href="{% url 'problems:index' %}" class="btn btn-outline-primary">Effacer les filtres</a>
+    </div>
 </div>
 {% endif %}
 

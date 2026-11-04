@@ -101,6 +101,20 @@ class AccountsViewsTests(TestCase):
 		user.refresh_from_db()
 		self.assertEqual(len(user.profile.previous_scores), 1)
 
+	def test_score_calculation_does_not_write_history_by_itself(self):
+		user = User.objects.create_user(username="player", password="password123")
+		problem = Problem.objects.create(
+			title="Physics problem",
+			statement="Statement",
+			solution="Solution",
+			difficulty=3,
+		)
+		Submission.objects.create(user=user, problem=problem, answer="done", is_correct=True)
+
+		self.assertEqual(user.profile.get_total_score(), problem.get_score())
+		user.profile.refresh_from_db()
+		self.assertEqual(user.profile.previous_scores, [])
+
 	def test_public_profile_redirects_to_private_profile_for_current_user(self):
 		user = User.objects.create_user(username="player", password="password123")
 		self.client.force_login(user)

@@ -130,7 +130,7 @@
 </div>
 
 <!-- ── Aperçu avatar ─────────────────────────────────────────────────── -->
-<script>
+<script nonce="{{ request.csp_nonce }}">
     const avatarInput = document.getElementById('id_avatar');
     const arrowIndicator = document.getElementById('arrow-indicator');
     const previewContainer = document.getElementById('new-avatar-container');

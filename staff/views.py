@@ -7,6 +7,7 @@ from problems.models import Submission, SubmissionComment
 from .forms import ProblemSuggestionForm
 from django.contrib.auth.decorators import login_required
 from .permissions import can_access_pending_submissions, can_modify_submission, can_view_submission, get_accessible_pending_submissions, get_pending_owner_response_rows, get_pending_review_rows, get_review_history_rows
+from core.rate_limits import rate_limit
 
 @login_required
 def pending_submissions(request):
@@ -97,6 +98,8 @@ def submission_detail(request, pk):
 
             submission.reviewed_by = request.user
             submission.save()
+            if decision == "correct":
+                submission.user.profile.record_score_if_changed()
 
             # Notify user with optional comment included
             if decision == "clarify":
@@ -141,6 +144,7 @@ def submission_detail(request, pk):
     })
 
 @login_required
+@rate_limit("problem-suggestion", limit=5, period=60 * 60, methods={"POST"})
 def suggest_problem(request):
     if request.method == "POST":
         form = ProblemSuggestionForm(request.POST, user=request.user)

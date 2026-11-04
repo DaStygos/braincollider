@@ -1,4 +1,5 @@
 from django import forms
+from django.core.exceptions import ValidationError
 
 
 class BroadcastNotificationForm(forms.Form):
@@ -12,3 +13,9 @@ class BroadcastNotificationForm(forms.Form):
         required=False,
         max_length=500,
     )
+
+    def clean_redirect_url(self):
+        url = self.cleaned_data["redirect_url"].strip()
+        if url and (not url.startswith("/") or url.startswith("//") or "\\" in url):
+            raise ValidationError("Utilisez un chemin local commençant par /.")
+        return url

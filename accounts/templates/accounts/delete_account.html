@@ -42,7 +42,7 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
+<script nonce="{{ request.csp_nonce }}">
 (function () {
   const canvas = document.createElement('canvas');
   canvas.id = 'auth-bg';

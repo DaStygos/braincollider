@@ -17,7 +17,8 @@ class GroupsTests(TestCase):
 		# Login as alice and create a group
 		self.client.login(username='alice', password='pass')
 		create_url = reverse('groups:create_group')
-		resp = self.client.post(create_url, {'name': 'Team A', 'description': 'Private group'})
+		resp = self.client.post(create_url, {'name': 'Team A', 'description': 'Private group'}, follow=True)
+		self.assertContains(resp, "Le groupe « Team A » a été créé.")
 		group = Group.objects.get(name='Team A')
 		# Creator should be admin member
 		self.assertTrue(GroupMembership.objects.filter(group=group, user=self.user1, role='admin').exists())
@@ -34,6 +35,17 @@ class GroupsTests(TestCase):
 		accept_url = reverse('groups:accept_invitation', args=[invitation.id])
 		resp = self.client.post(accept_url, follow=True)
 		self.assertTrue(GroupMembership.objects.filter(group=group, user=self.user2).exists())
+
+	def test_group_creator_cannot_be_offered_an_unavailable_leave_action(self):
+		group = Group.objects.create(name="Team", created_by=self.user1)
+		GroupMembership.objects.create(group=group, user=self.user1, role="admin")
+		GroupMembership.objects.create(group=group, user=self.user2, role="member")
+		self.client.force_login(self.user1)
+
+		response = self.client.get(reverse("groups:group_detail", args=[group.pk]))
+
+		self.assertContains(response, "En tant que créateur, vous ne pouvez pas quitter le groupe")
+		self.assertNotContains(response, "Quitter le groupe")
 
 	def test_invitation_actions_reject_get(self):
 		self.client.login(username='alice', password='pass')

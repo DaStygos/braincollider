@@ -1,34 +1,33 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
-from django.db.models import Prefetch
+from django.core.paginator import Paginator
+from django.db.models import Case, Count, IntegerField, Q, Sum, Value, When
+from django.db.models.functions import Coalesce
 
-from problems.models import Submission
+from core.rate_limits import rate_limit
+from problems.models import BAREME
 
+@rate_limit("leaderboard", limit=30, period=60)
 def leaderboard(request):
-    users = User.objects.select_related("profile").filter(
-        profile__allow_leaderboard_display=True,
-    ).prefetch_related(
-        Prefetch(
-            "submission_set",
-            queryset=Submission.objects.select_related("problem"),
-        )
+    score_case = Case(
+        *[When(submission__problem__difficulty=difficulty, then=Value(points)) for difficulty, points in BAREME.items()],
+        default=Value(0),
+        output_field=IntegerField(),
     )
+    users = User.objects.filter(
+        profile__allow_leaderboard_display=True,
+    ).annotate(
+        total_score=Coalesce(Sum(score_case, filter=Q(submission__is_correct=True)), Value(0)),
+        solved_count=Count("submission", filter=Q(submission__is_correct=True)),
+    ).filter(total_score__gt=0).order_by("-total_score", "username")
+    page_obj = Paginator(users, 100).get_page(request.GET.get("page"))
+    leaderboard_data = [{
+        "user": user,
+        "total_score": user.total_score,
+        "solved_count": user.solved_count,
+    } for user in page_obj.object_list]
 
-    leaderboard_data = []
-
-    for user in users:
-        correct_submissions = user.profile.get_submissions().filter(is_correct=True)
-        total_score = user.profile.get_total_score()
-        solved_count = correct_submissions.count()
-
-        leaderboard_data.append({
-            'user': user,
-            'total_score': total_score,
-            'solved_count': solved_count,
-        })
-
-    # Tri décroissant par score et filtrage
-    leaderboard_data.sort(key=lambda x: x['total_score'], reverse=True)
-    leaderboard_data = [entry for entry in leaderboard_data if entry['total_score'] > 0]
-
-    return render(request, 'leaderboard/leaderboard.html', {'leaderboard': leaderboard_data})
+    return render(request, 'leaderboard/leaderboard.html', {
+        'leaderboard': leaderboard_data,
+        'page_obj': page_obj,
+    })

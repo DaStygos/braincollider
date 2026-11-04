@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from .models import Notification
+from .forms import BroadcastNotificationForm
 
 
 class NotificationsViewsTests(TestCase):
@@ -66,6 +67,17 @@ class NotificationsViewsTests(TestCase):
 
 
 class BroadcastNotificationAdminTests(TestCase):
+	def test_broadcast_form_rejects_external_and_javascript_urls(self):
+		for url in ("javascript:alert(1)", "https://example.com/", "//example.com/"):
+			with self.subTest(url=url):
+				form = BroadcastNotificationForm({"message": "Hello", "redirect_url": url})
+				self.assertFalse(form.is_valid())
+
+	def test_broadcast_form_accepts_local_paths(self):
+		form = BroadcastNotificationForm({"message": "Hello", "redirect_url": "/groups/"})
+		self.assertTrue(form.is_valid())
+		self.assertEqual(form.cleaned_data["redirect_url"], "/groups/")
+
 	def setUp(self):
 		self.admin_user = User.objects.create_superuser(
 			username="admin",

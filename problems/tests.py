@@ -40,6 +40,8 @@ class ProblemsViewsTests(TestCase):
 		response = self.client.get(reverse("problems:index"))
 
 		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, "3 problèmes trouvés")
+		self.assertContains(response, 'class="col-12 d-flex justify-content-end gap-2"')
 		self.assertIn(self.problem_a.id, response.context["correct_problems"])
 		self.assertIn(self.problem_b.id, response.context["wrong_problems"])
 		self.assertIn(pending_problem.id, response.context["pending_problems"])
@@ -124,6 +126,18 @@ class ProblemsViewsTests(TestCase):
 		self.assertIsNone(submission.is_correct)
 		self.problem_a.refresh_from_db()
 		self.assertEqual(self.problem_a.total_submissions, 1)
+
+	def test_empty_submission_explains_what_the_user_needs_to_do(self):
+		self.client.force_login(self.user)
+
+		response = self.client.post(
+			reverse("problems:problem_detail", args=[self.problem_a.pk]),
+			{"content": "   "},
+			follow=True,
+		)
+
+		self.assertContains(response, "Écrivez votre réponse ou votre commentaire avant l’envoi.")
+		self.assertFalse(Submission.objects.filter(user=self.user, problem=self.problem_a).exists())
 
 	def test_problem_detail_updates_existing_submission(self):
 		submission = Submission.objects.create(

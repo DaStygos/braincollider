@@ -10,6 +10,7 @@ from django.db.models import Q
 from .forms import AccountDeletionForm, SignUpForm, UserUpdateForm, ProfileUpdateForm
 from problems.models import Submission, Problem
 from dateutil import parser
+from core.rate_limits import rate_limit
 
 
 User = get_user_model()
@@ -30,12 +31,16 @@ def _generic_search(queryset, query, filters, limit=8, order_by="id"):
     return list(queryset.filter(search_filter).order_by(order_by)[:limit])
 
 
-def _build_profile_context(user):
+def _build_profile_context(user, record_score=False):
     submissions = Submission.objects.filter(user=user).select_related("problem").order_by("-submitted_at")[:20]
     user_submissions = Submission.objects.filter(user=user)
     total_submissions = user_submissions.count()
     correct_submissions = user_submissions.filter(is_correct=True).count()
-    total_score = user.profile.get_total_score()
+    total_score = (
+        user.profile.record_score_if_changed()
+        if record_score
+        else user.profile.get_total_score()
+    )
     score_history = user.profile.previous_scores
     chart_labels = [parser.parse(entry[1]).strftime("%Y-%m-%d") for entry in score_history]
     chart_data = [entry[0] for entry in score_history]
@@ -71,6 +76,7 @@ def _search_problems(query, limit=8):
         order_by="title",
     )
 
+@rate_limit("signup", limit=5, period=60 * 60, methods={"POST"})
 def signup(request):
     if request.method == "POST":
         form = SignUpForm(request.POST)
@@ -84,7 +90,7 @@ def signup(request):
 
 @login_required
 def profile(request):
-    context = _build_profile_context(request.user)
+    context = _build_profile_context(request.user, record_score=True)
     return render(request, "accounts/profile.html", context)
 
 
@@ -137,6 +143,7 @@ def edit_profile(request):
     })
 
 
+@rate_limit("user-suggestions", limit=60, period=60)
 def matching_users(request):
     query = request.GET.get("q", "").strip()
     results = []

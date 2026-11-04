@@ -74,7 +74,7 @@
 {% endblock %}
 
 {% block extra_scripts %}
-<script>
+<script nonce="{{ request.csp_nonce }}">
   (function () {
     const input = document.getElementById('username');
     const suggestions = document.getElementById('invite-suggestions');

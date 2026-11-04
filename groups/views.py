@@ -8,6 +8,7 @@ from django.views.decorators.http import require_POST
 
 from problems.models import Submission
 from .models import Group, GroupMembership, GroupInvitation
+from core.rate_limits import rate_limit
 
 
 @login_required
@@ -41,7 +42,7 @@ def group_detail(request, group_id):
     
     # Check if user is a member
     if not group.is_member(request.user):
-        messages.error(request, "You are not a member of this group.")
+        messages.error(request, "Vous n’êtes pas membre de ce groupe.")
         return redirect('groups:group_list')
     
     ranking = group.get_group_ranking()
@@ -62,6 +63,7 @@ def group_detail(request, group_id):
 
 
 @login_required
+@rate_limit("group-create", limit=5, period=60 * 60, methods={"POST"})
 def create_group(request):
     """Create a new group"""
     if request.method == 'POST':
@@ -69,7 +71,7 @@ def create_group(request):
         description = request.POST.get('description', '').strip()
         
         if not name:
-            messages.error(request, "Group name is required.")
+            messages.error(request, "Le nom du groupe est obligatoire.")
             return redirect('groups:create_group')
         
         # Create the group
@@ -86,38 +88,39 @@ def create_group(request):
             role='admin'
         )
         
-        messages.success(request, f"Group '{name}' created successfully!")
+        messages.success(request, f"Le groupe « {name} » a été créé.")
         return redirect('groups:group_detail', group_id=group.id)
     
     return render(request, 'groups/create_group.html')
 
 
 @login_required
+@rate_limit("group-invite", limit=30, period=60 * 60, methods={"POST"})
 def invite_user(request, group_id):
     """Invite a user to a group"""
     group = get_object_or_404(Group, id=group_id)
     
     # Check if user is admin
     if not group.is_admin(request.user):
-        messages.error(request, "You don't have permission to invite users to this group.")
+        messages.error(request, "Vous n’avez pas l’autorisation d’inviter des membres dans ce groupe.")
         return redirect('groups:group_detail', group_id=group.id)
     
     if request.method == 'POST':
         username = request.POST.get('username', '').strip()
         
         if not username:
-            messages.error(request, "Username is required.")
+            messages.error(request, "Le nom d’utilisateur est obligatoire.")
             return redirect('groups:invite_user', group_id=group.id)
         
         try:
             user_to_invite = User.objects.get(username=username)
         except User.DoesNotExist:
-            messages.error(request, f"User '{username}' not found.")
+            messages.error(request, f"L’utilisateur « {username} » est introuvable.")
             return redirect('groups:invite_user', group_id=group.id)
         
         # Check if user is already a member
         if group.is_member(user_to_invite):
-            messages.warning(request, f"User '{username}' is already a member of this group.")
+            messages.warning(request, f"« {username} » est déjà membre de ce groupe.")
             return redirect('groups:invite_user', group_id=group.id)
         
         # Check if invitation already exists
@@ -126,7 +129,7 @@ def invite_user(request, group_id):
             invited_user=user_to_invite,
             accepted=False
         ).exists():
-            messages.warning(request, f"User '{username}' already has a pending invitation.")
+            messages.warning(request, f"Une invitation pour « {username} » est déjà en attente.")
             return redirect('groups:invite_user', group_id=group.id)
         
         # Create invitation
@@ -137,7 +140,7 @@ def invite_user(request, group_id):
         )
         
                 
-        messages.success(request, f"Invitation sent to '{username}'!")
+        messages.success(request, f"L’invitation a été envoyée à « {username} ».")
         return redirect('groups:invite_user', group_id=group.id)
     
     context = {
@@ -154,16 +157,16 @@ def accept_invitation(request, invitation_id):
     
     # Check if this invitation is for the logged-in user
     if invitation.invited_user != request.user:
-        messages.error(request, "This invitation is not for you.")
+        messages.error(request, "Cette invitation ne vous est pas destinée.")
         return redirect('groups:group_list')
     
     # Check if already accepted
     if invitation.accepted:
-        messages.warning(request, "This invitation has already been accepted.")
+        messages.warning(request, "Cette invitation a déjà été acceptée.")
         return redirect('groups:group_list')
     
     invitation.accept()
-    messages.success(request, f"You've joined group '{invitation.group.name}'!")
+    messages.success(request, f"Vous avez rejoint le groupe « {invitation.group.name} ».")
     return redirect('groups:group_detail', group_id=invitation.group.id)
 
 
@@ -175,12 +178,12 @@ def decline_invitation(request, invitation_id):
     
     # Check if this invitation is for the logged-in user
     if invitation.invited_user != request.user:
-        messages.error(request, "This invitation is not for you.")
+        messages.error(request, "Cette invitation ne vous est pas destinée.")
         return redirect('groups:group_list')
     
     group_name = invitation.group.name
     invitation.delete()
-    messages.info(request, f"You declined the invitation to join '{group_name}'.")
+    messages.info(request, f"Vous avez refusé l’invitation au groupe « {group_name} ».")
     return redirect('groups:group_list')
 
 
@@ -192,12 +195,12 @@ def leave_group(request, group_id):
     
     # Check if user is a member
     if not group.is_member(request.user):
-        messages.error(request, "You are not a member of this group.")
+        messages.error(request, "Vous n’êtes pas membre de ce groupe.")
         return redirect('groups:group_list')
     
     # Check if user is the creator
     if group.created_by == request.user and group.get_member_count() > 1:
-        messages.error(request, "The group creator cannot leave while other members exist. Delete the group instead.")
+        messages.error(request, "Le créateur ne peut pas quitter le groupe tant qu’il reste d’autres membres. Vous pouvez supprimer le groupe.")
         return redirect('groups:group_detail', group_id=group.id)
     
     # Remove user from group
@@ -207,9 +210,9 @@ def leave_group(request, group_id):
     # If no members left, delete the group
     if group.get_member_count() == 0:
         group.delete()
-        messages.info(request, f"You left the group and it was deleted as it has no members.")
+        messages.info(request, "Vous avez quitté le groupe. Comme il n’avait plus de membres, il a été supprimé.")
     else:
-        messages.info(request, f"You left the group '{group.name}'.")
+        messages.info(request, f"Vous avez quitté le groupe « {group.name} ».")
     
     return redirect('groups:group_list')
 
@@ -221,13 +224,13 @@ def delete_group(request, group_id):
     
     # Check if user is the creator
     if group.created_by != request.user:
-        messages.error(request, "Only the group creator can delete this group.")
+        messages.error(request, "Seul le créateur du groupe peut le supprimer.")
         return redirect('groups:group_detail', group_id=group.id)
     
     if request.method == 'POST':
         group_name = group.name
         group.delete()
-        messages.success(request, f"Group '{group_name}' has been deleted.")
+        messages.success(request, f"Le groupe « {group_name} » a été supprimé.")
         return redirect('groups:group_list')
     
     context = {

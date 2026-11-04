@@ -150,7 +150,7 @@
 
 {% block extra_js %}
 {{ block.super }}
-<script>
+<script nonce="{{ request.csp_nonce }}">
   (() => {
     const typeField = document.getElementById("id_author_type");
     const yearContainer = document.getElementById("author-year-container");

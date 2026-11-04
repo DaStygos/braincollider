@@ -1,11 +1,24 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from django.urls import reverse_lazy
+from django.contrib.auth.views import LoginView
+from django.utils.decorators import method_decorator
+from core.rate_limits import rate_limit
 
 from accounts.forms import PasswordChangeFormCustom
 from . import views
 
 app_name = "accounts"
+
+
+@method_decorator(rate_limit("login", limit=30, period=15 * 60, methods={"POST"}), name="dispatch")
+class RateLimitedLoginView(LoginView):
+    template_name = "accounts/login.html"
+
+
+@method_decorator(rate_limit("password-reset", limit=5, period=60 * 60, methods={"POST"}), name="dispatch")
+class RateLimitedPasswordResetView(auth_views.PasswordResetView):
+    template_name = "accounts/password_reset.html"
 
 urlpatterns = [
     path("signup/", views.signup, name="signup"),
@@ -31,9 +44,9 @@ urlpatterns = [
     ),
     path(
         "password/reset/",
-        auth_views.PasswordResetView.as_view(template_name="accounts/password_reset.html"),
+        RateLimitedPasswordResetView.as_view(),
         name="password_reset",
     ),
-    path("login/", auth_views.LoginView.as_view(template_name="accounts/login.html"), name="login"),
+    path("login/", RateLimitedLoginView.as_view(), name="login"),
     path("logout/", auth_views.LogoutView.as_view(template_name="accounts/logged_out.html"), name="logout"),
 ]

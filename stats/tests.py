@@ -29,3 +29,18 @@ class StatsViewsTests(TestCase):
         self.assertEqual(response.context["correct_submissions"], 1)
         self.assertEqual(response.context["pending_submissions"], 0)
         self.assertEqual(len(response.context["activity_labels"]), len(response.context["activity_points"]))
+
+    def test_dashboard_counts_comments_with_a_single_total(self):
+        from problems.models import SubmissionComment
+
+        submission = Submission.objects.filter(user=self.alice).first()
+        SubmissionComment.objects.create(
+            submission=submission,
+            author=self.alice,
+            text="A comment",
+        )
+
+        response = self.client.get(reverse("stats:dashboard"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["comments"], 1)

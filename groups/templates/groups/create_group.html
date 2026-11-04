@@ -8,15 +8,6 @@
     <div class="card border-0 shadow-sm">
       {% include "includes/_card_header.html" with title="Créer un nouveau groupe" centered=True header_class="bg-primary text-white" heading_tag="h2" %}
       <div class="card-body">
-        {% if messages %}
-        <div class="alert alert-warning alert-dismissible fade show" role="alert">
-          {% for message in messages %}
-          {{ message }}
-          {% endfor %}
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        {% endif %}
-
         <form method="post">
           {% csrf_token %}
 

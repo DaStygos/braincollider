@@ -2,7 +2,9 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import CATEGORY_CHOICES, DIFFICULTY_CHOICES, Problem, Submission, SubmissionComment
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.contrib import messages
 from notifications.utils import create_notification
+from core.rate_limits import rate_limit
 
 
 def _get_submission_status_sets(user):
@@ -52,9 +54,11 @@ def index(request):
         problems = problems.exclude(id__in=submitted_problem_ids)
 
     problems = problems.order_by("category", "difficulty", "title")
+    problem_count = problems.count()
 
     context = {
         "problems": problems,
+        "problem_count": problem_count,
         "category_choices": CATEGORY_CHOICES,
         "difficulty_choices": DIFFICULTY_CHOICES,
         "author_choices": User.objects.filter(
@@ -73,6 +77,7 @@ def index(request):
 
 
 @login_required
+@rate_limit("problem-submission", limit=30, period=60 * 60, methods={"POST"})
 def problem_detail(request, pk):
     problem = get_object_or_404(Problem, pk=pk)
     # Récupère la soumission la plus récente de l'utilisateur pour ce problème.
@@ -87,6 +92,9 @@ def problem_detail(request, pk):
         answer = request.POST.get("answer")
         if answer is not None:
             answer = answer.strip()
+            if not answer:
+                messages.warning(request, "Votre réponse ne peut pas être vide.")
+                return redirect("problems:problem_detail", pk=problem.pk)
             if submission:
                 submission.answer = answer
                 submission.is_correct = None
@@ -106,6 +114,7 @@ def problem_detail(request, pk):
 
         content = request.POST.get("content", "").strip()
         if not content:
+            messages.warning(request, "Écrivez votre réponse ou votre commentaire avant l’envoi.")
             return redirect("problems:problem_detail", pk=problem.pk)
 
         # Soumission refusée → nouvelle soumission from scratch.

@@ -14,12 +14,18 @@
     <i class="bi bi-trash"></i> Supprimer le groupe
   </a>
   {% endif %}
-  <form method="post" action="{% url 'groups:leave_group' group.id %}">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-outline-secondary">
-      <i class="bi bi-box-arrow-left"></i> Quitter le groupe
-    </button>
-  </form>
+  {% if group.created_by != request.user or member_count == 1 %}
+    <form method="post" action="{% url 'groups:leave_group' group.id %}">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-outline-secondary">
+        <i class="bi bi-box-arrow-left" aria-hidden="true"></i> Quitter le groupe
+      </button>
+    </form>
+  {% else %}
+    <p class="text-muted small mb-0 align-self-center" role="status">
+      En tant que créateur, vous ne pouvez pas quitter le groupe tant qu’il reste d’autres membres. Supprimez le groupe si nécessaire.
+    </p>
+  {% endif %}
 </div>
 
 <div class="row g-3 mb-4">
