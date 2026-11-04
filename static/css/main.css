@@ -25763,6 +25763,18 @@ a:hover {
   color: var(--bc-text);
 }
 
+.site-brand-mark-dark {
+  display: none;
+}
+
+:root[data-theme=dark] .site-brand-mark-light {
+  display: none;
+}
+
+:root[data-theme=dark] .site-brand-mark-dark {
+  display: inline-block;
+}
+
 .site-navbar .nav-link:hover,
 .site-navbar .nav-link:focus,
 .site-navbar .nav-link.active {
