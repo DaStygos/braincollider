@@ -117,6 +117,9 @@
   const ctx = document.getElementById('scoreChart');
   const primaryColor = getComputedStyle(document.documentElement)
     .getPropertyValue('--bs-primary').trim() || '#4b5bdc';
+  const themeStyles = getComputedStyle(document.documentElement);
+  const chartTextColor = themeStyles.getPropertyValue('--bc-text').trim();
+  const chartBorderColor = themeStyles.getPropertyValue('--bc-border').trim();
 
   const rawLabels = {{ chart_labels|safe }};
   const rawData   = {{ chart_data|safe }};
@@ -151,6 +154,7 @@
     options: {
       responsive: true,
       maintainAspectRatio: true,
+      color: chartTextColor,
       interaction: { mode: 'index', intersect: false },
       scales: {
         x: {
@@ -170,7 +174,7 @@
         y: {
           beginAtZero: true,
           ticks: { stepSize: 10 },
-          grid: { color: 'rgba(0,0,0,0.05)' },
+          grid: { color: chartBorderColor },
         },
       },
       plugins: {
@@ -182,6 +186,17 @@
         },
       },
     },
+  });
+
+  document.getElementById('theme-toggle')?.addEventListener('click', () => {
+    const styles = getComputedStyle(document.documentElement);
+    const primary = styles.getPropertyValue('--bc-primary').trim();
+    chart.options.color = styles.getPropertyValue('--bc-text').trim();
+    chart.options.scales.y.grid.color = styles.getPropertyValue('--bc-border').trim();
+    chart.data.datasets[0].borderColor = primary;
+    chart.data.datasets[0].backgroundColor = primary + '33';
+    chart.data.datasets[0].pointHoverBackgroundColor = primary;
+    chart.update();
   });
 
   // Boutons d'intervalle

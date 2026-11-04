@@ -12,7 +12,8 @@
   resize();
   window.addEventListener('resize', resize);
 
-  const primary = '#6854a6';
+  const primary = getComputedStyle(document.documentElement)
+    .getPropertyValue('--bc-primary').trim() || '#6854a6';
 
   function hexAlpha(hex, alpha) {
     const red = parseInt(hex.slice(1, 3), 16);

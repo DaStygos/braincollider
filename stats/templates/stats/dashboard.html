@@ -9,13 +9,13 @@
 
 <style>
   .stats-shell {
-    background: linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.06));
+    background: linear-gradient(180deg, color-mix(in srgb, var(--bc-surface) 65%, transparent), transparent);
     border-radius: 1.1rem;
   }
 
   .stats-card {
     transition: transform 0.18s ease, box-shadow 0.18s ease;
-    border: 1px solid rgba(148, 163, 184, 0.18);
+    border: 1px solid var(--bc-border);
   }
 
   .stats-card:hover {
@@ -46,32 +46,38 @@
   }
 
   .nav-tabs {
-    border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+    border-bottom: 1px solid var(--bc-border);
   }
 
   .nav-tabs .nav-link {
     border: 0;
     border-bottom: 2px solid transparent;
-    color: #52607a;
+    color: var(--bc-muted);
     font-weight: 600;
     padding: 0.8rem 1rem;
     border-radius: 0.8rem 0.8rem 0 0;
   }
 
   .nav-tabs .nav-link.active {
-    color: #1b2430;
+    color: var(--bc-text);
     border-bottom-color: var(--bs-primary);
-    background: rgba(75, 91, 220, 0.04);
+    background: var(--bc-surface-tint);
   }
 
   .table thead th {
     background: var(--bc-surface-tint);
-    color: #1b2430;
+    color: var(--bc-text);
     font-size: 0.74rem;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     border-bottom: 0;
   }
+
+  .stats-card .text-success { color: var(--bc-status-solved) !important; }
+  .stats-card .text-warning { color: var(--bc-status-pending) !important; }
+  .stats-card .text-info { color: #287d9b !important; }
+  :root[data-theme="dark"] .stats-card .text-info { color: #a1dce8 !important; }
+  :root[data-theme="dark"] .stats-card .text-primary { color: var(--bc-primary-hover) !important; }
 
   .table tbody tr {
     transition: background-color .15s ease;
@@ -484,8 +490,10 @@
 
   const primaryColor = getComputedStyle(document.documentElement)
     .getPropertyValue('--bs-primary').trim() || '#4b5bdc';
+  const chartText = getComputedStyle(document.documentElement).getPropertyValue('--bc-text').trim();
+  const chartBorder = getComputedStyle(document.documentElement).getPropertyValue('--bc-border').trim();
 
-  new Chart(activityCanvas, {
+  const activityChart = new Chart(activityCanvas, {
 
     type: 'line',
 
@@ -506,6 +514,8 @@
     },
 
     options: {
+
+      color: chartText,
 
       responsive: true,
       maintainAspectRatio: false,
@@ -532,7 +542,7 @@
         y: {
           beginAtZero: true,
           grid: {
-            color: 'rgba(0,0,0,0.05)'
+            color: chartBorder
           }
         }
 
@@ -540,6 +550,17 @@
 
     }
 
+  });
+
+  document.getElementById('theme-toggle')?.addEventListener('click', () => {
+    const styles = getComputedStyle(document.documentElement);
+    const primary = styles.getPropertyValue('--bc-primary').trim();
+    activityChart.options.color = styles.getPropertyValue('--bc-text').trim();
+    activityChart.options.scales.y.grid.color = styles.getPropertyValue('--bc-border').trim();
+    activityChart.data.datasets[0].borderColor = primary;
+    activityChart.data.datasets[0].backgroundColor = primary + '22';
+    activityChart.data.datasets[0].pointBackgroundColor = primary;
+    activityChart.update();
   });
 
 </script>

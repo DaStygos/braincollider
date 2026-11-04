@@ -25656,6 +25656,7 @@ footer a:focus {
 
 :root[data-theme=light] {
   color-scheme: light;
+  --bs-body-color-rgb: 38, 36, 53;
   --bc-page: #f6f4fb;
   --bc-surface: #ffffff;
   --bc-surface-raised: #fbfaff;
@@ -25686,6 +25687,7 @@ footer a:focus {
 
 :root[data-theme=dark] {
   color-scheme: dark;
+  --bs-body-color-rgb: 238, 237, 245;
   --bc-page: #171721;
   --bc-surface: #20202c;
   --bc-surface-raised: #272735;
@@ -25852,6 +25854,7 @@ a:hover {
 }
 
 .form-control,
+textarea.form-control,
 .form-select,
 .form-check-input,
 .input-group-text {
@@ -25865,7 +25868,12 @@ a:hover {
   color: var(--bc-muted);
 }
 
+.form-floating > label {
+  color: var(--bc-muted);
+}
+
 .form-control:focus,
+textarea.form-control:focus,
 .form-select:focus,
 .form-check-input:focus {
   background-color: var(--bc-surface);
@@ -26063,6 +26071,16 @@ footer a:focus {
   color: var(--bc-text);
 }
 
+:root[data-theme=dark] .bg-primary.text-white,
+:root[data-theme=dark] .text-bg-primary {
+  color: var(--bc-primary-contrast) !important;
+}
+
+:root[data-theme=dark] .text-bg-warning.text-dark,
+:root[data-theme=dark] .bg-warning.text-dark {
+  color: #211b32 !important;
+}
+
 :root[data-theme=dark] .home-hero h1, :root[data-theme=dark] .home-hero .h1,
 :root[data-theme=dark] .page-header h1,
 :root[data-theme=dark] .page-header .h1,
@@ -26132,6 +26150,88 @@ footer a:focus {
 
 :root[data-theme=dark] .alert-info {
   color: var(--bs-info-text-emphasis);
+}
+
+/* Keep the shared navigation and page surfaces on the active theme palette. */
+.site-navbar .dropdown-menu,
+.site-navbar .dropdown-item,
+#user-search-suggestions {
+  background-color: var(--bc-surface);
+  border-color: var(--bc-border);
+  color: var(--bc-text);
+}
+
+.site-navbar .dropdown-item:hover,
+.site-navbar .dropdown-item:focus,
+#user-search-suggestions .dropdown-item:hover,
+#user-search-suggestions .dropdown-item:focus,
+#user-search-suggestions .dropdown-item.active {
+  background-color: var(--bc-surface-tint);
+  color: var(--bc-primary);
+}
+
+.home-hero,
+.home-overview,
+.home-categories,
+.home-steps {
+  background: transparent;
+  color: var(--bc-text);
+}
+
+.home-visual,
+.home-visual-note,
+.home-metric,
+.home-step,
+.home-category,
+.problem-card,
+.problem-secondary-card,
+.problem-statement-panel,
+.problem-filter-panel,
+.problem-list-panel,
+.profile-panel,
+.leaderboard-panel,
+.group-panel,
+.notifications-panel,
+.review-panel {
+  background-color: var(--bc-surface);
+  border-color: var(--bc-border);
+  color: var(--bc-text);
+}
+
+.home-step h3, .home-step .h3,
+.home-category-name,
+.problem-card h2,
+.problem-card .h2,
+.problem-card-excerpt,
+.problem-statement {
+  color: var(--bc-text);
+}
+
+.home-step p,
+.home-overview-caption,
+.problem-card-author,
+.problem-card-footer,
+.problem-card-submissions {
+  color: var(--bc-muted);
+}
+
+::selection {
+  background: #ddd6f0;
+  color: #262435;
+}
+
+:root[data-theme=dark] ::selection {
+  background: color-mix(in srgb, var(--bc-primary) 38%, var(--bc-surface));
+  color: var(--bc-text);
+}
+
+:root[data-theme=dark] .table-dark,
+:root[data-theme=dark] .bg-white,
+:root[data-theme=dark] .bg-light,
+:root[data-theme=dark] .bg-body {
+  --bs-table-bg: var(--bc-surface);
+  background-color: var(--bc-surface) !important;
+  color: var(--bc-text) !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
