@@ -87,27 +87,33 @@
         </li>
         {% endif %}
 
+        {% if user.is_authenticated %}
+        {% with unread_count=request.user.profile.get_unread_notifications_count %}
+        <li class="nav-item">
+          <a class="nav-link{% if request.resolver_match.namespace == 'notifications' %} active{% endif %}" href="{% url 'notifications:notifications_list' %}"{% if request.resolver_match.namespace == 'notifications' %} aria-current="page"{% endif %}>
+            <i class="bi bi-bell" aria-hidden="true"></i>
+            <span>Notifications</span>
+            {% if unread_count > 0 %}<span class="badge rounded-pill bg-danger">{{ unread_count }}<span class="visually-hidden"> non lue(s)</span></span>{% endif %}
+          </a>
+        </li>
+        {% endwith %}
+        {% endif %}
+
         <!-- Menu déroulant -->
         <li class="nav-item dropdown">
           {% if user.is_authenticated %}
-            {% with unread_count=request.user.profile.get_unread_notifications_count %}
           <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             {{ user.username }}
-            {% if unread_count > 0 %}
-              <span class="badge bg-danger">{{ unread_count }}</span>
-            {% endif %}
           </a>
           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
             <li><a class="dropdown-item" href="{% url 'accounts:public_profile' user.username %}">Mon profil</a></li>
             <li><a class="dropdown-item" href="{% url 'groups:group_list' %}">Groupes</a></li>
-            <li><a class="dropdown-item" href="{% url 'notifications:notifications_list' %}">Notifications {% if unread_count > 0 %}<span class="badge bg-danger">{{ unread_count }}</span>{% endif %}</a></li>
             <li><a class="dropdown-item" href="{% url 'accounts:password_change' %}">Changer le mot de passe</a></li>
             <form action="{% url 'accounts:logout' %}" method="post" style="display:inline;">
               {% csrf_token %}
               <button type="submit" class="dropdown-item"><div class="fw-bold">Déconnexion</div></button>
             </form>
           </ul>
-            {% endwith %}
           {% else %}
           <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             Compte

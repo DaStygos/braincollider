@@ -47,6 +47,14 @@ class NotificationsViewsTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context["unread_count"], 2)
+        self.assertContains(
+            response, 'class="list-group-item notification-item notification-item-unread"'
+        )
+        self.assertContains(
+            response, 'class="list-group-item notification-item notification-item-read"'
+        )
+        self.assertContains(response, "À lire")
+        self.assertContains(response, "Déjà lues")
         self.assertEqual(
             [
                 notification.message
@@ -68,12 +76,13 @@ class NotificationsViewsTests(TestCase):
 
         self.client.force_login(self.user)
         response = self.client.post(
-            reverse("notifications:mark_as_read", args=[notification.pk])
+            reverse("notifications:mark_as_read", args=[notification.pk]), follow=True
         )
 
-        self.assertRedirects(response, reverse("notifications:notifications_list"))
+        self.assertEqual(response.redirect_chain[-1][0], reverse("notifications:notifications_list"))
         notification.refresh_from_db()
         self.assertTrue(notification.read)
+        self.assertContains(response, "La notification a été marquée comme lue.")
 
     def test_notifications_list_links_notifications_with_redirect_url(self):
         Notification.objects.create(
@@ -88,6 +97,31 @@ class NotificationsViewsTests(TestCase):
         self.assertContains(
             response, '<a href="/problems/42/">Problem solved</a>', html=True
         )
+
+    def test_notifications_list_shows_empty_state_when_there_are_no_unread_items(self):
+        Notification.objects.create(user=self.user, message="Already read", read=True)
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse("notifications:notifications_list"))
+
+        self.assertContains(response, "Vous êtes à jour. Aucune notification à lire.")
+        self.assertContains(response, "Déjà lues")
+        self.assertNotContains(response, "Tout marquer comme lu")
+
+    def test_notifications_list_hides_read_section_when_history_is_empty(self):
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse("notifications:notifications_list"))
+
+        self.assertContains(response, "Vous êtes à jour. Aucune notification à lire.")
+        self.assertNotContains(response, "Déjà lues")
+
+    def test_mark_all_as_read_requires_post(self):
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse("notifications:mark_all_as_read"))
+
+        self.assertEqual(response.status_code, 405)
 
 
 class BroadcastNotificationAdminTests(TestCase):

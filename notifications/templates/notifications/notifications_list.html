@@ -3,51 +3,62 @@
 {% block title %}Notifications{% endblock %}
 
 {% block content %}
-{% include "includes/_page_header.html" with title="Notifications" subtitle="Suivez les messages récents et l'historique de vos notifications." %}
+{% include "includes/_page_header.html" with title="Notifications" subtitle="Retrouvez vos nouveautés et les messages précédents." %}
 
-{% if unread_count > 0 %}
-<div class="card border-0 shadow-sm mb-4 notifications-panel">
-  <div class="card-header bg-info-subtle list-group-item-info d-flex justify-content-between align-items-center">
-    <div class="fw-semibold">Notifications non lues</div>
+<section class="card border-0 shadow-sm mb-4 notifications-panel" aria-labelledby="unread-notifications-title">
+  <div class="card-header notification-section-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <h2 class="h5 mb-0 d-flex align-items-center gap-2" id="unread-notifications-title"><i class="bi bi-bell-fill" aria-hidden="true"></i>À lire <span class="badge rounded-pill text-bg-primary">{{ unread_count }}</span></h2>
+    {% if unread_count > 0 %}
     <form action="{% url 'notifications:mark_all_as_read' %}" method="post" class="m-0">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-sm btn-outline-dark">Marquer tout comme lu</button>
-  </form>
+      {% csrf_token %}
+      <button type="submit" class="btn btn-sm btn-outline-primary">
+        <i class="bi bi-check2-all me-1" aria-hidden="true"></i>Tout marquer comme lu
+      </button>
+    </form>
+    {% endif %}
   </div>
   <div class="list-group list-group-flush">
     {% for notification in unread_notifications %}
-    <div class="list-group-item list-group-item-info">
-      <div class="d-flex justify-content-between align-items-center gap-3">
-        <div>
-          <div>
+    <article class="list-group-item notification-item notification-item-unread">
+      <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
+        <div class="notification-content">
+          <div class="notification-message fw-semibold">
             {% if notification.redirect_url %}<a href="{{ notification.redirect_url }}">{{ notification.message }}</a>{% else %}{{ notification.message }}{% endif %}
           </div>
-          <small class="text-muted">{{ notification.created_at|date:"d M Y H:i" }}</small>
+          <time class="notification-time small" datetime="{{ notification.created_at|date:'c' }}"><i class="bi bi-clock me-1" aria-hidden="true"></i>{{ notification.created_at|date:"d M Y à H:i" }}</time>
         </div>
-        <form action="{% url 'notifications:mark_as_read' notification.pk %}" method="post" class="m-0">
+        <form action="{% url 'notifications:mark_as_read' notification.pk %}" method="post" class="m-0 flex-shrink-0">
           {% csrf_token %}
-          <button type="submit" class="btn btn-sm btn-outline-primary">Marquer comme lu</button>
+          <button type="submit" class="btn btn-sm btn-outline-primary notification-read-button">
+            <i class="bi bi-check2 me-1" aria-hidden="true"></i>Marquer comme lu
+          </button>
         </form>
       </div>
+    </article>
+    {% empty %}
+    <div class="list-group-item notification-empty text-center py-5">
+      <span class="notification-empty-icon"><i class="bi bi-check2" aria-hidden="true"></i></span>
+      <p class="mb-0 mt-3">Vous êtes à jour. Aucune notification à lire.</p>
     </div>
     {% endfor %}
   </div>
-</div>
-{% endif %}
+</section>
 
-<div class="card border-0 shadow-sm notifications-panel">
-  <div class="card-header bg-light fw-semibold">Historique des notifications</div>
+{% if read_notifications %}
+<section class="card border-0 shadow-sm notifications-panel" aria-labelledby="read-notifications-title">
+  <div class="card-header notification-section-header">
+    <h2 class="h5 mb-0 d-flex align-items-center gap-2" id="read-notifications-title"><i class="bi bi-archive" aria-hidden="true"></i>Déjà lues</h2>
+  </div>
   <div class="list-group list-group-flush">
     {% for notification in read_notifications %}
-    <div class="list-group-item">
-      <div class="d-flex justify-content-between align-items-center gap-3">
-        <span>{% if notification.redirect_url %}<a href="{{ notification.redirect_url }}">{{ notification.message }}</a>{% else %}{{ notification.message }}{% endif %}</span>
-        <small class="text-muted">{{ notification.created_at|date:"d M Y H:i" }}</small>
+    <article class="list-group-item notification-item notification-item-read">
+      <div class="d-flex flex-column flex-sm-row justify-content-between gap-1 gap-sm-3">
+        <span class="notification-message">{% if notification.redirect_url %}<a href="{{ notification.redirect_url }}">{{ notification.message }}</a>{% else %}{{ notification.message }}{% endif %}</span>
+        <time class="notification-time small flex-shrink-0" datetime="{{ notification.created_at|date:'c' }}"><i class="bi bi-clock me-1" aria-hidden="true"></i>{{ notification.created_at|date:"d M Y à H:i" }}</time>
       </div>
-    </div>
-    {% empty %}
-    <div class="list-group-item text-muted">Vous n'avez aucune ancienne notification.</div>
+    </article>
     {% endfor %}
   </div>
-</div>
+</section>
+{% endif %}
 {% endblock %}

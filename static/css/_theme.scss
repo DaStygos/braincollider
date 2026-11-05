@@ -551,6 +551,93 @@ footer a:focus {
   color: var(--bc-muted);
 }
 
+.notifications-panel {
+  overflow: hidden;
+  border: 1px solid var(--bc-border) !important;
+  border-radius: 1rem;
+}
+
+.notification-section-header {
+  padding: 1rem 1.25rem;
+  background: var(--bc-surface-tint);
+}
+
+.notification-section-header h2 {
+  color: var(--bc-text);
+}
+
+.notification-section-header h2 > i {
+  color: var(--bc-primary);
+  font-size: 1rem;
+}
+
+.notification-item {
+  padding: 1.125rem 1.25rem;
+  transition: background-color 0.15s ease;
+}
+
+.notification-item-unread {
+  border-inline-start: 4px solid var(--bc-primary);
+  background: var(--bc-surface-raised);
+}
+
+.notification-item-unread:hover {
+  background: var(--bc-surface-tint);
+}
+
+.notification-item-read {
+  color: var(--bc-muted);
+}
+
+.notification-content {
+  min-width: 0;
+}
+
+.notification-message {
+  overflow-wrap: anywhere;
+}
+
+.notification-item-read .notification-message {
+  color: var(--bc-muted);
+}
+
+.notification-time {
+  display: inline-block;
+  margin-top: 0.35rem;
+  color: var(--bc-muted);
+  white-space: nowrap;
+}
+
+.notification-read-button {
+  white-space: nowrap;
+}
+
+.notification-empty {
+  background: var(--bc-surface-raised);
+  color: var(--bc-muted);
+}
+
+.notification-empty-icon {
+  display: inline-grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--bc-status-solved-bg);
+  color: var(--bc-status-solved);
+  font-size: 1.25rem;
+}
+
+@media (max-width: 575.98px) {
+  .notification-item {
+    padding: 1rem;
+  }
+
+  .notification-read-button {
+    width: 100%;
+  }
+}
+
 ::selection {
   background: #ddd6f0;
   color: #262435;
