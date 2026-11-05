@@ -49,7 +49,7 @@ class ProblemsViewsTests(TestCase):
         self.assertContains(response, "3 problèmes trouvés")
         self.assertContains(response, 'class="col-12 d-flex justify-content-end gap-2"')
         self.assertContains(response, 'class="problem-card-grid"')
-        self.assertContains(response, 'class="problem-card"')
+        self.assertContains(response, 'class="problem-card problem-card--solved"')
         self.assertContains(response, 'aria-current="page">Problèmes</a>')
         self.assertIn(self.problem_a.id, response.context["correct_problems"])
         self.assertIn(self.problem_b.id, response.context["wrong_problems"])

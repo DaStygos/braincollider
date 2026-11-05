@@ -18,6 +18,7 @@ urlpatterns = [
     path("leaderboard/", include("leaderboard.urls", namespace="leaderboard")),
     path("statistics/", include("stats.urls", namespace="stats")),
     path("groups/", include("groups.urls", namespace="groups")),
+    path("forum/", include("forum.urls", namespace="forum")),
     path("admin/", admin.site.urls),
     path("notifications/", include("notifications.urls", namespace="notifications")),
     path("staff/", include("staff.urls", namespace="staff")),

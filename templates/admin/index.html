@@ -65,6 +65,34 @@
             <span class="admin-quick-action__arrow" aria-hidden="true">→</span>
           </a>
         {% endif %}
+        {% if perms.forum.add_topic %}
+          <a class="admin-quick-action" href="{% url 'admin:forum_topic_add' %}">
+            <span class="admin-quick-action__icon" aria-hidden="true">+</span>
+            <span class="admin-quick-action__text"><span class="admin-quick-action__title">Créer un sujet du forum</span><span class="admin-quick-action__description">Ouvrir une discussion dans le forum</span></span>
+            <span class="admin-quick-action__arrow" aria-hidden="true">→</span>
+          </a>
+        {% endif %}
+        {% if perms.forum.view_topic %}
+          <a class="admin-quick-action" href="{% url 'admin:forum_topic_changelist' %}">
+            <span class="admin-quick-action__icon" aria-hidden="true">☰</span>
+            <span class="admin-quick-action__text"><span class="admin-quick-action__title">Gérer les sujets du forum</span><span class="admin-quick-action__description">Consulter et modifier les discussions</span></span>
+            <span class="admin-quick-action__arrow" aria-hidden="true">→</span>
+          </a>
+        {% endif %}
+        {% if perms.forum.view_post %}
+          <a class="admin-quick-action" href="{% url 'admin:forum_post_changelist' %}">
+            <span class="admin-quick-action__icon" aria-hidden="true">↳</span>
+            <span class="admin-quick-action__text"><span class="admin-quick-action__title">Gérer les réponses du forum</span><span class="admin-quick-action__description">Consulter et modérer les messages publiés</span></span>
+            <span class="admin-quick-action__arrow" aria-hidden="true">→</span>
+          </a>
+        {% endif %}
+        {% if perms.forum.view_tag %}
+          <a class="admin-quick-action" href="{% url 'admin:forum_tag_changelist' %}">
+            <span class="admin-quick-action__icon" aria-hidden="true">#</span>
+            <span class="admin-quick-action__text"><span class="admin-quick-action__title">Gérer les étiquettes du forum</span><span class="admin-quick-action__description">Créer et modifier les filtres thématiques</span></span>
+            <span class="admin-quick-action__arrow" aria-hidden="true">→</span>
+          </a>
+        {% endif %}
         {% if perms.auth.add_user %}
           <a class="admin-quick-action" href="{% url 'admin:auth_user_add' %}">
             <span class="admin-quick-action__icon" aria-hidden="true">+</span>

@@ -92,6 +92,7 @@ INSTALLED_APPS = [
     "staff",
     "stats",
     "groups",
+    "forum",
 ]
 
 MIDDLEWARE = [

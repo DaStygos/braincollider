@@ -1,0 +1,46 @@
+{% extends "base_generic.html" %}
+{% block title %}Forum | Braincollider{% endblock %}
+{% block content %}
+<section aria-labelledby="forum-title">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-4">
+    <div>
+      <h1 class="h3 mb-1" id="forum-title">Forum</h1>
+      <p class="text-muted mb-0">Posez vos questions et échangez autour des problèmes de physique.</p>
+    </div>
+    {% if user.is_authenticated %}
+      <a class="btn btn-primary" href="{% url 'forum:topic_create' %}">Créer un sujet</a>
+    {% else %}
+      <a class="btn btn-primary" href="{% url 'accounts:login' %}?next={% url 'forum:topic_create' %}">Connectez-vous pour participer</a>
+    {% endif %}
+  </div>
+
+  <nav class="d-flex flex-wrap gap-2 mb-4" aria-label="Filtrer les sujets par étiquette">
+    <a class="btn btn-sm {% if not selected_tag %}btn-primary{% else %}btn-outline-secondary{% endif %}" href="{% url 'forum:topic_list' %}"{% if not selected_tag %} aria-current="page"{% endif %}>Toutes les étiquettes</a>
+    {% for tag in tags %}
+      <a class="btn btn-sm {% if selected_tag == tag %}btn-primary{% else %}btn-outline-secondary{% endif %}" href="?tag={{ tag.slug|urlencode }}"{% if selected_tag == tag %} aria-current="page"{% endif %}>{{ tag.name }}</a>
+    {% empty %}
+      <span class="text-muted small align-self-center">Aucune étiquette pour le moment.</span>
+    {% endfor %}
+  </nav>
+
+  <div class="d-grid gap-3">
+    {% for topic in topics %}
+      <article class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h2 class="h5 mb-2"><a class="text-decoration-none" href="{% url 'forum:topic_detail' topic.pk %}">{{ topic.title }}</a></h2>
+          <p class="text-muted small mb-3">Par {{ topic.author.username }} · {{ topic.updated_at|date:"j M Y, H:i" }} · {{ topic.post_count }} réponse{{ topic.post_count|pluralize:"s" }}</p>
+          <div class="d-flex flex-wrap gap-2" aria-label="Étiquettes du sujet">
+            {% for tag in topic.tags.all %}<a class="badge rounded-pill text-bg-light text-decoration-none" href="?tag={{ tag.slug|urlencode }}">{{ tag.name }}</a>{% endfor %}
+          </div>
+        </div>
+      </article>
+    {% empty %}
+      <div class="card border-0 shadow-sm"><div class="card-body py-4 text-center">
+        <h2 class="h5">Aucun sujet pour le moment</h2>
+        <p class="text-muted">{% if selected_tag %}Aucun sujet ne porte l’étiquette « {{ selected_tag.name }} ».{% else %}Lancez la discussion en créant le premier sujet.{% endif %}</p>
+        {% if user.is_authenticated %}<a class="btn btn-primary" href="{% url 'forum:topic_create' %}">Créer un sujet</a>{% endif %}
+      </div></div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

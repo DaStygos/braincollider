@@ -75,6 +75,9 @@
         <li class="nav-item">
           <a class="nav-link{% if request.resolver_match.namespace == 'stats' %} active{% endif %}" href="{% url 'stats:dashboard' %}"{% if request.resolver_match.namespace == 'stats' %} aria-current="page"{% endif %}>Statistiques</a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link{% if request.resolver_match.namespace == 'forum' %} active{% endif %}" href="{% url 'forum:topic_list' %}"{% if request.resolver_match.namespace == 'forum' %} aria-current="page"{% endif %}>Forum</a>
+        </li>
 
         {% if can_access_pending_submissions %}
         <li class="nav-item">
@@ -92,7 +95,6 @@
         <li class="nav-item">
           <a class="nav-link{% if request.resolver_match.namespace == 'notifications' %} active{% endif %}" href="{% url 'notifications:notifications_list' %}"{% if request.resolver_match.namespace == 'notifications' %} aria-current="page"{% endif %}>
             <i class="bi bi-bell" aria-hidden="true"></i>
-            <span>Notifications</span>
             {% if unread_count > 0 %}<span class="badge rounded-pill bg-danger">{{ unread_count }}<span class="visually-hidden"> non lue(s)</span></span>{% endif %}
           </a>
         </li>

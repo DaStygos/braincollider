@@ -1,0 +1,55 @@
+{% extends "base_generic.html" %}
+{% block title %}{{ topic.title }} | Forum{% endblock %}
+{% block content %}
+<article aria-labelledby="topic-title">
+  <p class="mb-3"><a class="text-decoration-none" href="{% url 'forum:topic_list' %}"><i class="bi bi-arrow-left" aria-hidden="true"></i> Retour au forum</a></p>
+  <header class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+      <h1 class="h2" id="topic-title">{{ topic.title }}</h1>
+      <p class="text-muted small">Publié par {{ topic.author.username }} le {{ topic.created_at|date:"j F Y à H:i" }}</p>
+      {% if topic.description %}<div class="forum-topic-description mb-3">{{ topic.description|linebreaks }}</div>{% endif %}
+      <div class="d-flex flex-wrap gap-2" aria-label="Étiquettes du sujet">
+        {% for tag in topic.tags.all %}<a class="badge rounded-pill text-bg-light text-decoration-none" href="{% url 'forum:topic_list' %}?tag={{ tag.slug|urlencode }}">{{ tag.name }}</a>{% endfor %}
+      </div>
+    </div>
+  </header>
+
+  <section aria-labelledby="replies-title">
+    <h2 class="h4 mb-3" id="replies-title">Réponses <span class="text-muted">({{ topic.posts.count }})</span></h2>
+    <div class="d-grid gap-3">
+      {% for post in topic.posts.all %}
+        <article class="card border-0 shadow-sm"><div class="card-body">
+          <div class="d-flex justify-content-between flex-wrap gap-2 mb-2">
+            <strong>{{ post.author.username }}</strong><time class="text-muted small" datetime="{{ post.created_at|date:'c' }}">{{ post.created_at|date:"j M Y, H:i" }}</time>
+          </div>
+          <div class="text-break">{{ post.content|linebreaks }}</div>
+        </div></article>
+      {% empty %}
+        <p class="text-muted">Aucune réponse pour le moment. Vous pouvez poursuivre la discussion.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="card border-0 shadow-sm mt-4" aria-labelledby="reply-form-title">
+    <div class="card-body p-4">
+      <h2 class="h4" id="reply-form-title">Répondre</h2>
+      {% if user.is_authenticated %}
+        <form method="post" action="{% url 'forum:topic_detail' topic.pk %}">
+          {% csrf_token %}
+          {% if form.non_field_errors %}<div class="alert alert-danger" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+          <div class="mb-3">
+            <label class="form-label" for="{{ form.content.id_for_label }}">{{ form.content.label }}</label>
+            {{ form.content }}
+            {% if form.content.errors %}<div class="invalid-feedback d-block">{{ form.content.errors }}</div>{% endif %}
+            <div class="form-text">Soyez respectueux et détaillez votre raisonnement.</div>
+          </div>
+          <button class="btn btn-primary" type="submit"><i class="bi bi-send me-1" aria-hidden="true"></i>Publier la réponse</button>
+        </form>
+      {% else %}
+        <p class="text-muted">Connectez-vous pour participer à la discussion.</p>
+        <a class="btn btn-primary" href="{% url 'accounts:login' %}?next={{ request.get_full_path|urlencode }}">Se connecter pour répondre</a>
+      {% endif %}
+    </div>
+  </section>
+</article>
+{% endblock %}
