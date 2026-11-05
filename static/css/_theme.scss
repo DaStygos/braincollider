@@ -293,6 +293,63 @@ textarea.form-control:focus,
   border-color: var(--bc-primary);
 }
 
+.forum-topic-card {
+  border-color: var(--bc-border);
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.forum-topic-card:hover,
+.forum-topic-card:focus-within {
+  transform: translateY(-2px);
+  border-color: var(--bc-primary);
+  box-shadow: 0 14px 30px rgba(42, 35, 72, 0.14) !important;
+}
+
+.forum-topic-card h2 {
+  color: var(--bc-text);
+  transition: color 0.18s ease;
+}
+
+.forum-topic-card:hover h2,
+.forum-topic-card:focus-visible h2 {
+  color: var(--bc-primary);
+}
+
+.forum-topic-card:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--bc-primary) 45%, transparent);
+  outline-offset: 3px;
+}
+
+.forum-topic-description {
+  display: -webkit-box;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+  color: var(--bc-muted);
+  line-height: 1.55;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.forum-topic-date-separator {
+  margin: 0 0.2rem;
+  color: var(--bc-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .forum-topic-card,
+.forum-topic-card h2 {
+    transition: none;
+  }
+
+  .forum-topic-card:hover,
+  .forum-topic-card:focus-within {
+    transform: none;
+  }
+}
+
 .status-chip {
   display: inline-flex;
   align-items: center;
@@ -505,6 +562,17 @@ footer a:focus {
 #user-search-suggestions .dropdown-item.active {
   background-color: var(--bc-surface-tint);
   color: var(--bc-primary);
+}
+
+.site-navbar #user-search-input,
+.site-navbar #user-search-input:focus {
+  background-color: var(--bc-surface-raised);
+  color: var(--bc-text);
+}
+
+.site-navbar #user-search-input::placeholder {
+  color: var(--bc-muted);
+  opacity: 1;
 }
 
 .home-hero,

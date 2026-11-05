@@ -3,7 +3,7 @@
 {% block title %}Recherche{% endblock %}
 
 {% block content %}
-{% include "includes/_page_header.html" with title="Recherche" subtitle="Trouvez un utilisateur ou un problème en quelques secondes." %}
+{% include "includes/_page_header.html" with title="Recherche" subtitle="Trouvez un utilisateur, un problème ou un sujet du forum." %}
 
 <div class="row justify-content-center">
   <div class="col-12 col-lg-8">
@@ -17,7 +17,7 @@
               class="form-control"
               name="q"
               value="{{ query }}"
-              placeholder="Pseudo, prénom, nom ou problème"
+              placeholder="Pseudo, problème ou sujet du forum"
             >
             <button class="btn btn-primary" type="submit">Rechercher</button>
           </div>
@@ -25,7 +25,7 @@
 
         {% if query %}
           <p class="text-muted mb-3">Résultats pour "{{ query }}"</p>
-          {% if users or problems %}
+          {% if users or problems or topics %}
             {% if users %}
               <h3 class="h6 text-uppercase text-muted small fw-bold mt-3">Utilisateurs</h3>
               <div class="list-group mb-4">
@@ -57,11 +57,26 @@
                 {% endfor %}
               </div>
             {% endif %}
+            {% if topics %}
+              <h3 class="h6 text-uppercase text-muted small fw-bold mt-4">Forum</h3>
+              <div class="list-group">
+                {% for topic in topics %}
+                  <a href="{% url 'forum:topic_detail' topic.pk %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-start gap-2">
+                    <span class="flex-grow-1 text-break" style="min-width: 0;">
+                      <strong class="d-block">{{ topic.title }}</strong>
+                      {% if topic.description %}<span class="text-muted d-block small">{{ topic.description|truncatewords:20 }}</span>{% endif %}
+                      <span class="text-muted d-block small">Par {{ topic.author.username }}</span>
+                    </span>
+                    <span class="badge text-bg-secondary flex-shrink-0">Sujet</span>
+                  </a>
+                {% endfor %}
+              </div>
+            {% endif %}
           {% else %}
-            <p class="mb-0 text-muted">Aucun utilisateur ou problème trouvé.</p>
+            <p class="mb-0 text-muted">Aucun utilisateur, problème ou sujet du forum trouvé.</p>
           {% endif %}
         {% else %}
-          <p class="mb-0 text-muted">Saisissez un nom d'utilisateur ou un problème pour lancer une recherche.</p>
+          <p class="mb-0 text-muted">Saisissez un nom, un problème ou un sujet du forum pour lancer une recherche.</p>
         {% endif %}
       </div>
     </div>

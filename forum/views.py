@@ -17,14 +17,30 @@ def topic_list(request):
         .annotate(post_count=Count("posts", distinct=True))
     )
     tag_slug = request.GET.get("tag")
+    selected_sort = request.GET.get("sort", "activity")
+    sort_orders = {
+        "activity": ("-updated_at", "-pk"),
+        "newest": ("-created_at", "-pk"),
+        "oldest": ("created_at", "pk"),
+    }
+    if selected_sort not in sort_orders:
+        selected_sort = "activity"
     selected_tag = None
     if tag_slug:
         selected_tag = get_object_or_404(Tag, slug=tag_slug)
         topics = topics.filter(tags=selected_tag)
+    topics = topics.order_by(*sort_orders[selected_sort])
+    topics = topics.distinct()
     return render(
         request,
         "forum/topic_list.html",
-        {"topics": topics.distinct(), "tags": Tag.objects.all(), "selected_tag": selected_tag},
+        {
+            "topics": topics,
+            "topic_count": topics.count(),
+            "tags": Tag.objects.all(),
+            "selected_tag": selected_tag,
+            "selected_sort": selected_sort,
+        },
     )
 
 

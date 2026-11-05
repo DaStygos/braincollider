@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from .forms import AccountDeletionForm, SignUpForm, UserUpdateForm, ProfileUpdateForm
 from problems.models import Submission, Problem
+from forum.models import Topic
 from dateutil import parser
 from core.rate_limits import rate_limit
 
@@ -90,6 +91,16 @@ def _search_problems(query, limit=8):
     )
 
 
+def _search_topics(query, limit=8):
+    return _generic_search(
+        queryset=Topic.objects.select_related("author"),
+        query=query,
+        filters=["title__icontains", "description__icontains"],
+        limit=limit,
+        order_by="-updated_at",
+    )
+
+
 @rate_limit("signup", limit=5, period=60 * 60, methods={"POST"})
 def signup(request):
     if request.method == "POST":
@@ -122,6 +133,7 @@ def user_search(request):
     query = request.GET.get("q", "").strip()
     users = _search_users(query, limit=30)
     problems = _search_problems(query, limit=30)
+    topics = _search_topics(query, limit=30)
 
     if len(users) == 1 and users[0].username.lower() == query.lower():
         return redirect("accounts:public_profile", username=users[0].username)
@@ -133,6 +145,13 @@ def user_search(request):
     if exact_problem:
         return redirect("problems:problem_detail", pk=exact_problem.pk)
 
+    exact_topic = next(
+        (topic for topic in topics if topic.title.lower() == query.lower()),
+        None,
+    )
+    if exact_topic:
+        return redirect("forum:topic_detail", topic_id=exact_topic.pk)
+
     return render(
         request,
         "accounts/user_search.html",
@@ -140,6 +159,7 @@ def user_search(request):
             "query": query,
             "users": users,
             "problems": problems,
+            "topics": topics,
         },
     )
 
@@ -174,6 +194,7 @@ def matching_users(request):
     if _minimum_query_length(query):
         users = _search_users(query, limit=4)
         problems = _search_problems(query, limit=4)
+        topics = _search_topics(query, limit=4)
 
         results = [
             {
@@ -191,6 +212,14 @@ def matching_users(request):
                 "url": reverse("problems:problem_detail", args=[problem.pk]),
             }
             for problem in problems
+        ] + [
+            {
+                "kind": "forum",
+                "label": topic.title,
+                "secondary": f"Forum · {topic.author.username}",
+                "url": reverse("forum:topic_detail", args=[topic.pk]),
+            }
+            for topic in topics
         ]
 
     return JsonResponse({"results": results})

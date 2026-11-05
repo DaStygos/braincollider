@@ -15,25 +15,50 @@
   </div>
 
   <nav class="d-flex flex-wrap gap-2 mb-4" aria-label="Filtrer les sujets par étiquette">
-    <a class="btn btn-sm {% if not selected_tag %}btn-primary{% else %}btn-outline-secondary{% endif %}" href="{% url 'forum:topic_list' %}"{% if not selected_tag %} aria-current="page"{% endif %}>Toutes les étiquettes</a>
+    <a class="btn btn-sm {% if not selected_tag %}btn-primary{% else %}btn-outline-secondary{% endif %}" href="{% url 'forum:topic_list' %}?sort={{ selected_sort }}"{% if not selected_tag %} aria-current="page"{% endif %}>Toutes les étiquettes</a>
     {% for tag in tags %}
-      <a class="btn btn-sm {% if selected_tag == tag %}btn-primary{% else %}btn-outline-secondary{% endif %}" href="?tag={{ tag.slug|urlencode }}"{% if selected_tag == tag %} aria-current="page"{% endif %}>{{ tag.name }}</a>
+      <a class="btn btn-sm {% if selected_tag == tag %}btn-primary{% else %}btn-outline-secondary{% endif %}" href="?tag={{ tag.slug|urlencode }}&amp;sort={{ selected_sort }}"{% if selected_tag == tag %} aria-current="page"{% endif %}>{{ tag.name }}</a>
     {% empty %}
       <span class="text-muted small align-self-center">Aucune étiquette pour le moment.</span>
     {% endfor %}
   </nav>
 
+  <form method="get" class="d-flex flex-wrap align-items-end justify-content-between gap-2 mb-3">
+    {% if selected_tag %}<input type="hidden" name="tag" value="{{ selected_tag.slug }}">{% endif %}
+    <p class="text-muted small mb-0" role="status">{{ topic_count }} sujet{{ topic_count|pluralize }}.</p>
+    <div class="d-flex align-items-end gap-2">
+      <div>
+        <label class="form-label small mb-1" for="topic-sort">Trier les sujets par</label>
+        <select class="form-select form-select-sm" id="topic-sort" name="sort">
+          <option value="activity" {% if selected_sort == 'activity' %}selected{% endif %}>Dernière activité</option>
+          <option value="newest" {% if selected_sort == 'newest' %}selected{% endif %}>Création : plus récente</option>
+          <option value="oldest" {% if selected_sort == 'oldest' %}selected{% endif %}>Création : plus ancienne</option>
+        </select>
+      </div>
+      <button class="btn btn-sm btn-outline-primary" type="submit">Trier</button>
+    </div>
+  </form>
+
   <div class="d-grid gap-3">
     {% for topic in topics %}
-      <article class="card border-0 shadow-sm">
+      <a class="card shadow-sm forum-topic-card text-decoration-none" href="{% url 'forum:topic_detail' topic.pk %}">
         <div class="card-body">
-          <h2 class="h5 mb-2"><a class="text-decoration-none" href="{% url 'forum:topic_detail' topic.pk %}">{{ topic.title }}</a></h2>
-          <p class="text-muted small mb-3">Par {{ topic.author.username }} · {{ topic.updated_at|date:"j M Y, H:i" }} · {{ topic.post_count }} réponse{{ topic.post_count|pluralize:"s" }}</p>
+          <h2 class="h5 mb-2">{{ topic.title }}</h2>
+          {% if topic.description %}<p class="forum-topic-description">{{ topic.description|truncatewords:30 }}</p>{% endif %}
+          <p class="text-muted small mb-3">
+            Par {{ topic.author.username }}
+            <span class="forum-topic-date-separator">·</span>
+            Créé <time datetime="{{ topic.created_at|date:'c' }}">{{ topic.created_at|date:"j M Y, H:i" }}</time>
+            <span class="forum-topic-date-separator">·</span>
+            Dernière activité <time datetime="{{ topic.updated_at|date:'c' }}">{{ topic.updated_at|date:"j M Y, H:i" }}</time>
+            <span class="forum-topic-date-separator">·</span>
+            {{ topic.post_count }} réponse{{ topic.post_count|pluralize:"s" }}
+          </p>
           <div class="d-flex flex-wrap gap-2" aria-label="Étiquettes du sujet">
-            {% for tag in topic.tags.all %}<a class="badge rounded-pill text-bg-light text-decoration-none" href="?tag={{ tag.slug|urlencode }}">{{ tag.name }}</a>{% endfor %}
+            {% for tag in topic.tags.all %}<span class="badge rounded-pill text-bg-light">{{ tag.name }}</span>{% endfor %}
           </div>
         </div>
-      </article>
+      </a>
     {% empty %}
       <div class="card border-0 shadow-sm"><div class="card-body py-4 text-center">
         <h2 class="h5">Aucun sujet pour le moment</h2>

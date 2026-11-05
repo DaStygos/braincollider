@@ -54,8 +54,8 @@
             type="search"
             name="q"
             id="user-search-input"
-            placeholder="Rechercher un utilisateur ou un problème"
-            aria-label="Rechercher un utilisateur ou un problème"
+            placeholder="Rechercher un utilisateur, un problème ou un sujet du forum"
+            aria-label="Rechercher un utilisateur, un problème ou un sujet du forum"
             autocomplete="off"
             value="{{ request.GET.q|default:'' }}"
           >
@@ -274,7 +274,7 @@
         const badge = document.createElement('span');
         badge.className = result.kind === 'problem' ? 'badge text-bg-primary' : 'badge text-bg-secondary';
         badge.style.flexShrink = '0';
-        badge.textContent = result.kind === 'problem' ? 'Problème' : 'Profil';
+        badge.textContent = result.kind === 'problem' ? 'Problème' : result.kind === 'forum' ? 'Forum' : 'Profil';
 
         link.appendChild(label);
         link.appendChild(badge);
