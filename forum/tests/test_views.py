@@ -58,10 +58,10 @@ class ForumViewTests(TestCase):
         self.assertEqual(Post.objects.get().topic, topic)
         self.assertEqual(Post.objects.get().author, self.user)
 
-    def test_reply_form_submission_on_detail_requires_login(self):
+    def test_topic_detail_does_not_accept_mutations(self):
         topic = Topic.objects.create(title="Question", author=self.user)
         response = self.client.post(reverse("forum:topic_detail", args=[topic.pk]), {"content": "Réponse"})
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 405)
         self.assertFalse(Post.objects.exists())
 
     def test_filter_topics_by_tag(self):

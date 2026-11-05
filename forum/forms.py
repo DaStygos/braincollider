@@ -6,6 +6,7 @@ from .models import Post, Topic
 class TopicForm(forms.ModelForm):
     description = forms.CharField(
         label="Description / contexte",
+        max_length=10000,
         help_text="Présentez votre question ou apportez le contexte utile.",
         widget=forms.Textarea(
             attrs={

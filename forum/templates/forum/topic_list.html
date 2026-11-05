@@ -67,5 +67,18 @@
       </div></div>
     {% endfor %}
   </div>
+  {% if page_obj.has_other_pages %}
+    <nav class="mt-4" aria-label="Pagination des sujets">
+      <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+          <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&amp;sort={{ selected_sort }}{% if selected_tag %}&amp;tag={{ selected_tag.slug|urlencode }}{% endif %}">Précédent</a></li>
+        {% else %}<li class="page-item disabled"><span class="page-link">Précédent</span></li>{% endif %}
+        <li class="page-item active" aria-current="page"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+        {% if page_obj.has_next %}
+          <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&amp;sort={{ selected_sort }}{% if selected_tag %}&amp;tag={{ selected_tag.slug|urlencode }}{% endif %}">Suivant</a></li>
+        {% else %}<li class="page-item disabled"><span class="page-link">Suivant</span></li>{% endif %}
+      </ul>
+    </nav>
+  {% endif %}
 </section>
 {% endblock %}

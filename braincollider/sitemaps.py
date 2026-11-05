@@ -4,7 +4,6 @@ from problems.models import Problem
 
 
 class StaticViewSitemap(Sitemap):
-    priority = 0.5
     changefreq = "weekly"
 
     def items(self):
@@ -13,9 +12,21 @@ class StaticViewSitemap(Sitemap):
     def location(self, item):
         return reverse(item)
 
+    def priority(self, item):
+        return {
+            "core:home": 1.0,
+            "problems:index": 0.9,
+            "leaderboard:leaderboard": 0.4,
+        }.get(item, 0.3)
+
+    def changefreq(self, item):
+        if item in {"core:home", "problems:index"}:
+            return "weekly"
+        return "monthly"
+
 
 class ProblemSitemap(Sitemap):
-    priority = 0.7
+    priority = 0.6
     changefreq = "monthly"
 
     def items(self):

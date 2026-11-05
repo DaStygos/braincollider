@@ -14,6 +14,7 @@ from dateutil import parser
 from core.rate_limits import rate_limit
 
 User = get_user_model()
+MAX_SEARCH_LENGTH = 100
 
 
 def _minimum_query_length(query, minimum=2):
@@ -129,8 +130,9 @@ def public_profile(request, username):
     return render(request, "accounts/public_profile.html", context)
 
 
+@rate_limit("global-search", limit=60, period=60)
 def user_search(request):
-    query = request.GET.get("q", "").strip()
+    query = request.GET.get("q", "").strip()[:MAX_SEARCH_LENGTH]
     users = _search_users(query, limit=30)
     problems = _search_problems(query, limit=30)
     topics = _search_topics(query, limit=30)
@@ -188,7 +190,7 @@ def edit_profile(request):
 
 @rate_limit("user-suggestions", limit=60, period=60)
 def matching_users(request):
-    query = request.GET.get("q", "").strip()
+    query = request.GET.get("q", "").strip()[:MAX_SEARCH_LENGTH]
     results = []
 
     if _minimum_query_length(query):

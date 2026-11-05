@@ -15,7 +15,7 @@ class Tag(models.Model):
 
 class Topic(models.Model):
     title = models.CharField(max_length=200)
-    description = models.TextField(default="")
+    description = models.TextField(default="", max_length=10000)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="forum_topics")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -31,7 +31,7 @@ class Topic(models.Model):
 class Post(models.Model):
     topic = models.ForeignKey(Topic, on_delete=models.CASCADE, related_name="posts")
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="forum_posts")
-    content = models.TextField()
+    content = models.TextField(max_length=20000)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
