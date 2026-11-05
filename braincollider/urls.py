@@ -3,12 +3,13 @@ from django.urls import include, path
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.sitemaps.views import sitemap
-from braincollider.sitemaps import StaticViewSitemap, ProblemSitemap
+from braincollider.sitemaps import ForumTopicSitemap, ProblemSitemap, StaticViewSitemap
 from django.views.generic import TemplateView
 
 sitemaps = {
     "static": StaticViewSitemap,
     "problems": ProblemSitemap,
+    "forum": ForumTopicSitemap,
 }
 
 urlpatterns = [

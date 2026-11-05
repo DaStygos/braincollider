@@ -127,13 +127,23 @@ class ProblemsViewsTests(TestCase):
 
         self.assertContains(response, self.user.username)
 
-    def test_problem_detail_requires_login(self):
+    def test_problem_statement_is_public_but_submission_requires_login(self):
         response = self.client.get(
             reverse("problems:problem_detail", args=[self.problem_a.pk])
         )
 
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Statement A")
+
+        response = self.client.post(
+            reverse("problems:problem_detail", args=[self.problem_a.pk]),
+            {"content": "My solution"},
+        )
         self.assertEqual(response.status_code, 302)
         self.assertIn(reverse("accounts:login"), response.url)
+        self.assertFalse(
+            Submission.objects.filter(problem=self.problem_a).exists()
+        )
 
     def test_problem_detail_creates_submission(self):
         self.client.force_login(self.user)

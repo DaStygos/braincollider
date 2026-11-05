@@ -1,6 +1,12 @@
 {% extends "base_generic.html" %}
 {% load custom_tags %}
-{% block title %}{{ problem.title }}{% endblock %}
+{% block title %}{{ problem.title }} : problème de physique{% endblock %}
+{% block meta_description %}{% if problem.short_description %}{{ problem.short_description }}{% else %}{{ problem.statement|striptags|truncatechars:155 }}{% endif %}{% endblock %}
+{% block og_title %}{{ problem.title }} : problème de physique{% endblock %}
+{% block og_description %}{% if problem.short_description %}{{ problem.short_description }}{% else %}{{ problem.statement|striptags|truncatechars:155 }}{% endif %}{% endblock %}
+{% block twitter_title %}{{ problem.title }} : problème de physique{% endblock %}
+{% block twitter_description %}{% if problem.short_description %}{{ problem.short_description }}{% else %}{{ problem.statement|striptags|truncatechars:155 }}{% endif %}{% endblock %}
+{% block og_type %}article{% endblock %}
 
 {% block content %}
 <header class="problem-detail-header d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
@@ -105,6 +111,7 @@
   <!-- ── Zone principale : conversation + formulaire ────────────────── -->
   <div class="col-12 col-lg-9 order-1 order-lg-1 d-flex flex-column gap-3">
 
+    {% if user.is_authenticated %}
     <!-- Conversation courante (masquée si statut rejected) -->
     {% if submission and submission.status != 'rejected' %}
     <div class="card border-0 shadow-sm">
@@ -225,6 +232,18 @@
         </form>
       </div>
     </div>
+    {% endif %}
+    {% else %}
+    <section class="card border-0 shadow-sm" aria-labelledby="submission-signin-title">
+      <div class="card-body p-4">
+        <h2 class="h5" id="submission-signin-title">À vous de jouer</h2>
+        <p class="text-muted">L’énoncé est consultable librement. Connectez-vous pour rédiger et envoyer votre solution.</p>
+        <div class="d-flex flex-wrap gap-2">
+          <a class="btn btn-primary" href="{% url 'accounts:login' %}?next={{ request.get_full_path|urlencode }}">Se connecter pour répondre</a>
+          <a class="btn btn-outline-primary" href="{% url 'accounts:signup' %}">Créer un compte</a>
+        </div>
+      </div>
+    </section>
     {% endif %}
 
     <!-- Historique : soumission courante refusée/acceptée + tentatives précédentes -->

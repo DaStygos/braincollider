@@ -43,6 +43,7 @@ def submission_score_expression(prefix=""):
 
 class Problem(models.Model):
     title = models.CharField(max_length=200)
+    updated_at = models.DateTimeField(auto_now=True)
     short_description = models.CharField(max_length=300, blank=True)
     statement = models.TextField()
     author = models.ForeignKey(

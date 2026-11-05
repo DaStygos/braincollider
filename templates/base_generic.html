@@ -5,6 +5,7 @@
 <html lang="fr" data-theme="light">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <script nonce="{{ request.csp_nonce }}">
     try {
       document.documentElement.dataset.theme =
@@ -13,7 +14,20 @@
       document.documentElement.dataset.theme = 'light';
     }
   </script>
-  <title>{% block title %}Braincollider{% endblock %}</title>
+  <title>{% block title %}Préparation aux Olympiades de physique{% endblock %} | BrainCollider</title>
+  <meta name="description" content="{% block meta_description %}BrainCollider aide les élèves à préparer les Olympiades de physique grâce à des problèmes, des corrections et une communauté d’entraide.{% endblock %}">
+  <meta name="robots" content="{% block robots_meta %}{{ robots_meta }}{% endblock %}">
+  <link rel="canonical" href="{{ canonical_url }}">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:site_name" content="BrainCollider">
+  <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+  <meta property="og:title" content="{% block og_title %}Préparation aux Olympiades de physique{% endblock %}">
+  <meta property="og:description" content="{% block og_description %}BrainCollider aide les élèves à préparer les Olympiades de physique grâce à des problèmes, des corrections et une communauté d’entraide.{% endblock %}">
+  <meta property="og:url" content="{{ canonical_url }}">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="{% block twitter_title %}Préparation aux Olympiades de physique{% endblock %}">
+  <meta name="twitter:description" content="{% block twitter_description %}BrainCollider aide les élèves à préparer les Olympiades de physique grâce à des problèmes, des corrections et une communauté d’entraide.{% endblock %}">
+  {% block structured_data %}{% endblock %}
   <link id="site-favicon" rel="icon" type="image/svg+xml" href="{% static_versioned 'images/braincollider-mark-light.svg' %}">
   <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">

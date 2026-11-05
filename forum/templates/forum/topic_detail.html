@@ -1,13 +1,22 @@
 {% extends "base_generic.html" %}
-{% block title %}{{ topic.title }} | Forum{% endblock %}
+{% block title %}{{ topic.title }} | Discussion de physique{% endblock %}
+{% block meta_description %}{% if topic.description %}{{ topic.description|striptags|truncatechars:155 }}{% else %}Discussion autour d’un problème de physique sur le forum BrainCollider.{% endif %}{% endblock %}
+{% block og_title %}{{ topic.title }} | Forum BrainCollider{% endblock %}
+{% block og_description %}{% if topic.description %}{{ topic.description|striptags|truncatechars:155 }}{% else %}Discussion autour d’un problème de physique sur le forum BrainCollider.{% endif %}{% endblock %}
+{% block twitter_title %}{{ topic.title }} | Forum BrainCollider{% endblock %}
+{% block twitter_description %}{% if topic.description %}{{ topic.description|striptags|truncatechars:155 }}{% else %}Discussion autour d’un problème de physique sur le forum BrainCollider.{% endif %}{% endblock %}
+{% block og_type %}article{% endblock %}
 {% block content %}
-<article aria-labelledby="topic-title">
+<article aria-labelledby="topic-title" itemscope itemtype="https://schema.org/DiscussionForumPosting">
+  <link itemprop="mainEntityOfPage" href="{{ canonical_url }}">
+  <link itemprop="url" href="{{ canonical_url }}">
   <p class="mb-3"><a class="text-decoration-none" href="{% url 'forum:topic_list' %}"><i class="bi bi-arrow-left" aria-hidden="true"></i> Retour au forum</a></p>
   <header class="card border-0 shadow-sm mb-4">
     <div class="card-body p-4">
-      <h1 class="h2" id="topic-title">{{ topic.title }}</h1>
-      <p class="text-muted small">Publié par {{ topic.author.username }} le {{ topic.created_at|date:"j F Y à H:i" }}</p>
-      {% if topic.description %}<div class="forum-topic-description mb-3">{{ topic.description|linebreaks }}</div>{% endif %}
+      <h1 class="h2" id="topic-title" itemprop="headline">{{ topic.title }}</h1>
+      <p class="text-muted small">Publié par <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="name">{{ topic.author.username }}</span></span> le <time itemprop="datePublished" datetime="{{ topic.created_at|date:'c' }}">{{ topic.created_at|date:"j F Y à H:i" }}</time></p>
+      {% if topic.description %}<div class="forum-topic-description mb-3" itemprop="text">{{ topic.description|linebreaks }}</div>{% endif %}
+      <meta itemprop="commentCount" content="{{ post_count }}">
       <div class="d-flex flex-wrap gap-2" aria-label="Étiquettes du sujet">
         {% for tag in topic.tags.all %}<a class="badge rounded-pill text-bg-light text-decoration-none" href="{% url 'forum:topic_list' %}?tag={{ tag.slug|urlencode }}">{{ tag.name }}</a>{% endfor %}
       </div>
@@ -18,11 +27,11 @@
     <h2 class="h4 mb-3" id="replies-title">Réponses <span class="text-muted">({{ post_count }})</span></h2>
     <div class="d-grid gap-3">
       {% for post in posts %}
-        <article class="card border-0 shadow-sm"><div class="card-body">
+        <article class="card border-0 shadow-sm" itemprop="comment" itemscope itemtype="https://schema.org/Comment"><div class="card-body">
           <div class="d-flex justify-content-between flex-wrap gap-2 mb-2">
-            <strong>{{ post.author.username }}</strong><time class="text-muted small" datetime="{{ post.created_at|date:'c' }}">{{ post.created_at|date:"j M Y, H:i" }}</time>
+            <strong itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="name">{{ post.author.username }}</span></strong><time class="text-muted small" itemprop="datePublished" datetime="{{ post.created_at|date:'c' }}">{{ post.created_at|date:"j M Y, H:i" }}</time>
           </div>
-          <div class="text-break">{{ post.content|linebreaks }}</div>
+          <div class="text-break" itemprop="text">{{ post.content|linebreaks }}</div>
         </div></article>
       {% empty %}
         <p class="text-muted">Aucune réponse pour le moment. Vous pouvez poursuivre la discussion.</p>

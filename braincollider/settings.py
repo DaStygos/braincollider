@@ -34,6 +34,7 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 
 load_dotenv()  # take environment variables from .env.
+SITE_URL = os.getenv("SITE_URL", "https://braincollider.com").rstrip("/")
 
 
 def env_bool(name, default=False):
@@ -115,6 +116,7 @@ TEMPLATES = [
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.request",
+                "core.context_processors.seo_metadata",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "staff.context_processors.pending_submissions_count",

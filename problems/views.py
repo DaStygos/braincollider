@@ -1,3 +1,6 @@
+from functools import wraps
+
+from django.contrib.auth.views import redirect_to_login
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import (
     CATEGORY_CHOICES,
@@ -6,10 +9,19 @@ from .models import (
     Submission,
     SubmissionComment,
 )
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
 from core.rate_limits import rate_limit
+
+
+def login_required_for_post(view):
+    @wraps(view)
+    def wrapped(request, *args, **kwargs):
+        if request.method == "POST" and not request.user.is_authenticated:
+            return redirect_to_login(request.get_full_path())
+        return view(request, *args, **kwargs)
+
+    return wrapped
 
 
 def _create_pending_submission(user, problem, answer):
@@ -112,16 +124,18 @@ def index(request):
     return render(request, "problems/index.html", context)
 
 
-@login_required
+@login_required_for_post
 @rate_limit("problem-submission", limit=30, period=60 * 60, methods={"POST"})
 def problem_detail(request, pk):
     problem = get_object_or_404(Problem, pk=pk)
     # Récupère la soumission la plus récente de l'utilisateur pour ce problème.
-    submission = (
-        Submission.objects.filter(user=request.user, problem=problem)
-        .order_by("-submitted_at")
-        .first()
-    )
+    submission = None
+    if request.user.is_authenticated:
+        submission = (
+            Submission.objects.filter(user=request.user, problem=problem)
+            .order_by("-submitted_at")
+            .first()
+        )
 
     if request.method == "POST":
         # Soumission validée : l'utilisateur ne peut plus rien soumettre depuis cette vue.
@@ -176,11 +190,13 @@ def problem_detail(request, pk):
         return redirect("problems:problem_detail", pk=problem.pk)
 
     # Toutes les soumissions sauf la plus récente, pour l'historique
-    previous_submissions = (
-        Submission.objects.filter(user=request.user, problem=problem)
-        .order_by("-submitted_at")
-        .prefetch_related("comments")[1:]
-    )
+    previous_submissions = Submission.objects.none()
+    if request.user.is_authenticated:
+        previous_submissions = (
+            Submission.objects.filter(user=request.user, problem=problem)
+            .order_by("-submitted_at")
+            .prefetch_related("comments")[1:]
+        )
 
     return render(
         request,

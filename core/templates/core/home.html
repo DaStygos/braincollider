@@ -1,6 +1,25 @@
 {% extends "base_generic.html" %}
+{% load static %}
 
-{% block title %}Accueil{% endblock %}
+{% block title %}Préparer les Olympiades de physique{% endblock %}
+{% block meta_description %}Entraînez-vous aux Olympiades de physique avec des problèmes classés par thème et difficulté, des corrections et une communauté d’entraide.{% endblock %}
+{% block og_title %}Préparer les Olympiades de physique avec BrainCollider{% endblock %}
+{% block og_description %}Entraînez-vous aux Olympiades de physique avec des problèmes classés par thème et difficulté, des corrections et une communauté d’entraide.{% endblock %}
+{% block twitter_title %}Préparer les Olympiades de physique avec BrainCollider{% endblock %}
+{% block twitter_description %}Entraînez-vous aux Olympiades de physique avec des problèmes classés par thème et difficulté, des corrections et une communauté d’entraide.{% endblock %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "BrainCollider",
+  "url": "{{ site_url|escapejs }}",
+  "email": "contact@braincollider.com",
+  "logo": "{{ site_url|escapejs }}{% static 'images/braincollider-logo.png' %}"
+}
+</script>
+{% endblock %}
 
 {% block content %}
 <section class="home-hero" aria-labelledby="home-title">

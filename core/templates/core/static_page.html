@@ -1,6 +1,11 @@
 {% extends "base_generic.html" %}
 
 {% block title %}{{ page_title }}{% endblock %}
+{% block meta_description %}{{ page_lead|striptags|truncatechars:155 }}{% endblock %}
+{% block og_title %}{{ page_title }} | BrainCollider{% endblock %}
+{% block og_description %}{{ page_lead|striptags|truncatechars:155 }}{% endblock %}
+{% block twitter_title %}{{ page_title }} | BrainCollider{% endblock %}
+{% block twitter_description %}{{ page_lead|striptags|truncatechars:155 }}{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
