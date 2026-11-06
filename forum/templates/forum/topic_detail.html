@@ -16,6 +16,7 @@
       <h1 class="h2" id="topic-title" itemprop="headline">{{ topic.title }}</h1>
       <p class="text-muted small">Publié par <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="name">{{ topic.author.username }}</span></span> le <time itemprop="datePublished" datetime="{{ topic.created_at|date:'c' }}">{{ topic.created_at|date:"j F Y à H:i" }}</time></p>
       {% if topic.description %}<div class="forum-topic-description mb-3" itemprop="text">{{ topic.description|linebreaks }}</div>{% endif %}
+      {% with linked_problems=topic.problems.all %}{% if linked_problems %}<div class="mb-3"><strong>Problèmes associés</strong><ul class="mb-0">{% for problem in linked_problems %}<li><a href="{% url 'problems:problem_detail' problem.pk %}">{{ problem.title }}</a></li>{% endfor %}</ul></div>{% endif %}{% endwith %}
       <meta itemprop="commentCount" content="{{ post_count }}">
       <div class="d-flex flex-wrap gap-2" aria-label="Étiquettes du sujet">
         {% for tag in topic.tags.all %}<a class="badge rounded-pill text-bg-light text-decoration-none" href="{% url 'forum:topic_list' %}?tag={{ tag.slug|urlencode }}">{{ tag.name }}</a>{% endfor %}

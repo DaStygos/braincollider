@@ -3,6 +3,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from forum.models import Post, Tag, Topic
+from problems.models import Problem
 
 
 class ForumViewTests(TestCase):
@@ -36,6 +37,17 @@ class ForumViewTests(TestCase):
             "Contexte de la question Django",
         )
         self.assertFalse(Post.objects.exists())
+
+    def test_topic_can_link_problems(self):
+        problem = Problem.objects.create(title="Oscillator", statement="x", solution="y")
+        self.client.force_login(self.user)
+        response = self.client.post(reverse("forum:topic_create"), {
+            "title": "Question sur l’oscillateur", "description": "Contexte",
+            "tags": [], "problems": [problem.pk],
+        })
+        self.assertEqual(response.status_code, 302)
+        topic = Topic.objects.get(title="Question sur l’oscillateur")
+        self.assertEqual(topic.problems.get(), problem)
 
     def test_first_message_is_required_when_creating_topic(self):
         self.client.force_login(self.user)

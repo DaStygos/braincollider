@@ -21,7 +21,7 @@ class TopicAdmin(admin.ModelAdmin):
     list_display = ("title", "author", "created_at", "updated_at")
     list_filter = ("tags", "created_at")
     search_fields = ("title", "description", "author__username")
-    filter_horizontal = ("tags",)
+    filter_horizontal = ("tags", "problems")
     inlines = (PostInline,)
 
 

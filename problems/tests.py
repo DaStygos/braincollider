@@ -49,7 +49,7 @@ class ProblemsViewsTests(TestCase):
         self.assertContains(response, "3 problèmes trouvés")
         self.assertContains(response, 'class="col-12 d-flex justify-content-end gap-2"')
         self.assertContains(response, 'class="problem-card-grid"')
-        self.assertContains(response, 'class="problem-card problem-card--solved"')
+        self.assertContains(response, 'class="problem-card-shell problem-card-shell--solved"')
         self.assertContains(response, 'aria-current="page">Problèmes</a>')
         self.assertIn(self.problem_a.id, response.context["correct_problems"])
         self.assertIn(self.problem_b.id, response.context["wrong_problems"])
@@ -206,3 +206,15 @@ class ProblemsViewsTests(TestCase):
     def test_problem_get_score_matches_difficulty(self):
         self.assertEqual(self.problem_a.get_score(), 100)
         self.assertEqual(self.problem_b.get_score(), 300)
+
+    def test_user_can_save_and_unsave_a_problem(self):
+        self.client.force_login(self.user)
+        url = reverse("problems:toggle_saved_problem", args=[self.problem_a.pk])
+        self.assertEqual(self.client.post(url).status_code, 302)
+        self.assertTrue(self.user.saved_problems.filter(problem=self.problem_a).exists())
+        response = self.client.get(reverse("problems:index"), {"status": "saved"})
+        self.assertQuerySetEqual(response.context["problems"], [self.problem_a])
+        self.assertContains(response, "bi-bookmark-fill")
+        self.assertContains(response, 'value="saved"')
+        self.client.post(url)
+        self.assertFalse(self.user.saved_problems.exists())

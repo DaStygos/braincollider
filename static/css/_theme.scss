@@ -16,16 +16,16 @@
   --bc-accent: #287d78;
   --bc-status-solved: #2e745e;
   --bc-status-solved-bg: #e9f5ef;
-  --bc-status-solved-border: #c9e6d8;
+  --bc-status-solved-border: #23834f;
   --bc-status-pending: #94611e;
   --bc-status-pending-bg: #fff4df;
-  --bc-status-pending-border: #f0ddb6;
+  --bc-status-pending-border: #a96508;
   --bc-status-retry: #a94455;
   --bc-status-retry-bg: #fbecef;
-  --bc-status-retry-border: #efcbd2;
+  --bc-status-retry-border: #bf4056;
   --bc-status-neutral: #626a7c;
   --bc-status-neutral-bg: #eff0f5;
-  --bc-status-neutral-border: #dfe1ea;
+  --bc-status-neutral-border: #858b9c;
   --bc-shadow: 0 12px 30px rgba(42, 35, 72, 0.08);
 }
 
@@ -47,16 +47,16 @@
   --bc-accent: #72d2c5;
   --bc-status-solved: #9ee1c6;
   --bc-status-solved-bg: #20392f;
-  --bc-status-solved-border: #38644f;
+  --bc-status-solved-border: #74dda0;
   --bc-status-pending: #f2ce8a;
   --bc-status-pending-bg: #3b3121;
-  --bc-status-pending-border: #6b542f;
+  --bc-status-pending-border: #e3b255;
   --bc-status-retry: #f2aab5;
   --bc-status-retry-bg: #40252d;
-  --bc-status-retry-border: #70404a;
+  --bc-status-retry-border: #f0798d;
   --bc-status-neutral: #c0bccd;
   --bc-status-neutral-bg: #2d2b3a;
-  --bc-status-neutral-border: #454356;
+  --bc-status-neutral-border: #9692ad;
   --bc-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
 }
 
@@ -386,23 +386,6 @@ textarea.form-control:focus,
   background: var(--bc-status-neutral-bg);
   border-color: var(--bc-status-neutral-border);
   color: var(--bc-status-neutral);
-}
-
-.problem-card--solved {
-  border-color: var(--bc-status-solved-border);
-}
-
-.problem-card--pending {
-  border-color: var(--bc-status-pending-border);
-}
-
-.problem-card--retry {
-  border-color: var(--bc-status-retry-border);
-}
-
-.problem-card--unsolved,
-.problem-card--discover {
-  border-color: var(--bc-status-neutral-border);
 }
 
 footer {

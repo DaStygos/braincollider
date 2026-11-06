@@ -12,9 +12,20 @@
 {% block content %}
 {% include "includes/_page_header.html" with title="Liste des problèmes" subtitle="Trouvez les problèmes qui correspondent à votre niveau ou vos envies et testez vos compétences." %}
 
+{% if user.is_authenticated %}
+<div class="d-flex justify-content-end mb-3">
+    <form method="get" action="{% url 'problems:index' %}">
+        {% if selected_status != 'saved' %}<input type="hidden" name="status" value="saved">{% endif %}
+        <button type="submit" class="btn {% if selected_status == 'saved' %}btn-primary{% else %}btn-outline-primary{% endif %}" aria-label="Filtrer les problèmes à revoir" aria-pressed="{% if selected_status == 'saved' %}true{% else %}false{% endif %}">
+            <i class="bi {% if selected_status == 'saved' %}bi-bookmark-fill{% else %}bi-bookmark{% endif %} me-1" aria-hidden="true"></i>À revoir
+        </button>
+    </form>
+</div>
+{% endif %}
+
 <div class="card border-0 shadow-sm mb-3 problem-filter-panel">
     <div class="card-body">
-        <form method="get" class="row g-3 align-items-end">
+        <form method="get" class="row g-3 align-items-end" data-auto-apply-filters>
             <div class="col-12 col-lg-4">
                 <label for="problem-search" class="form-label">Rechercher</label>
                 <input type="search" class="form-control" id="problem-search" name="q" value="{{ selected_search }}" placeholder="Titre du problème">
@@ -58,7 +69,6 @@
             </div>
             <div class="col-12 d-flex justify-content-end gap-2">
                 <a href="{% url 'problems:index' %}" class="btn btn-outline-secondary">Effacer les filtres</a>
-                <button type="submit" class="btn btn-primary">Afficher les problèmes</button>
             </div>
         </form>
     </div>
@@ -68,12 +78,15 @@
 <p class="text-muted small mb-2" role="status">{{ problem_count }} problème{{ problem_count|pluralize }} trouvé{{ problem_count|pluralize }}.</p>
 <div class="problem-card-grid">
     {% for problem in problems %}
-    <a href="{% url 'problems:problem_detail' problem.id %}" class="problem-card{% if user.is_authenticated %}{% if problem.id in correct_problems %} problem-card--solved{% elif problem.id in wrong_problems %} problem-card--retry{% elif problem.id in pending_problems %} problem-card--pending{% else %} problem-card--unsolved{% endif %}{% else %} problem-card--discover{% endif %}">
+    <div class="problem-card-shell{% if user.is_authenticated %}{% if problem.id in correct_problems %} problem-card-shell--solved{% elif problem.id in wrong_problems %} problem-card-shell--retry{% elif problem.id in pending_problems %} problem-card-shell--pending{% else %} problem-card-shell--unsolved{% endif %}{% else %} problem-card-shell--discover{% endif %}">
+    <a href="{% url 'problems:problem_detail' problem.id %}" class="problem-card">
         <div class="problem-card-topline">
             <span class="problem-category-tag">{{ problem.get_category_display }}</span>
-            <span class="problem-difficulty" aria-label="Difficulté {{ problem.difficulty }} sur 5">{{ problem.difficulty|stars }}</span>
         </div>
         <h2>{{ problem.title }}</h2>
+        <div class="problem-card-meta">
+            <span class="problem-card-rating">{% difficulty_stars problem.difficulty %}<span class="problem-card-rating-value">{{ problem.difficulty }}/5</span></span>
+        </div>
         {% if problem.author %}<p class="problem-card-author"><i class="bi bi-person" aria-hidden="true"></i> {{ problem.author.username }}</p>{% endif %}
         <p class="problem-card-excerpt">{% if problem.short_description %}{{ problem.short_description }}{% else %}{{ problem.statement|statement_excerpt:25 }}{% endif %}</p>
         <div class="problem-card-footer">
@@ -96,6 +109,8 @@
             <span class="problem-card-score">{{ problem.get_score }} pts <i class="bi bi-arrow-up-right" aria-hidden="true"></i></span>
         </div>
     </a>
+    {% if user.is_authenticated %}<form method="post" action="{% url 'problems:toggle_saved_problem' problem.pk %}" class="problem-save-form">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button type="submit" class="problem-save-button{% if problem.id in saved_problem_ids %} is-saved{% endif %}" aria-label="{% if problem.id in saved_problem_ids %}Retirer {{ problem.title }} de la liste à revoir{% else %}Ajouter {{ problem.title }} à la liste à revoir{% endif %}" title="{% if problem.id in saved_problem_ids %}Retirer de la liste à revoir{% else %}Ajouter à la liste à revoir{% endif %}"><i class="bi {% if problem.id in saved_problem_ids %}bi-bookmark-fill{% else %}bi-bookmark{% endif %}" aria-hidden="true"></i></button></form>{% endif %}
+    </div>
     {% endfor %}
 </div>
 {% else %}
@@ -112,3 +127,4 @@
 </div>
 
 {% endblock %}
+{% block extra_js %}<script src="{% static 'js/problem-filters.js' %}" defer></script>{% endblock %}

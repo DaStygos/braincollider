@@ -20,6 +20,7 @@ class Topic(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     tags = models.ManyToManyField(Tag, blank=True, related_name="topics")
+    problems = models.ManyToManyField("problems.Problem", blank=True, related_name="forum_topics")
 
     class Meta:
         ordering = ["-updated_at", "-created_at"]

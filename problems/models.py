@@ -12,11 +12,11 @@ CATEGORY_CHOICES = [
 ]
 
 DIFFICULTY_CHOICES = [
-    (1, "★☆☆☆☆"),
-    (2, "★★☆☆☆"),
-    (3, "★★★☆☆"),
-    (4, "★★★★☆"),
-    (5, "★★★★★"),
+    (1, "1 sur 5"),
+    (2, "2 sur 5"),
+    (3, "3 sur 5"),
+    (4, "4 sur 5"),
+    (5, "5 sur 5"),
 ]
 
 BAREME = {
@@ -107,3 +107,13 @@ class SubmissionComment(models.Model):
 
     def __str__(self):
         return f"Commentaire de {self.author.username} sur {self.submission_id}"
+
+
+class SavedProblem(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="saved_problems")
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE, related_name="saved_by")
+    saved_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["user", "problem"], name="unique_saved_problem_per_user")]
+        ordering = ["-saved_at"]

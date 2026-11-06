@@ -7,7 +7,7 @@ from django import template
 from django.conf import settings
 from django.contrib.staticfiles import finders
 from django.templatetags.static import static
-from django.utils.html import escape, format_html
+from django.utils.html import escape, format_html, format_html_join
 from django.utils.safestring import mark_safe
 from django.utils.text import Truncator
 
@@ -51,6 +51,25 @@ def stars(number):
     filled = int(number)
     empty = 5 - filled
     return f"★" * filled + f"☆" * empty
+
+
+@register.simple_tag
+def difficulty_stars(number):
+    difficulty = max(0, min(5, int(number)))
+    icons = [
+        ("bi-star-fill" if index < difficulty else "bi-star",)
+        for index in range(5)
+    ]
+    rendered_icons = format_html_join(
+        "",
+        '<i class="bi {}" aria-hidden="true"></i>',
+        icons,
+    )
+    return format_html(
+        '<span class="difficulty-stars" role="img" aria-label="Difficulté {} sur 5">{}</span>',
+        difficulty,
+        rendered_icons,
+    )
 
 
 @register.filter

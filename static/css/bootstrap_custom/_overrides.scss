@@ -1566,6 +1566,87 @@ footer a:focus {
   gap: 1rem;
 }
 
+.problem-card-shell {
+  position: relative;
+  min-width: 0;
+  border: 2px solid var(--bc-status-neutral-border);
+  border-radius: 1rem;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.problem-card-shell--solved {
+  border-color: var(--bc-status-solved-border);
+}
+
+.problem-card-shell--pending {
+  border-color: var(--bc-status-pending-border);
+}
+
+.problem-card-shell--retry {
+  border-color: var(--bc-status-retry-border);
+}
+
+.problem-card-shell--unsolved,
+.problem-card-shell--discover {
+  border-color: var(--bc-status-neutral-border);
+}
+
+.problem-card-shell--solved:hover,
+.problem-card-shell--solved:focus-within {
+  border-color: var(--bc-status-solved-border);
+}
+
+.problem-card-shell--pending:hover,
+.problem-card-shell--pending:focus-within {
+  border-color: var(--bc-status-pending-border);
+}
+
+.problem-card-shell--retry:hover,
+.problem-card-shell--retry:focus-within {
+  border-color: var(--bc-status-retry-border);
+}
+
+.problem-card-shell--unsolved:hover,
+.problem-card-shell--unsolved:focus-within,
+.problem-card-shell--discover:hover,
+.problem-card-shell--discover:focus-within {
+  border-color: var(--bc-status-neutral-border);
+}
+
+.problem-card-shell:hover,
+.problem-card-shell:focus-within {
+  transform: translateY(-2px);
+  box-shadow: 0 13px 30px rgba(44, 55, 120, 0.09);
+}
+
+.problem-save-form {
+  position: absolute;
+  top: 0.8rem;
+  right: 0.8rem;
+  z-index: 2;
+}
+
+.problem-save-button {
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  place-items: center;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #596579;
+  font-size: 1.1rem;
+}
+
+.problem-save-button:hover,
+.problem-save-button.is-saved {
+  color: #c83f59;
+}
+
+.problem-card-topline {
+  padding-right: 2.5rem;
+}
+
 .problem-card {
   display: flex;
   min-width: 0;
@@ -1589,6 +1670,20 @@ footer a:focus {
   color: inherit;
 }
 
+.problem-card {
+  border: 0;
+  border-radius: 0.8rem;
+  box-shadow: none;
+}
+
+.problem-card:hover,
+.problem-card:focus-visible {
+  transform: none;
+  border: 0;
+  box-shadow: none;
+  background-color: var(--bc-surface-tint);
+}
+
 .problem-card-topline,
 .problem-card-footer {
   display: flex;
@@ -1609,12 +1704,50 @@ footer a:focus {
   font-weight: 700;
 }
 
-.problem-difficulty {
-  color: #c0862c;
-  font-size: 0.9rem;
-  letter-spacing: 0.1em;
+.difficulty-stars {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  width: 5.2rem;
+  color: var(--bc-muted);
+  font-size: 0.78rem;
+  line-height: 1;
   white-space: nowrap;
 }
+
+.difficulty-stars .bi-star-fill {
+  color: #d99a27;
+}
+
+.difficulty-stars .bi-star {
+  opacity: 0.48;
+}
+
+.problem-card-meta,
+.problem-card-rating {
+  display: inline-flex;
+  align-items: center;
+}
+
+.problem-card-meta {
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: -0.1rem 0 0.75rem;
+  color: var(--bc-muted);
+  font-size: 0.76rem;
+}
+
+.problem-card-rating {
+  gap: 0.45rem;
+}
+
+.problem-card-rating-value {
+  color: var(--bc-muted);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
 
 .problem-card h2 {
   margin: 1rem 0 0.55rem;

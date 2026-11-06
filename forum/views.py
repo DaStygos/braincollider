@@ -75,7 +75,7 @@ def topic_list(request):
 @require_GET
 def topic_detail(request, topic_id):
     topic = get_object_or_404(
-        Topic.objects.select_related("author").prefetch_related("tags"),
+        Topic.objects.select_related("author").prefetch_related("tags", "problems"),
         pk=topic_id,
     )
     form = PostForm()

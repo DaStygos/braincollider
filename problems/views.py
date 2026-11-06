@@ -11,6 +11,9 @@ from .models import (
 )
 from django.contrib.auth.models import User
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+from django.utils.http import url_has_allowed_host_and_scheme
 from core.rate_limits import rate_limit
 
 
@@ -98,6 +101,8 @@ def index(request):
     elif status == "unsolved":
         submitted_problem_ids = correct_problems | wrong_problems | pending_problems
         problems = problems.exclude(id__in=submitted_problem_ids)
+    elif status == "saved" and request.user.is_authenticated:
+        problems = problems.filter(saved_by__user=request.user)
 
     problems = problems.order_by("category", "difficulty", "title")
     problem_count = problems.count()
@@ -117,11 +122,31 @@ def index(request):
         "selected_difficulty": difficulty,
         "selected_author": author,
         "selected_status": status,
+        "saved_problem_ids": set(request.user.saved_problems.values_list("problem_id", flat=True)) if request.user.is_authenticated else set(),
         "correct_problems": correct_problems,
         "wrong_problems": wrong_problems,
         "pending_problems": pending_problems,
     }
     return render(request, "problems/index.html", context)
+
+
+@login_required
+@require_POST
+def toggle_saved_problem(request, pk):
+    problem = get_object_or_404(Problem, pk=pk)
+    saved, created = request.user.saved_problems.get_or_create(problem=problem)
+    if not created:
+        saved.delete()
+        messages.info(request, "Problème retiré de votre liste à revoir.")
+    else:
+        messages.success(request, "Problème ajouté à votre liste à revoir.")
+    next_url = request.POST.get("next", "")
+    if not url_has_allowed_host_and_scheme(
+        next_url, allowed_hosts={request.get_host()}
+    ):
+        next_url = "problems:problem_detail"
+        return redirect(next_url, pk=problem.pk)
+    return redirect(next_url)
 
 
 @login_required_for_post
@@ -203,6 +228,7 @@ def problem_detail(request, pk):
         "problems/problem_detail.html",
         {
             "problem": problem,
+            "saved_problem_ids": set(request.user.saved_problems.values_list("problem_id", flat=True)) if request.user.is_authenticated else set(),
             "submission": submission,
             "previous_submissions": previous_submissions,
         },

@@ -1,6 +1,11 @@
 from django import forms
 
 from .models import Post, Topic
+from problems.models import Problem
+
+
+class ProblemSearchSelect(forms.SelectMultiple):
+    template_name = "django/forms/widgets/select.html"
 
 
 class TopicForm(forms.ModelForm):
@@ -19,8 +24,8 @@ class TopicForm(forms.ModelForm):
 
     class Meta:
         model = Topic
-        fields = ["title", "description", "tags"]
-        labels = {"title": "Titre du sujet", "tags": "Étiquettes"}
+        fields = ["title", "description", "tags", "problems"]
+        labels = {"title": "Titre du sujet", "tags": "Étiquettes", "problems": "Problèmes associés"}
         help_texts = {"tags": "Choisissez les étiquettes qui décrivent votre sujet."}
         widgets = {
             "title": forms.TextInput(
@@ -29,7 +34,22 @@ class TopicForm(forms.ModelForm):
             "tags": forms.CheckboxSelectMultiple(
                 attrs={"class": "form-check-input"}
             ),
+            "problems": ProblemSearchSelect(
+                attrs={
+                    "class": "form-select",
+                    "size": 8,
+                    "data-problem-picker": "true",
+                    "aria-label": "Problèmes associés",
+                }
+            ),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["problems"].queryset = Problem.objects.order_by("title")
+        self.fields["problems"].label_from_instance = (
+            lambda problem: f"{problem.title} · {problem.get_category_display()}"
+        )
 
 
 class PostForm(forms.ModelForm):

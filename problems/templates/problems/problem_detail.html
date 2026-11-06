@@ -13,10 +13,11 @@
   <h1 class="h3 mb-0">{{ problem.title }}</h1>
   <div class="d-flex flex-wrap gap-2" aria-label="Informations du problème">
     <span class="badge text-bg-secondary">{{ problem.get_category_display }}</span>
-    <span class="badge text-bg-warning text-dark">{{ problem.get_difficulty_display }}</span>
+    <span class="badge text-bg-warning text-dark">Difficulté {% difficulty_stars problem.difficulty %}</span>
     <span class="badge text-bg-primary">{{ problem.get_score }} pt{{ problem.get_score|pluralize }}</span>
   </div>
 </header>
+{% if user.is_authenticated %}<form method="post" action="{% url 'problems:toggle_saved_problem' problem.pk %}" class="mb-3">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="btn btn-sm btn-outline-primary" type="submit">{% if problem.id in saved_problem_ids %}<i class="bi bi-bookmark-fill me-1" aria-hidden="true"></i>Retirer de ma liste à revoir{% else %}<i class="bi bi-bookmark me-1" aria-hidden="true"></i>Ajouter à ma liste à revoir{% endif %}</button></form>{% endif %}
 
 <div class="row g-4 align-items-start">
 
@@ -81,7 +82,7 @@
           <dt class="col-6 text-muted fw-normal">Auteur</dt>
           <dd class="col-6 mb-1">{{ problem.author.username|default:"Non renseigné" }}</dd>
           <dt class="col-6 text-muted fw-normal">Difficulté</dt>
-          <dd class="col-6 mb-1">{{ problem.get_difficulty_display }}</dd>
+          <dd class="col-6 mb-1">{% difficulty_stars problem.difficulty %}</dd>
           <dt class="col-6 text-muted fw-normal">Score</dt>
           <dd class="col-6 mb-1">{{ problem.get_score }} pt{{ problem.get_score|pluralize }}</dd>
           <dt class="col-6 text-muted fw-normal">Soumissions</dt>
